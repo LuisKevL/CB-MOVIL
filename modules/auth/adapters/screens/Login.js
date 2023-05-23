@@ -5,13 +5,14 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faGoogle } from '@fortawesome/free-brands-svg-icons';
 import Iconn from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import AxiosClient from '../../../../config/utils/AxiosClient';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
 import Axios from 'axios';
 import Profile from '../../../profile/adapters/screens/Profile';
+import Token from './Token';
 
 const Login = () => {
+    //MANDAR TOKEN
+
+
     //modal y email
     const [modalVisible, setModalVisible] = useState(false);
     const [recoveryEmail, setRecoveryEmail] = useState('');
@@ -26,7 +27,7 @@ const Login = () => {
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
-
+    //FUNCION PARA PODER HACER EL LOGIN
     const handleLogin = async () => {
         try {
             const response = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/clients/', {
@@ -56,7 +57,7 @@ const Login = () => {
             }
         }
     };
-
+    //////////////////////////////////////////////////////////////////////////////////////
 
     const handleLogout = () => {
         setIsLoggedIn(false);
@@ -119,28 +120,13 @@ const Login = () => {
                                     {/* modal -------------------------------------------------------------------------- */}
                                     <View>
                                         <TouchableOpacity onPress={() => setModalVisible(true)}>
-                                            <Text style={styles.forgotPasswordText}>Recuperar Contraseña</Text>
+                                            <Text style={styles.forgotPasswordText}>Enviar Token *Recuperar Contra*</Text>
                                         </TouchableOpacity>
 
                                         <Modal visible={modalVisible} animationType="slide" transparent={true}>
-                                            <View style={styles.modalContainer}>
-                                                <View style={styles.modalContent}>
-                                                    <Text style={styles.modalTitle}>Recuperar Contraseña</Text>
 
-                                                    <TextInput
-                                                        style={styles.modalInput}
-                                                        placeholder="Correo electrónico"
-                                                        value={recoveryEmail}
-                                                        onChangeText={setRecoveryEmail}
-                                                    />
+                                            <Token modalVisible={modalVisible} setModalVisible={setModalVisible} />
 
-                                                    <Button title="Enviar" onPress={handleLogin} />
-
-                                                    <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                                        <Text style={styles.modalCloseText}>Cerrar</Text>
-                                                    </TouchableOpacity>
-                                                </View>
-                                            </View>
                                         </Modal>
 
                                     </View>
@@ -231,8 +217,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'green',
         textAlign: 'center',
         width: '50%',
-      },
-      
+    },
+
     loginButtonText: {
         color: 'white',
         fontSize: 15,
@@ -302,16 +288,17 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         flex: 1,
+        height: '100%',
+
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        width: '100%',
     },
     modalContent: {
-        backgroundColor: 'white',
         padding: 20,
         borderRadius: 10,
-        width: "90%"
+        width: '80%',
+        height: '100%',
+
     },
     modalTitle: {
         fontSize: 18,

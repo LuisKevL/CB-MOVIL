@@ -10,7 +10,7 @@ import Contraseña from './modules/auth/adapters/screens/Contraseña';
 import Token from './modules/auth/adapters/screens/Token';
 export default function App() {
   return (
-    <Login  />
+    <Navigation  />
   );
 }
 
