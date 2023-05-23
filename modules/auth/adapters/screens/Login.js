@@ -9,11 +9,12 @@ import AxiosClient from '../../../../config/utils/AxiosClient';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import Axios from 'axios';
+import Profile from '../../../profile/adapters/screens/Profile';
 
 const HomeScreen = ({ userData, onLogout }) => {
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Bienvenido, {userData.name}</Text>
+            <Text style={styles.text}>Bienvenid@: {userData.name}</Text>
             <Text style={styles.text}>Apellidos: {userData.lastName}</Text>
             <Text style={styles.text}>Correo electrónico: {userData.email}</Text>
             <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>

@@ -5,7 +5,6 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faGoogle, faKeyboard, faInputText } from '@fortawesome/free-brands-svg-icons';
 import Iconn from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
 function Profile() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
