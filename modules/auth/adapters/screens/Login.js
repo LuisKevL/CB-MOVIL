@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ImageBackground, Dimensions, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ImageBackground, Dimensions, TextInput, Button, Modal } from 'react-native';
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -11,20 +11,12 @@ import * as yup from 'yup';
 import Axios from 'axios';
 import Profile from '../../../profile/adapters/screens/Profile';
 
-const HomeScreen = ({ userData, onLogout }) => {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Bienvenid@: {userData.name}</Text>
-            <Text style={styles.text}>Apellidos: {userData.lastName}</Text>
-            <Text style={styles.text}>Correo electrónico: {userData.email}</Text>
-            <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
-                <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
-            </TouchableOpacity>
-        </View>
-    );
-};
-
 const Login = () => {
+    //modal y email
+    const [modalVisible, setModalVisible] = useState(false);
+    const [recoveryEmail, setRecoveryEmail] = useState('');
+
+    //
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -38,23 +30,33 @@ const Login = () => {
     const handleLogin = async () => {
         try {
             const response = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/clients/', {
-                params: { email, password },
+                params: { email },
             });
+
             console.log('Inicio de sesión exitoso');
 
             const { data } = response.data;
             const user = data.find((user) => user.email === email);
 
             if (user) {
-                setIsLoggedIn(true);
-                setUserData({ name: user.name, lastName: user.lastName, email: user.email });
+                if (user.password === password) {
+                    setIsLoggedIn(true);
+                    setUserData({ name: user.name, lastName: user.lastName, email: user.email });
+                } else {
+                    console.error('Contraseña incorrecta');
+                }
             } else {
                 console.error('Usuario no encontrado');
             }
         } catch (error) {
-            console.error('Error al iniciar sesión:', error.message);
+            if (error.response && error.response.status === 404) {
+                console.error('Correo o contraseña no encontrados');
+            } else {
+                console.error('Error al iniciar sesión:', error.message);
+            }
         }
     };
+
 
     const handleLogout = () => {
         setIsLoggedIn(false);
@@ -65,7 +67,7 @@ const Login = () => {
         <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
             <View style={{ flex: 1, backgroundColor: '#ffffff', width: '100%' }}>
                 {isLoggedIn ? (
-                    <HomeScreen userData={userData} onLogout={handleLogout} />
+                    <Profile name={userData.name} lastName={userData.lastName} email={userData.email} handleLogout={handleLogout} />
                 ) : (
                     <>
                         <ImageBackground
@@ -114,9 +116,37 @@ const Login = () => {
                                     <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                                         <Text style={styles.loginButtonText}>Iniciar sesión</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity>
-                                        <Text style={styles.forgotPasswordText}>Recuperar Contraseña</Text>
-                                    </TouchableOpacity>
+                                    {/* modal -------------------------------------------------------------------------- */}
+                                    <View>
+                                        <TouchableOpacity onPress={() => setModalVisible(true)}>
+                                            <Text style={styles.forgotPasswordText}>Recuperar Contraseña</Text>
+                                        </TouchableOpacity>
+
+                                        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+                                            <View style={styles.modalContainer}>
+                                                <View style={styles.modalContent}>
+                                                    <Text style={styles.modalTitle}>Recuperar Contraseña</Text>
+
+                                                    <TextInput
+                                                        style={styles.modalInput}
+                                                        placeholder="Correo electrónico"
+                                                        value={recoveryEmail}
+                                                        onChangeText={setRecoveryEmail}
+                                                    />
+
+                                                    <Button title="Enviar" onPress={handleLogin} />
+
+                                                    <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                                        <Text style={styles.modalCloseText}>Cerrar</Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            </View>
+                                        </Modal>
+
+                                    </View>
+
+
+                                    {/*-------------------------------------------------------------------------------------------- */}
                                 </View>
                                 <View style={styles.loginWithTextContainer}>
                                     <Text style={styles.loginWithText}>Loguear Con:</Text>
@@ -192,23 +222,28 @@ const styles = StyleSheet.create({
     },
     loginButton: {
         flex: 1,
-        flexDirection: 'row',
         alignItems: 'center',
+        marginLeft: "25%",
+        justifyContent: 'center',
         backgroundColor: '#3b5998',
         borderRadius: 10,
-        paddingHorizontal: 16,
+        paddingVertical: 10,
         backgroundColor: 'green',
-        minHeight: 40,
-    },
+        textAlign: 'center',
+        width: '50%',
+      },
+      
     loginButtonText: {
         color: 'white',
         fontSize: 15,
         fontWeight: 'bold',
+        textAlign: "center"
     },
     forgotPasswordText: {
         color: 'black',
         fontWeight: 'bold',
         marginTop: 10,
+        textAlign: "center"
     },
     loginWithTextContainer: {
         flex: 1,
@@ -264,6 +299,35 @@ const styles = StyleSheet.create({
         bottom: 50,
         borderTopStartRadius: 60,
         borderTopEndRadius: 60,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        width: '100%',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        width: "90%"
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    modalInput: {
+        borderWidth: 1,
+        borderColor: 'gray',
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 10,
+    },
+    modalCloseText: {
+        color: 'blue',
+        marginTop: 10,
     },
 });
 

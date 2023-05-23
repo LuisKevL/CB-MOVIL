@@ -5,11 +5,12 @@ import Cita from './modules/cita/adapters/screens/Cita';
 import Profile from './modules/profile/adapters/screens/Profile';
 import Productos from './modules/productos/adapters/screens/Productos';
 import Registro from './modules/auth/adapters/screens/Registro';
+import LoginStack from './config/stack/LoginStack';
+import Contraseña from './modules/auth/adapters/screens/Contraseña';
+import Token from './modules/auth/adapters/screens/Token';
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Registro />
-    </View>
+    <Login  />
   );
 }
 

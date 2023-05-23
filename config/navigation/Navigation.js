@@ -1,16 +1,50 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ImageBackground, Dimensions, TextInput } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
-//screens
-import Profile from '../../modules/profile/adapters/screens/Profile';
-import Login from '../../modules/auth/adapters/screens/Login';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Icon } from "@rneui/base";
 
- function Navigation () {
+import LoginStack from "../stack/LoginStack";
+import Registro from "../../modules/auth/adapters/screens/Registro";
+import Login from "../../modules/auth/adapters/screens/Login";
+const Tab = createBottomTabNavigator();
+export default function Navigation() {
   return (
-        <View>
-            <Text>Hola</Text>
-        </View>
+    <NavigationContainer>
+      <Tab.Navigator
+        initialRouteName="profile"
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ color }) => screenOptions(route, color),
+          tabBarActiveTintColor: "tomato",
+          tabBarInactiveTintColor: "gray",
+          headerShown: false,
+        })}
+      >
+        <Tab.Screen
+          name="Login"
+          options={{ title: 'Login' }}
+          component={Login}
+        />
+
+        <Tab.Screen
+          name="Registro"
+          options={{ title: 'Registro' }}
+          component={Registro}
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
   )
 }
-export default Navigation;
+const screenOptions = (route, color) => {
+  let iconName;
+  switch (route.name) {
+    case "Login":
+      iconName = "account";
+      break;
+    case "Registro":
+      iconName = "information";
+      break;
+  }
+  return (
+    <Icon type="material-community" name={iconName} size={22} color={color} />
+  );
+};

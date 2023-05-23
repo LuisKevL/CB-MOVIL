@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Dimensions } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Dimensions, Button } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faGoogle, faKeyboard, faInputText } from '@fortawesome/free-brands-svg-icons';
 import Iconn from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome';
-function Profile() {
+const Profile = ({ name, lastName,email, handleLogout }) => {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
       <ImageBackground source={require('../../../../assets/fondo.png')}
@@ -25,7 +25,7 @@ function Profile() {
               </View>
               <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2, marginTop: 10 }}>Nombre:</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ flex: 1 }}>Luis Kevin</Text>
+              <Text>{name}</Text>
                 <Icon name="user" style={{ color: "black" }} />
               </View>
             </View>
@@ -33,7 +33,7 @@ function Profile() {
             <View style={{ borderColor: '#4632A1', marginTop: 10 }}>
               <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Apellidos:</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ flex: 1 }}>Lóp. Oc.</Text>
+                <Text style={{ flex: 1 }}>{lastName}</Text>
                 <Icon name="id-card" style={{ color: "black" }} />
               </View>
             </View>
@@ -41,7 +41,7 @@ function Profile() {
             <View style={{ borderColor: '#4632A1', marginTop: 10 }}>
               <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Correo Electrónico:</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ flex: 1 }}>20213tn118@utez.edu.mx</Text>
+                <Text style={{ flex: 1 }}>{email}</Text>
                 <Icon name="envelope" style={{ color: "black" }} />
               </View>
             </View>
@@ -73,24 +73,8 @@ function Profile() {
                 }}>Modificar Datos</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={{
-                flex: 1,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 10,
-                paddingVertical: 8,
-                paddingHorizontal: 16,
-                marginHorizontal: 5,
-                borderWidth: 1,
-                borderColor: 'green',
-              }} >
-                <Text style={{
-                  color: 'green',
-                  fontSize: 15,
-                  fontWeight: 'bold',
-                }}>Ver Citas</Text>
-              </TouchableOpacity>
+              <Button title="Cerrar sesión" onPress={handleLogout} />
+
             </View>
           </View>
         </View>
@@ -161,3 +145,21 @@ const styles = StyleSheet.create({
     fontSize: 20,
   }
 })
+
+/*
+import React from 'react';
+import { View, Text, Button } from 'react-native';
+
+const Profile = ({ name, lastName, handleLogout }) => {
+  return (
+    <View style={{ marginTop: 30 }}>
+      <Text>Nombre: {name}</Text>
+      <Text>Apellido: {lastName}</Text>
+      <Button title="Cerrar sesión" onPress={handleLogout} />
+    </View>
+  );
+};
+
+export default Profile;
+
+*/
