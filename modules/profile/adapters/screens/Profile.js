@@ -1,51 +1,66 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Dimensions, Button, Modal, Alert } from 'react-native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { faFacebookF, faGoogle, faKeyboard, faInputText } from '@fortawesome/free-brands-svg-icons';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Dimensions, Button, Modal, Alert, ActivityIndicator } from 'react-native';
 import Iconn from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Axios from 'axios';
+const Profile = ({ name, lastName, email, id, handleLogout }) => {
+  const [isLoading, setLoading] = useState(false);
 
-const Profile = ({ name, lastName, email, handleLogout }) => {
   const [isModalVisible, setModalVisible] = useState(false);
-  const [modifiedName, setModifiedName] = useState(name);
-  const [modifiedLastName, setModifiedLastName] = useState(lastName);
-  const [modifiedEmail, setModifiedEmail] = useState(email);
-  const [modifiedPassword, setModifiedPassword] = useState('');
+  const [editedName, setEditedName] = useState(name);
+  const [editedLastName, setEditedLastName] = useState(lastName);
+  const [editedEmail, setEditedEmail] = useState(email);
 
   const handleModifyData = () => {
-    setModifiedName(name);
-    setModifiedLastName(lastName);
-    setModifiedEmail(email);
-    setModifiedPassword('');
     setModalVisible(true);
   };
 
+  const cambiaDatos = async () => {
+    Alert.alert(
+      'Confirmación',
+      '¿Estás seguro de realizar los cambios?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Aceptar',
+          onPress: async () => {
+            try {
+              setLoading(true); // Mostrar el spinner de carga
 
-  const handleSaveChanges = async () => {
-    try {
-      // Realizar la solicitud PUT para actualizar los datos
-      const response = await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/clients/', {
-        name: modifiedName,
-        lastName: modifiedLastName,
-        email: modifiedEmail
-      });
+              await Axios.put("http://192.168.0.232:8080/api-beautypalace/user/data/", {
+                id,
+                name: editedName,
+                lastName: editedLastName,
+                email: editedEmail,
+              });
 
-      // Verificar la respuesta del servidor
-      if (response.status === 200) {
-        // Datos actualizados exitosamente
-        Alert.alert('Éxito', 'Los datos se han actualizado correctamente.');
-        setModalVisible(false);
-      } else {
-        // Error al actualizar los datos
-        Alert.alert('Error', 'No se pudieron actualizar los datos. Por favor, intenta nuevamente.');
-      }
-    } catch (error) {
-      // Error de conexión o solicitud
-      Alert.alert('Error', 'Ocurrió un error al enviar la solicitud. Por favor, verifica tu conexión.');
-    }
+              // Actualizar los estados name, lastName y email si es necesario
+              setEditedName(editedName);
+              setEditedLastName(editedLastName);
+              setEditedEmail(editedEmail);
+              console.log("Cambio de datos exitoso");
+            } catch (error) {
+              console.log("Error al cambiar los datos", error.message);
+            } finally {
+              setLoading(false); // Ocultar el spinner de carga
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
+
+
+  useEffect(() => {
+    setEditedName(name);
+    setEditedLastName(lastName);
+    setEditedEmail(email);
+  }, [name, lastName, email]);
 
 
   return (
@@ -74,6 +89,7 @@ const Profile = ({ name, lastName, email, handleLogout }) => {
               <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Apellidos:</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={{ flex: 1 }}>{lastName}</Text>
+
                 <Icon name="id-card" style={{ color: "black" }} />
               </View>
             </View>
@@ -120,8 +136,26 @@ const Profile = ({ name, lastName, email, handleLogout }) => {
                   Modificar Datos
                 </Text>
               </TouchableOpacity>
+              {/*BOTON CERRAR SESIÓN */}
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 10,
+                  paddingVertical: 8,
+                  paddingHorizontal: 16,
+                  marginHorizontal: 5,
+                  borderWidth: 1,
+                  borderColor: 'green',
+                }}
+                onPress={handleLogout}
+              >
+                <Text style={{ color: 'green', fontSize: 15, fontWeight: 'bold' }}>Cerrar sesión</Text>
+              </TouchableOpacity>
+              {/* */}
 
-              <Button title="Cerrar sesión" onPress={handleLogout} />
             </View>
           </View>
         </View>
@@ -131,41 +165,67 @@ const Profile = ({ name, lastName, email, handleLogout }) => {
       {isModalVisible && (
         <Modal visible={isModalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Modificar Datos</Text>
+            {isLoading ? (
+              <View style={styles.spinnerContainer}>
+                <View style={styles.spinnerBox}>
+                  <ActivityIndicator size="large" color="blue" />
+                  <Text style={styles.spinnerText}>Espere un momento...</Text>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Modificar Datos</Text>
+                <Text>Su ID: {id}</Text>
+                <TextInput style={{ display: "none" }}>{id}</TextInput>
+                <TextInput
+                  placeholder="Ingrese su Nombre"
+                  style={styles.modalInput}
+                  value={editedName}
+                  onChangeText={(text) => setEditedName(text)}
+                />
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="Ingrese sus Apellidos"
+                  value={editedLastName}
+                  onChangeText={(text) => setEditedLastName(text)}
+                />
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="Ingrese su Correo"
+                  value={editedEmail}
+                  onChangeText={(text) => setEditedEmail(text)}
+                />
+                <TouchableOpacity
+                  style={{
+                    borderRadius: 10,
+                    paddingVertical: 8,
+                    paddingHorizontal: 16,
+                    marginHorizontal: 5,
+                    backgroundColor: "#0E85E8",
+                    marginBottom: 30,
+                  }}
+                  onPress={cambiaDatos}
+                >
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 15,
+                      fontWeight: "bold",
+                      textAlign: "center",
+                    }}
+                  >
+                    Cambiar Datos
+                  </Text>
+                </TouchableOpacity>
 
-              <TextInput
-                style={styles.modalInput}
-                placeholder="Nombre"
-                editable={true}
-                value={modifiedName}
-                onChangeText={setModifiedName}
-              />
-
-              <TextInput
-                style={styles.modalInput}
-                placeholder="Apellido"
-                editable={true}
-                value={modifiedLastName}
-                onChangeText={setModifiedLastName}
-              />
-
-              <TextInput
-                style={styles.modalInput}
-                placeholder="Correo electrónico"
-                editable={true}
-                value={modifiedEmail}
-                onChangeText={setModifiedEmail}
-              />
-              <Text style={styles.texto}>Para cambiar la contraseña tendrá que volver al login</Text>
-              <Button title="Guardar cambios" onPress={handleSaveChanges} />
-
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text style={styles.modalCloseText}>Cerrar</Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                  <Text style={styles.modalCloseText}>Cerrar</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </Modal>
+
 
       )}
     </ScrollView>
@@ -267,5 +327,21 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
     marginTop: 2,
-  }
+  },
+  spinnerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  spinnerBox: {
+    width: 200,
+    height: 200,
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 0,
+    shadowColor: "transparent",
+  },
 });

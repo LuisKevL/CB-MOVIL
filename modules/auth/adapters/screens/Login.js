@@ -22,7 +22,7 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userData, setUserData] = useState({ name: '', email: '', lastName: '' });
+    const [userData, setUserData] = useState({ name: '', email: '', lastName: '', id: '' });
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -42,7 +42,7 @@ const Login = () => {
             if (user) {
                 if (user.password === password) {
                     setIsLoggedIn(true);
-                    setUserData({ name: user.name, lastName: user.lastName, email: user.email });
+                    setUserData({ name: user.name, lastName: user.lastName, email: user.email, id: user.id });
                 } else {
                     console.error('Contraseña incorrecta');
                 }
@@ -68,7 +68,7 @@ const Login = () => {
         <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
             <View style={{ flex: 1, backgroundColor: '#ffffff', width: '100%' }}>
                 {isLoggedIn ? (
-                    <Profile name={userData.name} lastName={userData.lastName} email={userData.email} password={userData.password} handleLogout={handleLogout} />
+                    <Profile name={userData.name} lastName={userData.lastName} email={userData.email} password={userData.password} id={userData.id}  handleLogout={handleLogout} />
                 ) : (
                     <>
                         <ImageBackground

@@ -8,24 +8,15 @@ const Token = ({ modalVisible, setModalVisible }) => {
 
   const handlePasswordRecovery = async () => {
     try {
-      // Realizar una consulta para verificar si el correo existe en la base de datos
-      const checkEmailResponse = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/checkEmail', {
-        params: { email }
-      });
+      await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/token/', { email });
+      Alert.alert('Token enviado exitosamente');
   
-      if (checkEmailResponse.data.exists) {
-        // El correo existe en la base de datos, enviar el token
-        await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/token/', { email });
-        Alert.alert('Token enviado exitosamente');
-  
-        // Realiza cualquier acción adicional después de enviar el token
-      } else {
-        Alert.alert('El correo electrónico no existe en la base de datos');
-      }
+      // Realiza cualquier acción adicional después de enviar el token
     } catch (error) {
       console.error('Error al enviar el Token:', error.message);
     }
   };
+  
 
   return (
     <Modal visible={modalVisible} animationType="slide" transparent={true}>
