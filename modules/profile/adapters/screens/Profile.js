@@ -15,6 +15,9 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
     setModalVisible(true);
   };
 
+
+
+
   const cambiaDatos = async () => {
     Alert.alert(
       'Confirmación',
@@ -42,6 +45,8 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
               setEditedLastName(editedLastName);
               setEditedEmail(editedEmail);
               console.log("Cambio de datos exitoso");
+              setModalVisible(false); // Cerrar el modal
+
             } catch (error) {
               console.log("Error al cambiar los datos", error.message);
             } finally {

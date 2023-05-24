@@ -10,12 +10,13 @@ const Token = ({ modalVisible, setModalVisible }) => {
     try {
       await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/token/', { email });
       Alert.alert('Token enviado exitosamente');
-  
+
       // Realiza cualquier acción adicional después de enviar el token
     } catch (error) {
       console.error('Error al enviar el Token:', error.message);
     }
   };
+
   
 
   return (
