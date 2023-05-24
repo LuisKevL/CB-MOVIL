@@ -68,7 +68,7 @@ const Login = () => {
         <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
             <View style={{ flex: 1, backgroundColor: '#ffffff', width: '100%' }}>
                 {isLoggedIn ? (
-                    <Profile name={userData.name} lastName={userData.lastName} email={userData.email} handleLogout={handleLogout} />
+                    <Profile name={userData.name} lastName={userData.lastName} email={userData.email} password={userData.password} handleLogout={handleLogout} />
                 ) : (
                     <>
                         <ImageBackground
@@ -117,17 +117,16 @@ const Login = () => {
                                     <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                                         <Text style={styles.loginButtonText}>Iniciar sesión</Text>
                                     </TouchableOpacity>
+
                                     {/* modal -------------------------------------------------------------------------- */}
                                     <View>
                                         <TouchableOpacity onPress={() => setModalVisible(true)}>
                                             <Text style={styles.forgotPasswordText}>Enviar Token *Recuperar Contra*</Text>
                                         </TouchableOpacity>
 
-                                        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+                                        <Token modalVisible={modalVisible} setModalVisible={setModalVisible} />
 
-                                            <Token modalVisible={modalVisible} setModalVisible={setModalVisible} />
-
-                                        </Modal>
+                                            
 
                                     </View>
 

@@ -1,17 +1,27 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Modal, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, Button, Modal, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
 import Axios from 'axios';
+import Contraseña from './Contraseña';
 
 const Token = ({ modalVisible, setModalVisible }) => {
   const [email, setEmail] = useState('');
 
   const handlePasswordRecovery = async () => {
     try {
-      await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/token/', { email });
-      console.log('Token enviado exitosamente');
-
-      // Realiza cualquier acción adicional después de enviar el token
-
+      // Realizar una consulta para verificar si el correo existe en la base de datos
+      const checkEmailResponse = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/checkEmail', {
+        params: { email }
+      });
+  
+      if (checkEmailResponse.data.exists) {
+        // El correo existe en la base de datos, enviar el token
+        await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/token/', { email });
+        Alert.alert('Token enviado exitosamente');
+  
+        // Realiza cualquier acción adicional después de enviar el token
+      } else {
+        Alert.alert('El correo electrónico no existe en la base de datos');
+      }
     } catch (error) {
       console.error('Error al enviar el Token:', error.message);
     }
@@ -27,11 +37,13 @@ const Token = ({ modalVisible, setModalVisible }) => {
             style={styles.modalInput}
             placeholder="Correo electrónico"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={text => setEmail(text)}
+            editable={true} // Asegúrate de que el TextInput sea editable
           />
 
           <Button title="Enviar Token" onPress={handlePasswordRecovery} />
 
+          <Contraseña />
           <TouchableOpacity onPress={() => setModalVisible(false)}>
             <Text style={styles.modalCloseText}>Cerrar</Text>
           </TouchableOpacity>
