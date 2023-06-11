@@ -15,9 +15,6 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
     setModalVisible(true);
   };
 
-
-
-
   const cambiaDatos = async () => {
     Alert.alert(
       'Confirmación',
@@ -107,13 +104,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
               </View>
             </View>
 
-            <View style={{ borderColor: '#4632A1', marginTop: 5 }}>
-              <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Contraseña:</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ flex: 1 }}>********</Text>
-                <Icon name="eye" style={{ color: "black" }} />
-              </View>
-            </View>
+
 
             <View style={{ marginTop: 15, height: 50, justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
               <TouchableOpacity

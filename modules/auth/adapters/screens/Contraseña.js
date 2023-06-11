@@ -15,16 +15,32 @@ const PasswordChangeScreen = () => {
                 password,
             };
 
-            const response = await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/tokenPassword/', requestBody);
-            Alert.alert('Contraseña cambiada exitosamente');
-            console.log('Respuesta:', response.data);
+            Alert.alert(
+                'Confirmación',
+                '¿Estás seguro de realizar esta acción?',
+                [
+                    {
+                        text: 'Cancelar',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Aceptar',
+                        onPress: async () => {
+                            const response = await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/tokenPassword/', requestBody);
+                            Alert.alert('Contraseña cambiada exitosamente');
+                            console.log('Respuesta:', response.data);
 
-            // Realiza cualquier acción adicional después de cambiar la contraseña
+                            // Realiza cualquier acción adicional después de cambiar la contraseña
+                        },
+                    },
+                ],
+                { cancelable: false }
+            );
         } catch (error) {
             Alert.alert('Error al cambiar contraseña', error.message);
-
         }
     };
+
 
     return (
         <View style={{ marginTop: 30 }}>
@@ -54,7 +70,7 @@ const PasswordChangeScreen = () => {
     );
 };
 
-styles = StyleSheet.create({ 
+styles = StyleSheet.create({
     modal: {
         marginBottom: 10,
         padding: 10,

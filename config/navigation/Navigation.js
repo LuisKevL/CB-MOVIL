@@ -11,7 +11,7 @@ export default function Navigation() {
   return (
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName="profile"
+        initialRouteName="Login"
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color }) => screenOptions(route, color),
           tabBarActiveTintColor: "tomato",
@@ -30,6 +30,7 @@ export default function Navigation() {
           options={{ title: 'Registro' }}
           component={Registro}
         />
+        
       </Tab.Navigator>
     </NavigationContainer>
   )

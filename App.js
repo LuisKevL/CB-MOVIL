@@ -8,9 +8,12 @@ import Registro from './modules/auth/adapters/screens/Registro';
 import LoginStack from './config/stack/LoginStack';
 import Contraseña from './modules/auth/adapters/screens/Contraseña';
 import Token from './modules/auth/adapters/screens/Token';
+import { NavigationContainer } from '@react-navigation/native';
 export default function App() {
   return (
-    <Navigation  />
+    <NavigationContainer>
+      <LoginStack />
+    </NavigationContainer>
   );
 }
 

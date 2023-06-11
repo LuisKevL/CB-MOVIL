@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ImageBackground, Dimensions, TextInput, Button, Modal } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faGoogle } from '@fortawesome/free-brands-svg-icons';
@@ -8,10 +8,12 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Axios from 'axios';
 import Profile from '../../../profile/adapters/screens/Profile';
 import Token from './Token';
+import AdminStack from '../../../../config/stack/AdminStack';
+const Login = (props) => {
+    const [isAdmin, setIsAdmin] = useState(false); // Nuevo estado para verificar si el usuario es un admin
 
-const Login = () => {
-    //MANDAR TOKEN
-
+    //navigation
+    const { navigation } = props;
 
     //modal y email
     const [modalVisible, setModalVisible] = useState(false);
@@ -30,19 +32,32 @@ const Login = () => {
     //FUNCION PARA PODER HACER EL LOGIN
     const handleLogin = async () => {
         try {
-            const response = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/clients/', {
+            const clientsResponse = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/clients/', {
+                params: { email },
+            });
+            const adminsResponse = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/admins/', {
                 params: { email },
             });
 
             console.log('Inicio de sesión exitoso');
 
-            const { data } = response.data;
-            const user = data.find((user) => user.email === email);
+            const clientsData = clientsResponse.data.data;
+            const adminsData = adminsResponse.data.data;
 
-            if (user) {
-                if (user.password === password) {
-                    setIsLoggedIn(true);
-                    setUserData({ name: user.name, lastName: user.lastName, email: user.email, id: user.id });
+            const client = clientsData.find((user) => user.email === email);
+            const admin = adminsData.find((user) => user.email === email);
+
+            if (client) {
+                if (client.password === password) {
+                {/*setIsLoggedIn(true);   CON ESTO ME DEBE DE MANDAR AL PROFILE CON SUS DATOS, PERO LOS NAVIGATE ME PERMITEN MOSTRAR SU NAVEGACIÓN NECESARIA(ADMIN Y CLIENTS)*/}
+                    navigation.navigate('Client', { name: client.name, lastName: client.lastName, email: client.email, id: client.id }); 
+                    setUserData({ name: client.name, lastName: client.lastName, email: client.email, id: client.id }); 
+                } else {
+                    console.error('Contraseña incorrecta');
+                }
+            } else if (admin) {
+                if (admin.password === password) {
+                    navigation.navigate('Admin', { name: admin.name, lastName: admin.lastName, email: admin.email }); // Pasar los datos del admin como parámetros
                 } else {
                     console.error('Contraseña incorrecta');
                 }
@@ -57,6 +72,9 @@ const Login = () => {
             }
         }
     };
+
+
+
     //////////////////////////////////////////////////////////////////////////////////////
 
     const handleLogout = () => {
@@ -68,7 +86,7 @@ const Login = () => {
         <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
             <View style={{ flex: 1, backgroundColor: '#ffffff', width: '100%' }}>
                 {isLoggedIn ? (
-                    <Profile name={userData.name} lastName={userData.lastName} email={userData.email} password={userData.password} id={userData.id}  handleLogout={handleLogout} />
+                    <Profile name={userData.name} lastName={userData.lastName} email={userData.email} password={userData.password} id={userData.id} handleLogout={handleLogout} />
                 ) : (
                     <>
                         <ImageBackground
@@ -114,10 +132,17 @@ const Login = () => {
                                             </TouchableOpacity>
                                         </View>
                                     </View>
-                                    <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                                        <Text style={styles.loginButtonText}>Iniciar sesión</Text>
-                                    </TouchableOpacity>
+                                    <View style={styles.buttonContainer}>
 
+                                        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                                            <Text style={styles.loginButtonText}>Iniciar sesión</Text>
+                                        </TouchableOpacity>
+
+
+                                        <TouchableOpacity style={styles.registreButton} onPress={() => navigation.navigate('Registro')}>
+                                            <Text style={styles.loginButtonText}>Registrar Cliente</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                     {/* modal -------------------------------------------------------------------------- */}
                                     <View>
                                         <TouchableOpacity onPress={() => setModalVisible(true)}>
@@ -126,7 +151,7 @@ const Login = () => {
 
                                         <Token modalVisible={modalVisible} setModalVisible={setModalVisible} />
 
-                                            
+
 
                                     </View>
 
@@ -206,18 +231,34 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     loginButton: {
-        flex: 1,
-        alignItems: 'center',
-        marginLeft: "25%",
-        justifyContent: 'center',
-        backgroundColor: '#3b5998',
-        borderRadius: 10,
-        paddingVertical: 10,
         backgroundColor: 'green',
-        textAlign: 'center',
-        width: '50%',
+        padding: 10,
+        borderRadius: 5,
+        flex: 1,
+        marginRight: 5,
     },
-
+    registreButton: {
+        backgroundColor: 'green',
+        padding: 10,
+        borderRadius: 5,
+        flex: 1,
+        marginLeft: 5,
+    },
+    admin: {
+        backgroundColor: 'green',
+        padding: 3,
+        borderRadius: 5,
+        flex: 1,
+        marginLeft: 5,
+        width: "50%",
+        marginTop: 10,
+        justifyContent: 'center',
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 15,
+    },
     loginButtonText: {
         color: 'white',
         fontSize: 15,

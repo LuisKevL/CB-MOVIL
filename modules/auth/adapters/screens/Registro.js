@@ -1,14 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Dimensions,
-  ImageBackground,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  TextInput,
-} from "react-native";
+import { Dimensions, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from "react-native";
+import { useNavigation } from '@react-navigation/native';
 import Axios from 'axios';
 import Iconn from "react-native-vector-icons/MaterialIcons";
 
@@ -19,6 +11,8 @@ const Productos = () => {
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
+
+  const navigation = useNavigation();
 
   const handleRegister = async () => {
     try {
@@ -43,7 +37,6 @@ const Productos = () => {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
       <View style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }}>
-
         <ImageBackground
           source={require('../../../../assets/fondo.jpg')}
           style={{ height: Dimensions.get('window').height / 2.5 }}
@@ -132,13 +125,15 @@ const Productos = () => {
             </View>
           </View>
         </View>
+        <View>
+        </View>
       </View>
-
     </ScrollView>
   );
 };
 
 export default Productos;
+
 
 const styles = StyleSheet.create({
   brandView: {
