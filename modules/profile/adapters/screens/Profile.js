@@ -1,19 +1,77 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Dimensions, Button, Modal, Alert, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ImageBackground,
+  Dimensions,
+  Button,
+  Modal,
+  Alert,
+  ActivityIndicator
+} from 'react-native';
 import Iconn from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const Profile = ({ name, lastName, email, id, handleLogout }) => {
   const [isLoading, setLoading] = useState(false);
-
   const [isModalVisible, setModalVisible] = useState(false);
   const [editedName, setEditedName] = useState(name);
   const [editedLastName, setEditedLastName] = useState(lastName);
   const [editedEmail, setEditedEmail] = useState(email);
 
-  const handleModifyData = () => {
-    setModalVisible(true);
+  const handleModifyData = async () => {
+    try {
+      const userName = await AsyncStorage.getItem('userName');
+      const userLastName = await AsyncStorage.getItem('userLastName');
+      const userEmail = await AsyncStorage.getItem('userEmail');
+
+      setEditedName(userName);
+      setEditedLastName(userLastName);
+      setEditedEmail(userEmail);
+
+      setModalVisible(true);
+    } catch (error) {
+      console.log('Error al obtener los datos de AsyncStorage', error.message);
+    }
   };
+
+  const [names, setName] = useState('');
+  const [lastNames, setLastName] = useState('');
+  const [emails, setEmail] = useState('');
+
+  const getDataFromStorage = async () => {
+    try {
+      const keys = [
+        'userId',
+        'userName',
+        'userLastName',
+        'userEmail',
+        'userPassword',
+      ];
+      const values = await AsyncStorage.multiGet(keys);
+      const data = {};
+
+      values.forEach(([key, value]) => {
+        data[key] = value;
+      });
+      setName(data.userName);
+      setLastName(data.userLastName);
+      setEmail(data.userEmail);
+    } catch (error) {
+      console.log('Error al obtener los datos de AsyncStorage:', error);
+    }
+  };
+
+  useEffect(() => {
+    getDataFromStorage();
+  }, []);
+
 
   const cambiaDatos = async () => {
     Alert.alert(
@@ -30,8 +88,10 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
             try {
               setLoading(true); // Mostrar el spinner de carga
 
+              const userId = await AsyncStorage.getItem('userId');
+
               await Axios.put("http://192.168.0.232:8080/api-beautypalace/user/data/", {
-                id,
+                id: userId,
                 name: editedName,
                 lastName: editedLastName,
                 email: editedEmail,
@@ -57,14 +117,6 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
   };
 
 
-
-  useEffect(() => {
-    setEditedName(name);
-    setEditedLastName(lastName);
-    setEditedEmail(email);
-  }, [name, lastName, email]);
-
-
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
       <ImageBackground source={require('../../../../assets/fondo.png')} style={{ height: Dimensions.get('window').height / 2.5 }}>
@@ -82,7 +134,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
               </View>
               <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2, marginTop: 10 }}>Nombre:</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text>{name}</Text>
+                <Text>{names}</Text>
                 <Icon name="user" style={{ color: "black" }} />
               </View>
             </View>
@@ -90,8 +142,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
             <View style={{ borderColor: '#4632A1', marginTop: 10 }}>
               <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Apellidos:</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ flex: 1 }}>{lastName}</Text>
-
+                <Text style={{ flex: 1 }}>{lastNames}</Text>
                 <Icon name="id-card" style={{ color: "black" }} />
               </View>
             </View>
@@ -99,12 +150,10 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
             <View style={{ borderColor: '#4632A1', marginTop: 10 }}>
               <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Correo Electrónico:</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ flex: 1 }}>{email}</Text>
+                <Text style={{ flex: 1 }}>{emails}</Text>
                 <Icon name="envelope" style={{ color: "black" }} />
               </View>
             </View>
-
-
 
             <View style={{ marginTop: 15, height: 50, justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
               <TouchableOpacity
@@ -132,7 +181,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                   Modificar Datos
                 </Text>
               </TouchableOpacity>
-              {/*BOTON CERRAR SESIÓN */}
+              {/* BOTON CERRAR SESIÓN */}
               <TouchableOpacity
                 style={{
                   flex: 1,
@@ -151,7 +200,6 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                 <Text style={{ color: 'green', fontSize: 15, fontWeight: 'bold' }}>Cerrar sesión</Text>
               </TouchableOpacity>
               {/* */}
-
             </View>
           </View>
         </View>
@@ -191,6 +239,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                   value={editedEmail}
                   onChangeText={(text) => setEditedEmail(text)}
                 />
+
                 <TouchableOpacity
                   style={{
                     borderRadius: 10,
@@ -221,11 +270,10 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
             )}
           </View>
         </Modal>
-
-
       )}
     </ScrollView>
   );
+
 };
 
 export default Profile;

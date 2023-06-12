@@ -8,10 +8,9 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Axios from 'axios';
 import Profile from '../../../profile/adapters/screens/Profile';
 import Token from './Token';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import AdminStack from '../../../../config/stack/AdminStack';
 const Login = (props) => {
-    const [isAdmin, setIsAdmin] = useState(false); // Nuevo estado para verificar si el usuario es un admin
-
     //navigation
     const { navigation } = props;
 
@@ -32,55 +31,89 @@ const Login = (props) => {
     //FUNCION PARA PODER HACER EL LOGIN
     const handleLogin = async () => {
         try {
-            const clientsResponse = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/clients/', {
-                params: { email },
-            });
-            const adminsResponse = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/admins/', {
-                params: { email },
-            });
-
-            console.log('Inicio de sesión exitoso');
-
-            const clientsData = clientsResponse.data.data;
-            const adminsData = adminsResponse.data.data;
-
-            const client = clientsData.find((user) => user.email === email);
-            const admin = adminsData.find((user) => user.email === email);
-
-            if (client) {
-                if (client.password === password) {
-                {/*setIsLoggedIn(true);   CON ESTO ME DEBE DE MANDAR AL PROFILE CON SUS DATOS, PERO LOS NAVIGATE ME PERMITEN MOSTRAR SU NAVEGACIÓN NECESARIA(ADMIN Y CLIENTS)*/}
-                    navigation.navigate('Client', { name: client.name, lastName: client.lastName, email: client.email, id: client.id }); 
-                    setUserData({ name: client.name, lastName: client.lastName, email: client.email, id: client.id }); 
-                } else {
-                    console.error('Contraseña incorrecta');
-                }
-            } else if (admin) {
-                if (admin.password === password) {
-                    navigation.navigate('Admin', { name: admin.name, lastName: admin.lastName, email: admin.email }); // Pasar los datos del admin como parámetros
-                } else {
-                    console.error('Contraseña incorrecta');
-                }
+          const clientsResponse = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/clients/', {
+            params: { email },
+          });
+          const adminsResponse = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/admins/', {
+            params: { email },
+          });
+      
+          const clientsData = clientsResponse.data.data;
+          const adminsData = adminsResponse.data.data;
+      
+          const client = clientsData.find((user) => user.email === email);
+          const admin = adminsData.find((user) => user.email === email);
+      
+          if (client) {
+            if (client.password === password) {
+              await AsyncStorage.setItem('userId', client.id.toString());
+              await AsyncStorage.setItem('userName', client.name);
+              await AsyncStorage.setItem('userLastName', client.lastName);
+              await AsyncStorage.setItem('userEmail', client.email);
+              await AsyncStorage.setItem('userPassword', client.password);
+              await AsyncStorage.setItem('typeOfUser', client.typeOfUser);
+              console.log('Inicio de sesión exitoso');
+      
+              navigation.navigate('Client', {
+                name: client.name,
+                lastName: client.lastName,
+                email: client.email,
+                id: client.id,
+                handleLogout: handleLogout, // Agrega esta línea
+              });
+              
+              setUserData({
+                name: client.name,
+                lastName: client.lastName,
+                email: client.email,
+                id: client.id,
+              });
             } else {
-                console.error('Usuario no encontrado');
+              console.error('Contraseña incorrecta');
             }
+          } else if (admin) {
+            if (admin.password === password) {
+              await AsyncStorage.setItem('userId', admin.id.toString());
+              await AsyncStorage.setItem('userName', admin.name);
+              await AsyncStorage.setItem('userLastName', admin.lastName);
+              await AsyncStorage.setItem('userEmail', admin.email);
+              await AsyncStorage.setItem('userPassword', admin.password);
+              await AsyncStorage.setItem('typeOfUser', admin.typeOfUser);
+              console.log('Inicio de sesión exitoso');
+      
+              navigation.navigate('Admin', {
+                name: admin.name,
+                lastName: admin.lastName,
+                email: admin.email,
+              });
+            } else {
+              console.error('Contraseña incorrecta');
+            }
+          } else {
+            console.error('Usuario no encontrado');
+          }
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-                console.error('Correo o contraseña no encontrados');
-            } else {
-                console.error('Error al iniciar sesión:', error.message);
-            }
+          if (error.response && error.response.status === 404) {
+            console.error('Correo o contraseña no encontrados');
+          } else {
+            console.error('Error al iniciar sesión:', error.message);
+          }
         }
-    };
-
+      };
 
 
     //////////////////////////////////////////////////////////////////////////////////////
 
-    const handleLogout = () => {
-        setIsLoggedIn(false);
-        setUserData({ name: '', email: '' });
-    };
+    const handleLogout = async () => {
+        try {
+          await AsyncStorage.removeItem('isLoggedIn');
+          await AsyncStorage.removeItem('userData');
+          console.log('Cierre de sesión exitoso');
+        } catch (error) {
+          console.error('Error al cerrar sesión:', error.message);
+        }
+      };
+      
 
     return (
         <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
