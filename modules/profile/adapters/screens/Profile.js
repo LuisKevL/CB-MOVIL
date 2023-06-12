@@ -16,9 +16,14 @@ import {
 import Iconn from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Profile = ({ name, lastName, email, id, handleLogout }) => {
+  const navigation = useNavigation();
+
   const [isLoading, setLoading] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [editedName, setEditedName] = useState(name);
@@ -116,6 +121,21 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
     );
   };
 
+  const cerrar = async () => {
+    try {
+      // Aquí puedes realizar las operaciones necesarias para cerrar sesión, como eliminar datos del AsyncStorage, limpiar el estado, etc.
+
+      // Redirigir al usuario al componente de inicio de sesión (LoginStack)
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'loginStack' }],
+        })
+      );
+    } catch (error) {
+      console.log('Error al cerrar sesión', error.message);
+    }
+  };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
@@ -195,7 +215,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                   borderWidth: 1,
                   borderColor: 'green',
                 }}
-                onPress={handleLogout}
+                onPress={cerrar}
               >
                 <Text style={{ color: 'green', fontSize: 15, fontWeight: 'bold' }}>Cerrar sesión</Text>
               </TouchableOpacity>
