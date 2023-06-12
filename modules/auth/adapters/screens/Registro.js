@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dimensions, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput } from "react-native";
+import { Dimensions, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, Alert } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import Axios from 'axios';
 import Iconn from "react-native-vector-icons/MaterialIcons";
@@ -23,10 +23,12 @@ const Productos = () => {
         password,
       });
       console.log('Registro exitoso');
-
       const { data } = response.data;
       setIsLoggedIn(true);
       setUserData(data);
+      navigation.navigate('loginStack')
+      Alert.alert('Registro exitoso', '¡Te has registrado correctamente!');
+
     } catch (error) {
       console.error('Error al registrar:', error.message);
     }
