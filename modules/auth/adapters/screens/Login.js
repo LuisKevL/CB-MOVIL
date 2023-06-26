@@ -16,7 +16,6 @@ const Login = (props) => {
 
     //modal y email
     const [modalVisible, setModalVisible] = useState(false);
-    const [recoveryEmail, setRecoveryEmail] = useState('');
 
     //
     const [showPassword, setShowPassword] = useState(false);
@@ -99,6 +98,7 @@ const Login = (props) => {
             }
         }
     };
+      
 
 
     //////////////////////////////////////////////////////////////////////////////////////

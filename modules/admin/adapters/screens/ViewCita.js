@@ -141,10 +141,7 @@ const ViewCita = () => {
                                 </View>
 
                                 <View style={styles.buttonContainer}>
-                                    <Button
-                                        buttonStyle={[styles.button, styles.agendarButton]}
-                                        title='Agendar Cita'
-                                    />
+                                   
 
                                     <Button
                                         buttonStyle={[styles.button, styles.actualizarButton]}
