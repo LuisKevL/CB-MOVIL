@@ -70,7 +70,7 @@ export default function Agenda() {
       setnameClient(nameClient);
       setTypeOfService(typeOfService);
       setDay(day);
-      console.log("Dia: ", day);
+      console.log("Dia: ", dayAndHour);
       setStartTime(startTime);
       setTimeEnd(timeEnd);
       Alert.alert("Agendado correctamente")

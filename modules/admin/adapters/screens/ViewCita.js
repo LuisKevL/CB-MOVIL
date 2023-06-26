@@ -11,7 +11,7 @@ const ViewCita = () => {
     const [nombreCita, setNombreCita] = useState('');
     const [nombreCliente, setNombreCliente] = useState('');
     const [tipoServicio, setTipoServicio] = useState('');
-    const [diaCita, setDiaCita] = useState('');
+    const [day, setDay] = useState('');
     const [horaInicio, setHoraInicio] = useState('');
     const [horaFin, setHoraFin] = useState('');
     const [currentCita, setCurrentCita] = useState(null);
@@ -35,7 +35,7 @@ const ViewCita = () => {
         setNombreCita(cita.name);
         setNombreCliente(cita.nameClient);
         setTipoServicio(cita.typeOfService);
-        setDiaCita(cita.day);
+        setDay(cita.day);
         setHoraInicio(cita.startTime);
         setHoraFin(cita.timeEnd);
         setModalVisible(true);
@@ -59,7 +59,7 @@ const ViewCita = () => {
                                 name: nombreCita,
                                 nameClient: nombreCliente,
                                 typeOfService: tipoServicio,
-                                day: diaCita,
+                                day: day,
                                 startTime: horaInicio,
                                 timeEnd: horaFin,
                             });
@@ -74,7 +74,7 @@ const ViewCita = () => {
                                         name: nombreCita,
                                         nameClient: nombreCliente,
                                         typeOfService: tipoServicio,
-                                        day: diaCita,
+                                        day: day,
                                         startTime: horaInicio,
                                         timeEnd: horaFin,
                                     };
@@ -190,8 +190,8 @@ const ViewCita = () => {
                         <TextInput
                             style={styles.input}
                             placeholder="Día de la cita"
-                            value={diaCita}
-                            onChangeText={text => setDiaCita(text)}
+                            value={day}
+                            onChangeText={text => setDay(text)} 
                         />
 
                         <TextInput

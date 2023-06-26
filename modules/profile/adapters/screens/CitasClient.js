@@ -127,13 +127,13 @@ export default function ViewCitaClient() {
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}>Nombre del cliente:</Text>
                         <Text>
-                          {citaData[0][4]} {citaData[0][2]}
+                          {citaData[0][0]}
                         </Text>
                       </View>
 
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}>Tipo de servicio:</Text>
-                        <Text>{citaData[0][7]}</Text>
+                        <Text>{citaData[0][2]}</Text>
                       </View>
                     </View>
 
@@ -145,12 +145,12 @@ export default function ViewCitaClient() {
 
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}> Hora Inicio: </Text>
-                        <Text>{citaData[0][5]}</Text>
+                        <Text>{citaData[0][4]}</Text>
                       </View>
 
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}> Hora fin:</Text>
-                        <Text>{citaData[0][6]}</Text>
+                        <Text>{citaData[0][5]}</Text>
                       </View>
                     </View>
                     <View style={styles.buttonContainer}>
