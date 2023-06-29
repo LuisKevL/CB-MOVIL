@@ -141,8 +141,12 @@ const ViewCita = () => {
                                 </View>
 
                                 <View style={styles.buttonContainer}>
-                                   
 
+                                    <Button
+                                        buttonStyle={[styles.button, styles.actualizarButton]}
+                                        title='Eliminar Cita'
+                                        onPress={() => handleUpdateCita(cita)}
+                                    />
                                     <Button
                                         buttonStyle={[styles.button, styles.actualizarButton]}
                                         title='Actualizar Cita'
@@ -191,7 +195,7 @@ const ViewCita = () => {
                             style={styles.input}
                             placeholder="Día de la cita"
                             value={day}
-                            onChangeText={text => setDay(text)} 
+                            onChangeText={text => setDay(text)}
                         />
 
                         <TextInput

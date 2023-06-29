@@ -5,6 +5,7 @@ import Agenda from "../../modules/admin/adapters/screens/Agenda";
 import Profile from "../../modules/profile/adapters/screens/Profile";
 import { Icon } from "@rneui/base";
 import ViewCita from "../../modules/admin/adapters/screens/ViewCita";
+import Productos from "../../modules/admin/adapters/screens/Productos";
 const Tab = createBottomTabNavigator();
 
 export default function NavigationUser() {
@@ -32,6 +33,12 @@ export default function NavigationUser() {
         name="ViewCita"
         component={ViewCita}
       />
+
+      <Tab.Screen 
+        name= "Productos"
+        component={Productos}
+      />
+
 
     </Tab.Navigator>
   )
