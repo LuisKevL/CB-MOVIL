@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, StyleSheet, Modal, Alert, FlatList, Text, ScrollView, Image } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Modal, Alert, FlatList, Text, Image } from 'react-native';
 import Axios from 'axios';
 import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
@@ -8,13 +8,19 @@ import firebaseConfig from './firebase'; // Archivo de configuración de Firebas
 
 // Inicializar la aplicación de Firebase
 const storage = getStorage(firebaseConfig);
+
 const AgregarProducto = () => {
-  //imagnnnn
   const [imageUpload, setImageUpload] = useState(null);
   const [imageUrls, setImageUrls] = useState([]);
+  const [nombre, setNombre] = useState('');
+  const [precio, setPrecio] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [productos, setProductos] = useState([]);
 
   useEffect(() => {
     fetchImagesFromStorage();
+    fetchProductos();
   }, []);
 
   const fetchImagesFromStorage = async () => {
@@ -35,7 +41,7 @@ const AgregarProducto = () => {
     }
   };
 
-  const handleSelectImage = async (productId) => {
+  const handleSelectImage = async () => {
     try {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -50,30 +56,30 @@ const AgregarProducto = () => {
         aspect: [4, 3],
         quality: 1,
       });
+      Alert.alert('Pulsa ahora el botón de: Subir Imágen');
 
-      if (!result.cancelled) {
+      if (!result.canceled) {
         setImageUpload(result);
-        handleUploadImage(productId, result); // Subir la imagen para el producto seleccionado
       }
     } catch (error) {
       console.error('Error al seleccionar la imagen:', error);
     }
   };
 
-  const handleUploadImage = async (productId, image) => {
-    if (image) {
+  const handleUploadImage = async (productId) => {
+    if (imageUpload) {
       try {
         const imageName = `image_${productId}_${Date.now()}`;
         const imageRef = ref(storage, `productos/${imageName}`);
 
-        const response = await fetch(image.uri);
+        const response = await fetch(imageUpload.assets[0].uri);
         const blob = await response.blob();
 
         await uploadBytes(imageRef, blob, { contentType: 'image/jpeg' });
 
         const downloadUrl = await getDownloadURL(imageRef);
         setImageUrls((prevUrls) => [...prevUrls, downloadUrl]);
-
+        Alert.alert('Imagen subida exitosamente');
         console.log('Imagen subida exitosamente.');
       } catch (error) {
         console.error('Error al subir la imagen:', error);
@@ -82,16 +88,6 @@ const AgregarProducto = () => {
       alert('Por favor, seleccione una imagen.');
     }
   };
-  //imagennnnnn
-  const [nombre, setNombre] = useState('');
-  const [precio, setPrecio] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [productos, setProductos] = useState([]);
-
-  useEffect(() => {
-    fetchProductos();
-  }, []);
 
   const handleGuardar = async () => {
     try {
@@ -134,64 +130,70 @@ const AgregarProducto = () => {
     setDescripcion('');
   };
 
+  const renderItem = ({ item }) => {
+    const productoImageUrls = imageUrls.filter((url) => url.includes(`image_${item.id}`));
+
+    return (
+      <View style={styles.productoContainer}>
+        <Text style={styles.productoNombre}>{item.nombre}</Text>
+        <Text style={styles.productoPrecio}>Precio: ${item.precio}</Text>
+        <Text style={styles.productoDescripcion}>{item.descripcion}</Text>
+        {productoImageUrls.length > 0 && (
+          <Image source={{ uri: productoImageUrls[0] }} style={styles.image} />
+        )}
+        <View style={styles.buttonContainer}>
+          <Button title="Seleccionar Imagen" onPress={() => handleSelectImage(item.id)} />
+          <Button title="Subir Imagen" onPress={() => handleUploadImage(item.id)} />
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
-
-      <ScrollView>
-        <Text style={styles.title}>Productos</Text>
-        <FlatList
-          data={productos}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => {
-            const productoImageUrls = imageUrls.filter((url) => url.includes(`image_${item.id}`));
-
-            return (
-              <View style={styles.productoContainer}>
-                <Text style={styles.productoNombre}>{item.nombre}</Text>
-                <Text style={styles.productoPrecio}>Precio: ${item.precio}</Text>
-                <Text style={styles.productoDescripcion}>{item.descripcion}</Text>
-                {productoImageUrls.length > 0 && (
-                  <Image source={{ uri: productoImageUrls[0] }} style={styles.image} />
-                )}
-                <View style={styles.buttonContainer}>
-                  <Button title=" Subir Imágen " onPress={() => handleSelectImage(item.id)} />
-                </View>
-              </View>
-
-            );
-          }}
-        />
-        <Modal visible={modalVisible} animationType="slide">
-          <View style={styles.modalContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre del producto"
-              value={nombre}
-              onChangeText={setNombre}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Precio"
-              value={precio}
-              onChangeText={setPrecio}
-              keyboardType="numeric"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Descripción"
-              value={descripcion}
-              onChangeText={setDescripcion}
-            />
+      <FlatList
+        data={productos}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+      />
+      <Modal visible={modalVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre del producto"
+            value={nombre}
+            onChangeText={setNombre}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Precio"
+            value={precio}
+            onChangeText={setPrecio}
+            keyboardType="numeric"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Descripción"
+            value={descripcion}
+            onChangeText={setDescripcion}
+          />
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: 10,
+          }}>
             <Button title="Registrar Producto" onPress={handleGuardar} />
             <Button title="Cancelar" onPress={() => { setModalVisible(false); clearFields(); }} />
           </View>
-        </Modal>
-        <Button title="Agregar Producto" onPress={() => setModalVisible(true)} />
-
-      </ScrollView>
+          </View>
+        </View>
+      </Modal>
+      <Button title="Agregar Producto" onPress={() => setModalVisible(true)} />
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -202,6 +204,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
   },
   input: {
     height: 40,
@@ -251,9 +260,10 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    width: 200,
-    height: 200,
+    width: 150,
+    height: 150,
     marginVertical: 10,
+    alignSelf: 'center',
   },
   buttonContainer: {
     flexDirection: 'row',
