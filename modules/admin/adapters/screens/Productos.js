@@ -150,24 +150,29 @@ const AgregarProducto = () => {
   const [ofertaDescripcion, setOfertaDescripcion] = useState('');
   const [fechaInicio, setFechaInicio] = useState('');
 
-  const handleRegistrarOferta = async () => {
+  const handleRegistrarOferta = async (item) => {
     try {
-      const id = generateId(); // Generar el ID automáticamente
-  
-      const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/oferta/', {
-        id: id,
+      const idd = generateId(); // Generar el ID automáticamente
+
+      // Verificar y asignar los datos del producto
+      const productData = {
+        id: item.id,
+        nombre: item.nombre,
+        precio: parseFloat(item.precio),
+        descripcion: item.descripcion,
+      };
+
+      const ofertaData = {
+        id: idd,
         nombre: ofertaNombre,
         descuento: parseInt(descuento),
-        product: {
-          id: id,
-          nombre: nombre,
-          precio: parseFloat(precio),
-          descripcion: descripcion,
-        },
+        product: productData,
         descripcion: ofertaDescripcion,
         fechaInicio: fechaInicio,
-      });
-  
+      };
+
+      const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/oferta/', ofertaData);
+
       console.log('Oferta registrada con éxito');
       Alert.alert('Oferta registrada con éxito');
       setModal(false);
@@ -177,10 +182,10 @@ const AgregarProducto = () => {
       Alert.alert('Error al registrar la oferta');
     }
   };
-  
-  
-  
-  const [selectedProduct, setSelectedProduct] = useState(null);
+
+
+
+
 
   const renderItem = ({ item }) => {
     const productoImageUrls = imageUrls.filter((url) => url.includes(`image_${item.id}`));
@@ -198,71 +203,71 @@ const AgregarProducto = () => {
           <Button title="Subir Imagen" onPress={() => handleUploadImage(item.id)} />
         </View>
         <Button title="Agregar Oferta" onPress={() => setModal(true)} />
-    
+
         {/* Modal de la oferta */}
         <Modal visible={modal} animationType="slide" transparent={false}>
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre de la oferta"
-        value={ofertaNombre}
-        onChangeText={setOfertaNombre}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Descuento"
-        keyboardType="numeric"
-        value={descuento}
-        onChangeText={setDescuento}
-      />
-      <TextInput
-        style={styles.input}
-        value={item.id.toString()}
-        editable={false}
-      />
-      <TextInput
-        style={styles.input}
-        value={item.nombre}
-        editable={false}
-      />
-      <TextInput
-        style={styles.input}
-        value={item.precio.toString()}
-        editable={false}
-      />
-      <TextInput
-        style={styles.input}
-        value={item.descripcion}
-        editable={false}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Descripción de Oferta"
-        value={ofertaDescripcion}
-        onChangeText={setOfertaDescripcion}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Fecha de inicio"
-        value={fechaInicio}
-        onChangeText={setFechaInicio}
-      />
-      <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 10,
-      }}>
-        <Button title="Registrar Oferta" onPress={handleRegistrarOferta} />
-        <Button title="Cancelar" onPress={() => { setModal(false); clearFields(); }} />
-      </View>
-    </View>
-  </View>
-</Modal>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TextInput
+                style={styles.input}
+                placeholder="Nombre de la oferta"
+                value={ofertaNombre}
+                onChangeText={setOfertaNombre}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Descuento"
+                keyboardType="numeric"
+                value={descuento}
+                onChangeText={setDescuento}
+              />
+              <TextInput
+                style={styles.input}
+                value={item.id.toString()}
+                editable={false}
+              />
+              <TextInput
+                style={styles.input}
+                value={item.nombre}
+                editable={false}
+              />
+              <TextInput
+                style={styles.input}
+                value={item.precio.toString()}
+                editable={false}
+              />
+              <TextInput
+                style={styles.input}
+                value={item.descripcion}
+                editable={false}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Descripción de Oferta"
+                value={ofertaDescripcion}
+                onChangeText={setOfertaDescripcion}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Fecha de inicio"
+                value={fechaInicio}
+                onChangeText={setFechaInicio}
+              />
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginBottom: 10,
+              }}>
+                <Button title="Registrar Oferta" onPress={() => handleRegistrarOferta(item)} />
+                <Button title="Cancelar" onPress={() => { setModal(false); clearFields(); }} />
+              </View>
+            </View>
+          </View>
+        </Modal>
 
       </View>
     );
-    
+
   };
 
   return (
