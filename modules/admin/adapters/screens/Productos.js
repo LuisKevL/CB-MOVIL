@@ -3,6 +3,7 @@ import { View, TextInput, Button, StyleSheet, Modal, Alert, FlatList, Text, Imag
 import Axios from 'axios';
 import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import firebaseConfig from './firebase'; // Archivo de configuración de Firebase
 
@@ -90,6 +91,7 @@ const AgregarProducto = () => {
     }
   };
 
+
   const handleGuardar = async () => {
     try {
       const id = generateId(); // Generar el ID automáticamente
@@ -100,16 +102,28 @@ const AgregarProducto = () => {
         precio: parseFloat(precio),
         descripcion: descripcion,
       });
+
       console.log('Producto registrado con éxito');
       Alert.alert('Producto registrado con éxito');
       setModalVisible(false);
       clearFields();
       fetchProductos(); // Actualizar la lista de productos
+
+      // Guardar los datos del producto en AsyncStorage
+      const producto = {
+        id: id,
+        nombre: nombre,
+        precio: parseFloat(precio),
+        descripcion: descripcion,
+      };
+      await AsyncStorage.setItem('producto', JSON.stringify(producto));
+      console.log('Datos del producto guardados en AsyncStorage');
     } catch (error) {
       console.error('Error al registrar el producto:', error);
       Alert.alert('Error al registrar el producto');
     }
   };
+
   const generateId = () => {
     // Generar un ID único utilizando la fecha actual
     return Date.now().toString();
@@ -131,6 +145,43 @@ const AgregarProducto = () => {
     setDescripcion('');
   };
 
+  const [ofertaNombre, setOfertaNombre] = useState('');
+  const [descuento, setDescuento] = useState('');
+  const [ofertaDescripcion, setOfertaDescripcion] = useState('');
+  const [fechaInicio, setFechaInicio] = useState('');
+
+  const handleRegistrarOferta = async () => {
+    try {
+      const id = generateId(); // Generar el ID automáticamente
+  
+      const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/oferta/', {
+        id: id,
+        nombre: ofertaNombre,
+        descuento: parseInt(descuento),
+        product: {
+          id: id,
+          nombre: nombre,
+          precio: parseFloat(precio),
+          descripcion: descripcion,
+        },
+        descripcion: ofertaDescripcion,
+        fechaInicio: fechaInicio,
+      });
+  
+      console.log('Oferta registrada con éxito');
+      Alert.alert('Oferta registrada con éxito');
+      setModal(false);
+      clearFields();
+    } catch (error) {
+      console.error('Error al registrar la oferta:', error);
+      Alert.alert('Error al registrar la oferta');
+    }
+  };
+  
+  
+  
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   const renderItem = ({ item }) => {
     const productoImageUrls = imageUrls.filter((url) => url.includes(`image_${item.id}`));
 
@@ -147,42 +198,71 @@ const AgregarProducto = () => {
           <Button title="Subir Imagen" onPress={() => handleUploadImage(item.id)} />
         </View>
         <Button title="Agregar Oferta" onPress={() => setModal(true)} />
+    
+        {/* Modal de la oferta */}
+        <Modal visible={modal} animationType="slide" transparent={false}>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <TextInput
+        style={styles.input}
+        placeholder="Nombre de la oferta"
+        value={ofertaNombre}
+        onChangeText={setOfertaNombre}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Descuento"
+        keyboardType="numeric"
+        value={descuento}
+        onChangeText={setDescuento}
+      />
+      <TextInput
+        style={styles.input}
+        value={item.id.toString()}
+        editable={false}
+      />
+      <TextInput
+        style={styles.input}
+        value={item.nombre}
+        editable={false}
+      />
+      <TextInput
+        style={styles.input}
+        value={item.precio.toString()}
+        editable={false}
+      />
+      <TextInput
+        style={styles.input}
+        value={item.descripcion}
+        editable={false}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Descripción de Oferta"
+        value={ofertaDescripcion}
+        onChangeText={setOfertaDescripcion}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Fecha de inicio"
+        value={fechaInicio}
+        onChangeText={setFechaInicio}
+      />
+      <View style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+      }}>
+        <Button title="Registrar Oferta" onPress={handleRegistrarOferta} />
+        <Button title="Cancelar" onPress={() => { setModal(false); clearFields(); }} />
+      </View>
+    </View>
+  </View>
+</Modal>
 
       </View>
     );
-  };
-
-  const [ofertaNombre, setOfertaNombre] = useState('');
-  const [descuento, setDescuento] = useState('');
-  const [ofertaDescripcion, setOfertaDescripcion] = useState('');
-  const [fechaInicio, setFechaInicio] = useState('');
-
-  const handleRegistrarOferta = async () => {
-    try {
-      const id = generateId(); // Obtén el ID del producto registrado
-      const ofertaData = {
-        id: id,
-        nombre: ofertaNombre,
-        descuento: descuento,
-        product: {
-          id: id,
-          nombre: nombre,
-          precio: parseFloat(precio),
-          descripcion: descripcion,
-        },
-        descripcion: ofertaDescripcion,
-        fechaInicio: fechaInicio,
-      };
-
-      const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/oferta/', ofertaData);
-      console.log('Oferta registrada con éxito:', response.data);
-      Alert.alert('Oferta registrada con éxito');
-      setModal(false);
-      clearFields();
-    } catch (error) {
-      console.error('Error al registrar la oferta:', error);
-      Alert.alert('Error al registrar la oferta');
-    }
+    
   };
 
   return (
@@ -214,6 +294,7 @@ const AgregarProducto = () => {
               value={descripcion}
               onChangeText={setDescripcion}
             />
+
             <View style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
@@ -227,53 +308,9 @@ const AgregarProducto = () => {
       </Modal>
 
       <Button title="Agregar Producto" onPress={() => setModalVisible(true)} />
-
-      {/* modal de la oferta */}
-      <Modal visible={modal} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre de la oferta"
-              value={ofertaNombre}
-              onChangeText={setOfertaNombre}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Descuento"
-              keyboardType="numeric"
-              value={descuento}
-              onChangeText={setDescuento}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Descripción"
-              value={ofertaDescripcion}
-              onChangeText={setOfertaDescripcion}
-            />
-             <TextInput
-              style={styles.input}
-              placeholder="Fecha de inicio"
-              value={fechaInicio}
-              onChangeText={setFechaInicio}
-            />
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginBottom: 10,
-            }}>
-              <Button title="Registrar Oferta" onPress={handleRegistrarOferta} />
-              <Button title="Cancelar" onPress={() => { setModal(false); clearFields(); }} />
-            </View>
-          </View>
-        </View>
-      </Modal>
-      {/* Modal de oferta */}
-
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -284,7 +321,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Cambiar la opacidad a un valor más bajo
   },
   modalContent: {
     backgroundColor: '#fff',
@@ -338,7 +375,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   image: {
     width: 150,
     height: 150,
@@ -350,7 +386,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 10,
   },
-
 });
 
 export default AgregarProducto;
