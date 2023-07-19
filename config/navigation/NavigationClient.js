@@ -6,6 +6,9 @@ import Profile from "../../modules/profile/adapters/screens/Profile";
 import { Icon } from "@rneui/base";
 import ViewCita from "../../modules/admin/adapters/screens/ViewCita";
 import CitasClient from "../../modules/profile/adapters/screens/CitasClient";
+import ProductosClient from "../../modules/profile/adapters/screens/ProductosClient"
+import PreguntasFrec from "../../modules/profile/adapters/screens/PreguntasFrec";
+import Consejos from "../../modules/profile/adapters/screens/Consejos";
 const Tab = createBottomTabNavigator();
 
 export default function NavigationUser() {
@@ -30,11 +33,25 @@ export default function NavigationUser() {
       />
 
 
-<Tab.Screen
+      <Tab.Screen
         name="CitasClient"
         component={CitasClient}
       />
 
+      <Tab.Screen
+        name="ProductosClient"
+        component={ProductosClient}
+      />
+
+      <Tab.Screen 
+        name="PreguntasFrec"
+        component={PreguntasFrec}
+      />
+
+      <Tab.Screen 
+      name= "Consejos"
+      component={Consejos}
+      />
     </Tab.Navigator>
   )
 }
@@ -49,6 +66,9 @@ const screenOptions = (route, color) => {
       iconName = "information";
       break;
     case "CitasClient":
+      iconName = "information";
+      break;
+    case "ProductosClient":
       iconName = "information";
       break;
   }

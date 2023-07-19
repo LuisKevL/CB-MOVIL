@@ -6,7 +6,7 @@ import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import firebaseConfig from './firebase'; // Archivo de configuración de Firebase
-
+import ProductosClient from '../../../profile/adapters/screens/ProductosClient';
 // Inicializar la aplicación de Firebase
 const storage = getStorage(firebaseConfig);
 
@@ -183,15 +183,12 @@ const AgregarProducto = () => {
     }
   };
 
-
-
-
-
   const renderItem = ({ item }) => {
     const productoImageUrls = imageUrls.filter((url) => url.includes(`image_${item.id}`));
 
     return (
       <View style={styles.productoContainer}>
+       
         <Text style={styles.productoNombre}>{item.nombre}</Text>
         <Text style={styles.productoPrecio}>Precio: ${item.precio}</Text>
         <Text style={styles.productoDescripcion}>{item.descripcion}</Text>
@@ -269,6 +266,7 @@ const AgregarProducto = () => {
     );
 
   };
+
 
   return (
     <View style={styles.container}>
