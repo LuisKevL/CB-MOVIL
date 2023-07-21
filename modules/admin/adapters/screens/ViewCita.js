@@ -6,7 +6,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 const ViewCita = () => {
     const [citaData, setCitaData] = useState([]);
-
     const [modalVisible, setModalVisible] = useState(false);
     const [nombreCita, setNombreCita] = useState('');
     const [nombreCliente, setNombreCliente] = useState('');

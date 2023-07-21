@@ -70,7 +70,7 @@ export default function Agenda() {
       setnameClient(nameClient);
       setTypeOfService(typeOfService);
       setDay(day);
-      console.log("Dia: ", dayAndHour);
+      console.log("Dia: ", day);
       setStartTime(startTime);
       setTimeEnd(timeEnd);
       Alert.alert("Agendado correctamente")
@@ -102,7 +102,7 @@ export default function Agenda() {
                 <View style={styles.rowContainer}>
                   <View style={styles.columnContainer}>
                     <Text style={styles.label}>Dia:</Text>
-                    <Text>{cita.dayAndHour}</Text>
+                    <Text>{cita.day}</Text>
                   </View>
 
                   <View style={styles.columnContainer}>
@@ -113,8 +113,8 @@ export default function Agenda() {
 
                 <View style={styles.rowContainer}>
                   <View style={styles.columnContainer}>
-                    <Text style={styles.label}>Id del usuario:</Text>
-                    <Text>{cita.user_id}</Text>
+                    <Text style={styles.label}>Nombre del usuario:</Text>
+                    <Text>{cita.nameUser}</Text>
                   </View>
                 </View>
 

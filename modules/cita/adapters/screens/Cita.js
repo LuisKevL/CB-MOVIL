@@ -24,7 +24,10 @@ export default function Cita({ navigation }) {
   const [userId, setUserId] = useState("");
   const [editedNameValue, setEditedNameValue] = useState("");
   const [editedLastNameValue, setEditedLastNameValue] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [day, setDay] = useState("");
+  const [hour, setHour] = useState("");
+  const [nameUser, setNameUser] = useState("");
+  const [branch, setBranch] = useState("");
   const [typeOfService, setTypeOfService] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [counter, setCounter] = useState(0);
@@ -81,7 +84,10 @@ export default function Cita({ navigation }) {
                 {
                   id: id,
                   user_id: userId,
-                  dayAndHour: selectedDate,
+                  day: day,
+                  hour: hour,
+                  nameUser: editedNameValue,
+                  branch: branch,
                   typeOfService: typeOfService,
                 }
               );
@@ -89,7 +95,10 @@ export default function Cita({ navigation }) {
               console.log("id de la peticion --> ", id);
               setCounter((prevCounter) => prevCounter + 1);
               setUserId(userId);
-              setSelectedDate(selectedDate);
+              setDay(day);
+              setHour(hour);
+              setNameUser(nameUser);
+              setBranch(branch);
               setTypeOfService(typeOfService);
             } catch (error) {
               console.log("Error al guardar la cita", error.message);
@@ -189,9 +198,49 @@ export default function Cita({ navigation }) {
                     mode="calendar"
                     minuteInterval={30}
                     style={{ borderRadius: 10 }}
-                    onSelectedChange={(date) => setSelectedDate(date)}
-                    value={selectedDate}
+                    onSelectedChange={(date) => setDay(date)}
+                    value={day}
                   />
+                </View>
+              </View>
+
+              <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
+                <Text style={{ marginBottom: 5 }}>Ingresa la hora</Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ingresa la hora"
+                    value={hour}
+                    onChangeText={(text) => setHour(text)}
+                  />
+                  <Icon name="keyboard-o" style={{ color: "black" }} />
+                </View>
+              </View>
+
+              <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
+                <Text style={{ marginBottom: 5 }}>Apellido del cliente</Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Apellido Cliente"
+                    value={editedNameValue}
+                    onChangeText={(text) => setEditedNameValue(text)}
+                  />
+                  <Icon name="keyboard-o" style={{ color: "black" }} />
+                </View>
+              </View>
+
+
+              <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
+                <Text style={{ marginBottom: 5 }}>Tipo de rama</Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Nombre del la rama"
+                    value={branch}
+                    onChangeText={(text) => setBranch(text)}
+                  />
+                  <Icon name="keyboard-o" style={{ color: "black" }} />
                 </View>
               </View>
 
