@@ -6,7 +6,7 @@ const Bienvenido = ({ navigation }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             navigation.navigate('Client'); // Navegar a la pantalla "Client" después de 3 segundos
-        }, 3000); // 3000 milisegundos (3 segundos)
+        }, 2500); // 3000 milisegundos (3 segundos)
 
         return () => clearTimeout(timer); // Limpiar el temporizador al desmontar el componente
     }, [navigation]);

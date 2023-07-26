@@ -149,7 +149,7 @@ export default function Cita({ navigation }) {
 
                 <TextInput style={{ display: "none" }}>{userId}</TextInput>
 
-                <Text style={{ marginBottom: 5 }}>Nombre del cliente</Text>
+                <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Nombre del cliente</Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <TextInput
                     style={{
@@ -170,7 +170,7 @@ export default function Cita({ navigation }) {
               </View>
 
               <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
-                <Text style={{ marginBottom: 5 }}>Tipo de servicio</Text>
+                <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Tipo de servicio</Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <TextInput
                     style={styles.input}
@@ -183,12 +183,13 @@ export default function Cita({ navigation }) {
               </View>
 
               <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
-                <Text style={{ marginBottom: 5 }}>Dia de la cita</Text>
+                <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Dia de la cita</Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <DatePicker
+                  style={styles.DatePicker}
                     options={{
                       backgroundColor: "#fff",
-                      textHeaderColor: "#000",
+                      textHeaderColor: "#8B4513",
                       textDefaultColor: "#000",
                       selectedTextColor: "#000",
                       mainColor: "#F5B8E2",
@@ -197,15 +198,15 @@ export default function Cita({ navigation }) {
                     }}
                     mode="calendar"
                     minuteInterval={30}
-                    style={{ borderRadius: 10 }}
                     onSelectedChange={(date) => setDay(date)}
                     value={day}
+                    
                   />
                 </View>
               </View>
 
               <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
-                <Text style={{ marginBottom: 5 }}>Ingresa la hora</Text>
+                <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Ingresa la hora</Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <TextInput
                     style={styles.input}
@@ -218,7 +219,7 @@ export default function Cita({ navigation }) {
               </View>
 
               <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
-                <Text style={{ marginBottom: 5 }}>Apellido del cliente</Text>
+                <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Apellido del cliente</Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <TextInput
                     style={styles.input}
@@ -232,7 +233,7 @@ export default function Cita({ navigation }) {
 
 
               <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
-                <Text style={{ marginBottom: 5 }}>Tipo de rama</Text>
+                <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Tipo de rama</Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <TextInput
                     style={styles.input}
@@ -256,12 +257,11 @@ export default function Cita({ navigation }) {
                     flex: 1,
                     flexDirection: "row",
                     alignItems: "center",
-                    backgroundColor: "#3b5998",
+                    backgroundColor: "#8B4513",
                     borderRadius: 10,
                     paddingVertical: 8,
                     paddingHorizontal: 16,
                     marginHorizontal: 5,
-                    backgroundColor: "green",
                   }}
                   onPress={cita}>
                   <Text
@@ -284,6 +284,12 @@ export default function Cita({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  DatePicker: {
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: '#fff',
+  },
   brandView: {
     flex: 1,
     justifyContent: "center",

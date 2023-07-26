@@ -35,7 +35,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
     // Ocultar la pantalla de bienvenida después de 3 segundos
     const timer = setTimeout(() => {
       setShowWelcome(false);
-    }, 3000); // 3000 milisegundos (3 segundos)
+    }, 2500); // 3000 milisegundos (3 segundos)
 
     return () => clearTimeout(timer); // Limpiar el temporizador al desmontar el componente
   }, []);
@@ -173,7 +173,9 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                   <View style={{ alignItems: 'center' }}>
                     <Icon name="user" size={70} color="black" />
                   </View>
-                  <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2, marginTop: 10 }}>Nombre:</Text>
+                  <Text style={{
+                    marginBottom: 5, textShadowColor: "black", textShadowRadius: 2, marginTop: 10, fontWeight: 'bold',
+                  }}>Nombre:</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text>{names}</Text>
                     <Icon name="user" style={{ color: "black" }} />
@@ -181,7 +183,9 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                 </View>
 
                 <View style={{ borderColor: '#4632A1', marginTop: 10 }}>
-                  <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Apellidos:</Text>
+                  <Text style={{
+                    marginBottom: 5, textShadowColor: "black", textShadowRadius: 2, fontWeight: 'bold',
+                  }}>Apellidos:</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text style={{ flex: 1 }}>{lastNames}</Text>
                     <Icon name="id-card" style={{ color: "black" }} />
@@ -189,7 +193,9 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                 </View>
 
                 <View style={{ borderColor: '#4632A1', marginTop: 10 }}>
-                  <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Correo Electrónico:</Text>
+                  <Text style={{
+                    marginBottom: 5, textShadowColor: "black", textShadowRadius: 2, fontWeight: 'bold',
+                  }}>Correo Electrónico:</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text style={{ flex: 1 }}>{emails}</Text>
                     <Icon name="envelope" style={{ color: "black" }} />
@@ -204,17 +210,18 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       borderRadius: 10,
+                      backgroundColor: '#8B4513',
                       paddingVertical: 8,
                       paddingHorizontal: 16,
                       marginHorizontal: 5,
                       borderWidth: 1,
-                      borderColor: 'green',
+                      borderColor: '#8B4513',
                     }}
                     onPress={handleModifyData}
                   >
                     <Text
                       style={{
-                        color: 'green',
+                        color: 'white',
                         fontSize: 15,
                         fontWeight: 'bold',
                       }}
@@ -229,16 +236,17 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                       flexDirection: 'row',
                       alignItems: 'center',
                       justifyContent: 'center',
+                      backgroundColor: '#8B4513',
                       borderRadius: 10,
                       paddingVertical: 8,
                       paddingHorizontal: 16,
                       marginHorizontal: 5,
                       borderWidth: 1,
-                      borderColor: 'green',
+                      borderColor: '#8B4513',
                     }}
                     onPress={cerrar}
                   >
-                    <Text style={{ color: 'green', fontSize: 15, fontWeight: 'bold' }}>Cerrar sesión</Text>
+                    <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>Cerrar sesión</Text>
                   </TouchableOpacity>
                   {/* */}
 
@@ -297,7 +305,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                     paddingVertical: 8,
                     paddingHorizontal: 16,
                     marginHorizontal: 5,
-                    backgroundColor: "#0E85E8",
+                    backgroundColor: "#8B4513",
                     marginBottom: 30,
                   }}
                   onPress={cambiaDatos}
@@ -397,7 +405,7 @@ const styles = StyleSheet.create({
   },
   modalCloseText: {
     marginTop: 20,
-    color: 'red',
+    color: 'black',
     fontSize: 18,
     fontWeight: 'bold',
   },

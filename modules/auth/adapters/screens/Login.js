@@ -181,7 +181,7 @@ const Login = (props) => {
                                     {/* modal -------------------------------------------------------------------------- */}
                                     <View>
                                         <TouchableOpacity onPress={() => setModalVisible(true)}>
-                                            <Text style={styles.forgotPasswordText}>Enviar Token *Recuperar Contra*</Text>
+                                            <Text style={styles.forgotPasswordText}>Enviar Token *Recuperar Contraseña*</Text>
                                         </TouchableOpacity>
 
                                         <Token modalVisible={modalVisible} setModalVisible={setModalVisible} />
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     title: {
-        color: '#4632A1',
+        color: '#8B4513',
         fontSize: 34,
         fontWeight: 'bold',
         marginBottom: 30,
@@ -254,6 +254,8 @@ const styles = StyleSheet.create({
     },
     inputLabel: {
         marginBottom: 5,
+        color: 'black',
+        fontWeight: 'bold',
     },
     inputWrapper: {
         flexDirection: 'row',
@@ -266,14 +268,14 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     loginButton: {
-        backgroundColor: 'green',
+        backgroundColor: '#8B4513',
         padding: 10,
         borderRadius: 5,
         flex: 1,
         marginRight: 5,
     },
     registreButton: {
-        backgroundColor: 'green',
+        backgroundColor: '#8B4513',
         padding: 10,
         borderRadius: 5,
         flex: 1,

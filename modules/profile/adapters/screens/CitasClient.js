@@ -118,46 +118,52 @@ export default function ViewCitaClient() {
           <View style={styles.bottomView}>
             <View style={{ padding: 40 }}>
               <View style={{ marginTop: 15 }}>
-                {citaData.map(() => (
-                  <View key={citaData[0][0]} style={styles.cardContainer}>
-                    <Text style={styles.label}>Nombre de la cita:</Text>
-                    <Text>{citaData[0][3]}</Text>
+                {citaData.map((cita, index) => (
+                  <View key={`${cita.nombreCita}-${index}`} style={styles.cardContainer}>
+                    <View style={styles.rowContainer}>
+                      <View style={styles.columnContainer}>
+                        <Text style={styles.label}>Nombre de la cita:</Text>
+                        <Text>{cita[3]}</Text>
+
+                      </View>
+                      <View style={styles.columnContainer}>
+                        <Text style={styles.label}>Tipo de servicio:</Text>
+                        <Text>{cita[7]}</Text>
+                      </View>
+                    </View>
+
 
                     <View style={styles.rowContainer}>
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}>Nombre del cliente:</Text>
                         <Text>
-                          {citaData[0][0]}
+                          {cita[4]} {cita[2]}
                         </Text>
                       </View>
 
-                      <View style={styles.columnContainer}>
-                        <Text style={styles.label}>Tipo de servicio:</Text>
-                        <Text>{citaData[0][2]}</Text>
-                      </View>
                     </View>
 
                     <View style={styles.rowContainer}>
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}>Dia de la cita:</Text>
-                        <Text>{citaData[0][1]}</Text>
+                        <Text>{cita[1]}</Text>
                       </View>
 
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}> Hora Inicio: </Text>
-                        <Text>{citaData[0][4]}</Text>
+                        <Text>{cita[5]}</Text>
                       </View>
 
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}> Hora fin:</Text>
-                        <Text>{citaData[0][5]}</Text>
+                        <Text>{cita[6]}</Text>
                       </View>
                     </View>
                     <View style={styles.buttonContainer}>
-                      <Button
+                      {/*  <Button
                         title="Programar notificación"
                         onPress={handleScheduleNotification}
-                      />
+                      />*/}
                     </View>
                   </View>
                 ))}
