@@ -14,25 +14,53 @@ const Productos = () => {
 
   const navigation = useNavigation();
 
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+
   const handleRegister = async () => {
     try {
+      // Validar que todos los campos estén completos
+      if (!name || !lastName || !email || !password || !confirmPassword) {
+        Alert.alert('Error', 'Todos los campos son obligatorios.');
+        return;
+      }
+  
+      // Validar que las contraseñas sean iguales
+      if (password !== confirmPassword) {
+        Alert.alert('Error', 'Las contraseñas deben coincidir.');
+        return;
+      }
+  
+      // Validar la contraseña
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+      if (!passwordRegex.test(password)) {
+        Alert.alert(
+          'Error',
+          'La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.'
+        );
+        return;
+      }
+  
+      // Si todos los campos están completos y la contraseña es válida, realizar el registro
       const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/user/', {
         name,
         lastName,
         email,
         password,
       });
-      console.log('Registro exitoso');
+  
+      console.log('Registro exitoso', response.data);
       const { data } = response.data;
       setIsLoggedIn(true);
       setUserData(data);
-      navigation.navigate('loginStack')
+      navigation.navigate('loginStack');
       Alert.alert('Registro exitoso', '¡Te has registrado correctamente!');
-
     } catch (error) {
       console.error('Error al registrar:', error.message);
+      Alert.alert('Error', 'Hubo un error al registrar el usuario.');
     }
   };
+  
 
   const isFormValid = name && lastName && email && password;
 
@@ -75,7 +103,7 @@ const Productos = () => {
               </View>
 
               <View style={{ borderColor: "#4632A1", marginTop: 10 }}>
-                <Text style={{ marginBottom: 5 }}>Email</Text>
+                <Text style={{ marginBottom: 5 }}>Correo Electrónico</Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <TextInput
                     value={email}
@@ -97,6 +125,19 @@ const Productos = () => {
                   />
                 </View>
               </View>
+
+              <View style={{ borderColor: "#4632A1", marginTop: 10 }}>
+                <Text style={{ marginBottom: 5 }}>Confirmar Contraseña</Text>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <TextInput
+                    value={confirmPassword}
+                    onChangeText={(text) => setConfirmPassword(text)}
+                    placeholder="Confirme su contraseña"
+                    secureTextEntry
+                  />
+                </View>
+              </View>
+
 
               <View
                 style={{

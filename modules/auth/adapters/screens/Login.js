@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ImageBackground, Dimensions, TextInput, Button, Modal } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ImageBackground, Dimensions, TextInput, Button, Modal, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -67,7 +67,9 @@ const Login = (props) => {
                         id: client.id,
                     });
                 } else {
-                    console.error('Contraseña incorrecta');
+                    console.error('Contraseña y/o correo invalidos');
+                    Alert.alert("Contraseña y/o correo invalidos")
+
                 }
             } else if (admin) {
                 if (admin.password === password) {
@@ -85,7 +87,7 @@ const Login = (props) => {
                         email: admin.email,
                     });
                 } else {
-                    console.error('Contraseña incorrecta');
+                    Alert.alert("Contraseña y/o correo invalidos")
                 }
             } else {
                 console.error('Usuario no encontrado');
@@ -95,10 +97,11 @@ const Login = (props) => {
                 console.error('Correo o contraseña no encontrados');
             } else {
                 console.error('Error al iniciar sesión:', error.message);
+                Alert.alert("Error al iniciar sesión")
             }
         }
     };
-      
+
 
 
     //////////////////////////////////////////////////////////////////////////////////////

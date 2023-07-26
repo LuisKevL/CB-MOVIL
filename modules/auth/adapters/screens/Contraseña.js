@@ -7,8 +7,26 @@ const PasswordChangeScreen = () => {
     const [tokenPassword, setTokenPassword] = useState('');
     const [password, setPassword] = useState('');
 
+    const [confirmPassword, setConfirmPassword] = useState('');
+
     const handlePasswordChange = async () => {
         try {
+
+            // Validar que las contraseñas sean iguales
+            if (password !== confirmPassword) {
+                Alert.alert('Error', 'Las contraseñas deben coincidir.');
+                return;
+            }
+
+            // Validar la contraseña
+            const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+            if (!passwordRegex.test(password)) {
+                Alert.alert(
+                    'Error',
+                    'La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.'
+                );
+                return;
+            }
             const requestBody = {
                 email,
                 tokenPassword,
@@ -61,6 +79,15 @@ const PasswordChangeScreen = () => {
                 placeholder="Nueva contraseña"
                 value={password}
                 onChangeText={setPassword}
+                secureTextEntry={true}
+                style={styles.modal}
+
+            />
+
+            <TextInput
+                placeholder="Repetir contraseña"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
                 secureTextEntry={true}
                 style={styles.modal}
 

@@ -18,7 +18,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { CommonActions } from '@react-navigation/native';
-
+import Bienvenido from '../../../auth/adapters/screens/Bienvenido';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Profile = ({ name, lastName, email, id, handleLogout }) => {
@@ -29,16 +29,29 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
   const [editedName, setEditedName] = useState(name);
   const [editedLastName, setEditedLastName] = useState(lastName);
   const [editedEmail, setEditedEmail] = useState(email);
+  const [password, setPassword] = useState(password);
+  const [showWelcome, setShowWelcome] = useState(true);
+  useEffect(() => {
+    // Ocultar la pantalla de bienvenida después de 3 segundos
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 3000); // 3000 milisegundos (3 segundos)
+
+    return () => clearTimeout(timer); // Limpiar el temporizador al desmontar el componente
+  }, []);
+
 
   const handleModifyData = async () => {
     try {
       const userName = await AsyncStorage.getItem('userName');
       const userLastName = await AsyncStorage.getItem('userLastName');
       const userEmail = await AsyncStorage.getItem('userEmail');
+      const userPassword = await AsyncStorage.getItem('userPassword');
 
       setEditedName(userName);
       setEditedLastName(userLastName);
       setEditedEmail(userEmail);
+      setPassword(userPassword);
 
       setModalVisible(true);
     } catch (error) {
@@ -49,6 +62,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
   const [names, setName] = useState('');
   const [lastNames, setLastName] = useState('');
   const [emails, setEmail] = useState('');
+  const [passwords, setPasswords] = useState('');
 
   const getDataFromStorage = async () => {
     try {
@@ -68,6 +82,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
       setName(data.userName);
       setLastName(data.userLastName);
       setEmail(data.userEmail);
+      setPasswords(data.userPassword);
     } catch (error) {
       console.log('Error al obtener los datos de AsyncStorage:', error);
     }
@@ -100,12 +115,14 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                 name: editedName,
                 lastName: editedLastName,
                 email: editedEmail,
+                password: password,
               });
 
               // Actualizar los estados name, lastName y email si es necesario
               setEditedName(editedName);
               setEditedLastName(editedLastName);
               setEditedEmail(editedEmail);
+              setPassword(password);
               console.log("Cambio de datos exitoso");
               setModalVisible(false); // Cerrar el modal
 
@@ -123,9 +140,6 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
 
   const cerrar = async () => {
     try {
-      // Aquí puedes realizar las operaciones necesarias para cerrar sesión, como eliminar datos del AsyncStorage, limpiar el estado, etc.
-
-      // Redirigir al usuario al componente de inicio de sesión (LoginStack)
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
@@ -139,91 +153,102 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
-      <ImageBackground source={require('../../../../assets/fondo.png')} style={{ height: Dimensions.get('window').height / 2.5 }}>
-        <View style={styles.brandView}>
-          <Iconn name="spa" size={24} color="black" style={{ fontSize: 100 }} />
-          <Text style={styles.brandViewText}>Perfil</Text>
-        </View>
-      </ImageBackground>
-      <View style={styles.bottomView}>
-        <View style={{ padding: 40 }}>
-          <View style={{ marginTop: 15 }}>
-            <View style={{ borderColor: "#4632A1" }}>
-              <View style={{ alignItems: 'center' }}>
-                <Icon name="user" size={70} color="black" />
-              </View>
-              <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2, marginTop: 10 }}>Nombre:</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text>{names}</Text>
-                <Icon name="user" style={{ color: "black" }} />
-              </View>
+      {showWelcome ? (
+        // Mostrar la pantalla de bienvenida solo si showWelcome es verdadero
+        <Bienvenido navigation={navigation} />
+      ) : (
+        <View>
+          <ImageBackground source={require('../../../../assets/fondo.png')} style={{ height: Dimensions.get('window').height / 2.5 }}>
+            <View style={styles.brandView}>
+              <Iconn name="spa" size={24} color="black" style={{ fontSize: 100 }} />
+              <Text style={styles.brandViewText}>Perfil</Text>
             </View>
+          </ImageBackground>
+          <View style={styles.bottomView}>
 
-            <View style={{ borderColor: '#4632A1', marginTop: 10 }}>
-              <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Apellidos:</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ flex: 1 }}>{lastNames}</Text>
-                <Icon name="id-card" style={{ color: "black" }} />
+            <View style={{ padding: 40 }}>
+              <View style={{ marginTop: 15 }}>
+
+                <View style={{ borderColor: "#4632A1" }}>
+                  <View style={{ alignItems: 'center' }}>
+                    <Icon name="user" size={70} color="black" />
+                  </View>
+                  <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2, marginTop: 10 }}>Nombre:</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text>{names}</Text>
+                    <Icon name="user" style={{ color: "black" }} />
+                  </View>
+                </View>
+
+                <View style={{ borderColor: '#4632A1', marginTop: 10 }}>
+                  <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Apellidos:</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={{ flex: 1 }}>{lastNames}</Text>
+                    <Icon name="id-card" style={{ color: "black" }} />
+                  </View>
+                </View>
+
+                <View style={{ borderColor: '#4632A1', marginTop: 10 }}>
+                  <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Correo Electrónico:</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={{ flex: 1 }}>{emails}</Text>
+                    <Icon name="envelope" style={{ color: "black" }} />
+                  </View>
+                </View>
+
+                <View style={{ marginTop: 15, height: 50, justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
+                  <TouchableOpacity
+                    style={{
+                      flex: 1,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 10,
+                      paddingVertical: 8,
+                      paddingHorizontal: 16,
+                      marginHorizontal: 5,
+                      borderWidth: 1,
+                      borderColor: 'green',
+                    }}
+                    onPress={handleModifyData}
+                  >
+                    <Text
+                      style={{
+                        color: 'green',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      Modificar Datos
+                    </Text>
+                  </TouchableOpacity>
+                  {/* BOTON CERRAR SESIÓN */}
+                  <TouchableOpacity
+                    style={{
+                      flex: 1,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 10,
+                      paddingVertical: 8,
+                      paddingHorizontal: 16,
+                      marginHorizontal: 5,
+                      borderWidth: 1,
+                      borderColor: 'green',
+                    }}
+                    onPress={cerrar}
+                  >
+                    <Text style={{ color: 'green', fontSize: 15, fontWeight: 'bold' }}>Cerrar sesión</Text>
+                  </TouchableOpacity>
+                  {/* */}
+
+                </View>
               </View>
-            </View>
 
-            <View style={{ borderColor: '#4632A1', marginTop: 10 }}>
-              <Text style={{ marginBottom: 5, textShadowColor: "black", textShadowRadius: 2 }}>Correo Electrónico:</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ flex: 1 }}>{emails}</Text>
-                <Icon name="envelope" style={{ color: "black" }} />
-              </View>
-            </View>
-
-            <View style={{ marginTop: 15, height: 50, justifyContent: 'center', alignItems: 'center', flexDirection: 'row' }}>
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 10,
-                  paddingVertical: 8,
-                  paddingHorizontal: 16,
-                  marginHorizontal: 5,
-                  borderWidth: 1,
-                  borderColor: 'green',
-                }}
-                onPress={handleModifyData}
-              >
-                <Text
-                  style={{
-                    color: 'green',
-                    fontSize: 15,
-                    fontWeight: 'bold',
-                  }}
-                >
-                  Modificar Datos
-                </Text>
-              </TouchableOpacity>
-              {/* BOTON CERRAR SESIÓN */}
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 10,
-                  paddingVertical: 8,
-                  paddingHorizontal: 16,
-                  marginHorizontal: 5,
-                  borderWidth: 1,
-                  borderColor: 'green',
-                }}
-                onPress={cerrar}
-              >
-                <Text style={{ color: 'green', fontSize: 15, fontWeight: 'bold' }}>Cerrar sesión</Text>
-              </TouchableOpacity>
-              {/* */}
             </View>
           </View>
         </View>
-      </View>
+      )}
 
       {/* Modal para modificar datos */}
       {isModalVisible && (
@@ -239,7 +264,6 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
             ) : (
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Modificar Datos</Text>
-                <Text>Su ID: {id}</Text>
                 <TextInput style={{ display: "none" }}>{id}</TextInput>
                 <TextInput
                   placeholder="Ingrese su Nombre"
@@ -258,6 +282,13 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                   placeholder="Ingrese su Correo"
                   value={editedEmail}
                   onChangeText={(text) => setEditedEmail(text)}
+                />
+
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="Ingrese su nueva contraseña"
+                  value={password}
+                  onChangeText={(text) => setPassword(text)}
                 />
 
                 <TouchableOpacity
@@ -288,7 +319,9 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                 </TouchableOpacity>
               </View>
             )}
+
           </View>
+
         </Modal>
       )}
     </ScrollView>
