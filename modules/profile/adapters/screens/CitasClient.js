@@ -150,13 +150,18 @@ export default function ViewCitaClient() {
                       </View>
 
                       <View style={styles.columnContainer}>
-                        <Text style={styles.label}> Hora Inicio: </Text>
+                        <Text style={styles.label}>Hora Inicio: </Text>
                         <Text>{cita[5]}</Text>
                       </View>
 
                       <View style={styles.columnContainer}>
-                        <Text style={styles.label}> Hora fin:</Text>
+                        <Text style={styles.label}>Hora fin:</Text>
                         <Text>{cita[6]}</Text>
+                      </View>
+
+                      <View style={styles.columnContainer}>
+                        <Text style={styles.label}>Sucursal:</Text>
+                        <Text>{cita[8]}</Text>
                       </View>
                     </View>
                     <View style={styles.buttonContainer}>

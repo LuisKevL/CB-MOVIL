@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import Axios from "axios";
 import Iconn from "react-native-vector-icons/MaterialIcons";
+import { Picker } from '@react-native-picker/picker'; // Importa el Picker desde el nuevo paquete
 
 export default function Agenda() {
   const [citaData, setCitaData] = useState([]);
@@ -26,9 +27,13 @@ export default function Agenda() {
   const [day, setDay] = useState("");
   const [startTime, setStartTime] = useState("");
   const [timeEnd, setTimeEnd] = useState("");
+  const [branch, setBranch] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [counter, setCounter] = useState(0);
 
+  const opcionesSucursales = ['Sucursal 1', 'Sucursal 2', 'Sucursal 3'];
+  const [selectedSucursal, setSelectedSucursal] = useState('');
+  const opcionesService = ['Pies', 'Cabello'];
   const [fieldsCompleted, setFieldsCompleted] = useState(false);
   //validar campos obligatorios
   const validateFields = () => {
@@ -39,7 +44,10 @@ export default function Agenda() {
       typeOfService.trim() === "" ||
       day.trim() === "" ||
       startTime.trim() === "" ||
-      timeEnd.trim() === ""
+      timeEnd.trim() === "" ||
+      branch.trim() === "" ||
+      opcionesService.trim() === "" ||
+      opcionesSucursales.trim() === ""
     ) {
       return false;
     }
@@ -79,6 +87,7 @@ export default function Agenda() {
           day: day,
           startTime: startTime,
           timeEnd: timeEnd,
+          branch: branch
         }
       );
       setCounter((prevCounter) => prevCounter + 1);
@@ -90,6 +99,7 @@ export default function Agenda() {
       console.log("Dia: ", day);
       setStartTime(startTime);
       setTimeEnd(timeEnd);
+      setBranch(branch);
       Alert.alert("Agendado correctamente")
     } catch (error) {
       console.log("Error al agendar la cita: ", error);
@@ -152,114 +162,128 @@ export default function Agenda() {
           </View>
         </View>
       </View>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Agendar cita </Text>
-            <TextInput
-              style={{ display: "none" }}
-              value={id}
-              editable={false}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Ingrese el Nombre de lo que se va a realizar "
-              value={name}
-              onChangeText={(text) => {
-                setName(text);
-                setFieldsCompleted(validateFields());
-              }}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Ingrese el Apellido del cliente "
-              value={lastNameClient}
-              onChangeText={(text) => {
-                setLastNameClient(text);
-                setFieldsCompleted(validateFields());
-              }}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Ingrese el Nombre del cliente"
-              value={nameClient}
-              onChangeText={(text) => {
-                setnameClient(text);
-                setFieldsCompleted(validateFields());
-              }}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Ingrese el tipo de servicio"
-              value={typeOfService}
-              onChangeText={(text) => {
-                setTypeOfService(text);
-                setFieldsCompleted(validateFields());
-              }}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Ingrese la hora de inicio "
-              value={startTime}
-              onChangeText={(text) => {
-                setStartTime(text);
-                setFieldsCompleted(validateFields());
-              }}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Ingrese la hora de fin "
-              value={timeEnd}
-              onChangeText={(text) => {
-                setTimeEnd(text);
-                setFieldsCompleted(validateFields());
-              }}
-            />
+      <View style={{
+        flex: 1,
+        padding: 20,
+      }}>
 
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#000dcc",
-                  borderRadius: 10,
-                  height: 30,
-                  width: 200,
-                  justifyContent: "center",
-                  alignItems: "center",
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+          style={{ flex: 1, width: '100%', borderWidth: 2, borderColor: 'red' }}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>Agendar cita </Text>
+              <TextInput
+                style={{ display: "none" }}
+                value={id}
+                editable={false}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Ingrese el Nombre de lo que se va a realizar "
+                value={name}
+                onChangeText={(text) => {
+                  setName(text);
+                  setFieldsCompleted(validateFields())
                 }}
-                onPress={() => {
-                  if (fieldsCompleted) {
-                    agendarCita(); // Aquí llamas a la función cita() que realiza el registro
-                  } else {
-                    Alert.alert("Error", "Todos los campos son obligatorios.");
-                  }
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Ingrese el Apellido del cliente "
+                value={lastNameClient}
+                onChangeText={(text) => {
+                  setLastNameClient(text);
+                  setFieldsCompleted(validateFields())
                 }}
-              >
-                <Text style={{ color: "white", fontWeight: "bold" }}>
-                  Agendar
-                </Text>
-              </TouchableOpacity>
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Ingrese el Nombre del cliente"
+                value={nameClient}
+                onChangeText={(text) => {
+                  setnameClient(text);
+                  setFieldsCompleted(validateFields())
+                }}
+              />
+              <View style={{ flexDirection: "row" }}>
+                <Picker
+                  style={{ ...styles.input, flex: 1 }}
+                  selectedValue={typeOfService}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setTypeOfService(itemValue);
+                    setFieldsCompleted(validateFields());
+                  }}
+                >
+                  <Picker.Item label="Seleccione un servicio" value="" />
+                  {opcionesService.map((service, index) => (
+                    <Picker.Item key={index} label={service} value={service} />
+                  ))}
+                </Picker>
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Ingrese la hora de inicio "
+                value={startTime}
+                onChangeText={(text) => {
+                  setStartTime(text);
+                }}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Ingrese la hora de fin "
+                value={timeEnd}
+                onChangeText={(text) => {
+                  setTimeEnd(text);
+                }}
+              />
+              <View style={{ flexDirection: 'row' }}>
+                <Picker
+                  style={{ ...styles.input, flex: 1 }}
+                  selectedValue={branch}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setBranch(itemValue);
+                    setFieldsCompleted(validateFields());
+                  }}
+                >
+                  <Picker.Item label="Seleccione una sucursal" value="" />
+                  {opcionesSucursales.map((sucursal, index) => (
+                    <Picker.Item key={index} label={sucursal} value={sucursal} />
+                  ))}
+                </Picker>
+              </View>
+
+              <View style={styles.containerColum}>
+                <TouchableOpacity
+                  style={[styles.botones, styles.agendarButton]}
+                  onPress={() => {
+                    if (fieldsCompleted) {
+                      agendarCita(); // Aquí llamas a la función cita() que realiza el registro
+                    } else {
+                      Alert.alert("Por favor, llene todos los campos")
+                    }
+                  }}
+                >
+                  <Text style={styles.buttonText}>
+                    Agendar
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.botones, styles.agendarButton]}
+
+                  onPress={() => setModalVisible(false)}>
+                  <Text style={styles.buttonText}>Cerrar</Text>
+                </TouchableOpacity>
+              </View>
+
             </View>
-
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#FC0B0B",
-                borderRadius: 10,
-                height: 30,
-                width: 200,
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 15,
-              }}
-              onPress={() => setModalVisible(false)}>
-              <Text style={{ color: "white", fontWeight: "bold" }}>Cerrar</Text>
-            </TouchableOpacity>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      </View>
     </ScrollView>
   );
 }
@@ -318,16 +342,15 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     padding: 20,
     borderRadius: 10,
-    alignItems: "center",
-    elevation: 5,
+    width: '80%',
   },
   modalText: {
     fontSize: 20,
@@ -335,14 +358,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    width: "100%",
     height: 40,
-    borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 5,
+    borderColor: '#ccc',
+    borderRadius: 4,
     marginBottom: 10,
     paddingHorizontal: 10,
-    margin: 10,
   },
   touchable: {
     backgroundColor: "#97714D",
@@ -351,6 +372,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  datos: {
+  botones: {
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  agendarButton: {
+    backgroundColor: '#97714D',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  containerColum: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10
   }
 });
