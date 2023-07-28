@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     title: {
-        color: '#8B4513',
+        color: '#97714D',
         fontSize: 34,
         fontWeight: 'bold',
         marginBottom: 30,
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     },
     inputLabel: {
         marginBottom: 5,
-        color: 'black',
+        color: '#130F0E',
         fontWeight: 'bold',
     },
     inputWrapper: {

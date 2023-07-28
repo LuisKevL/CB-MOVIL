@@ -32,6 +32,20 @@ export default function Cita({ navigation }) {
   const [isLoading, setLoading] = useState(false);
   const [counter, setCounter] = useState(0);
 
+  const [fieldsCompleted, setFieldsCompleted] = useState(false);
+  const validateFields = () => {
+    if (
+      typeOfService.trim() === "" ||
+      day.trim() === "" ||
+      hour.trim() === "" ||
+      branch.trim() === "" ||
+      editedNameValue.trim() === ""
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   useEffect(() => {
     setId(counter.toString());
   }, [counter]);
@@ -176,8 +190,12 @@ export default function Cita({ navigation }) {
                     style={styles.input}
                     placeholder="Nombre del servicio"
                     value={typeOfService}
-                    onChangeText={(text) => setTypeOfService(text)}
+                    onChangeText={(text) => {
+                      setTypeOfService(text);
+                      setFieldsCompleted(validateFields());
+                    }}
                   />
+
                   <Icon name="keyboard-o" style={{ color: "black" }} />
                 </View>
               </View>
@@ -186,7 +204,7 @@ export default function Cita({ navigation }) {
                 <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Dia de la cita</Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <DatePicker
-                  style={styles.DatePicker}
+                    style={styles.DatePicker}
                     options={{
                       backgroundColor: "#fff",
                       textHeaderColor: "#8B4513",
@@ -200,7 +218,7 @@ export default function Cita({ navigation }) {
                     minuteInterval={30}
                     onSelectedChange={(date) => setDay(date)}
                     value={day}
-                    
+
                   />
                 </View>
               </View>
@@ -212,7 +230,10 @@ export default function Cita({ navigation }) {
                     style={styles.input}
                     placeholder="Ingresa la hora"
                     value={hour}
-                    onChangeText={(text) => setHour(text)}
+                    onChangeText={(text) => {
+                      setHour(text);
+                      setFieldsCompleted(validateFields());
+                    }}
                   />
                   <Icon name="keyboard-o" style={{ color: "black" }} />
                 </View>
@@ -225,7 +246,10 @@ export default function Cita({ navigation }) {
                     style={styles.input}
                     placeholder="Apellido Cliente"
                     value={editedNameValue}
-                    onChangeText={(text) => setEditedNameValue(text)}
+                    onChangeText={(text) => {
+                      setEditedNameValue(text);
+                      setFieldsCompleted(validateFields());
+                    }}
                   />
                   <Icon name="keyboard-o" style={{ color: "black" }} />
                 </View>
@@ -233,13 +257,16 @@ export default function Cita({ navigation }) {
 
 
               <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
-                <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Tipo de rama</Text>
+                <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Sucursal</Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <TextInput
                     style={styles.input}
-                    placeholder="Nombre del la rama"
+                    placeholder="Nombre de la sucursal"
                     value={branch}
-                    onChangeText={(text) => setBranch(text)}
+                    onChangeText={(text) => {
+                      setBranch(text);
+                      setFieldsCompleted(validateFields());
+                    }}
                   />
                   <Icon name="keyboard-o" style={{ color: "black" }} />
                 </View>
@@ -263,17 +290,26 @@ export default function Cita({ navigation }) {
                     paddingHorizontal: 16,
                     marginHorizontal: 5,
                   }}
-                  onPress={cita}>
+                  onPress={() => {
+                    if (fieldsCompleted) {
+                      cita(); // Aquí llamas a la función cita() que realiza el registro
+                    } else {
+                      Alert.alert("Error", "Todos los campos son obligatorios.");
+                    }
+                  }}
+                >
                   <Text
                     style={{
                       color: "white",
                       fontSize: 18,
                       fontWeight: "bold",
                       marginLeft: 8,
-                    }}>
+                    }}
+                  >
                     Registrar
                   </Text>
                 </TouchableOpacity>
+
               </View>
             </View>
           )}

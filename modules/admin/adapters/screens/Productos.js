@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, StyleSheet, Modal, Alert, FlatList, Text, Image } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Modal, Alert, FlatList, Text, Image, TouchableOpacity } from 'react-native';
 import Axios from 'axios';
 import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
@@ -188,7 +188,7 @@ const AgregarProducto = () => {
 
     return (
       <View style={styles.productoContainer}>
-       
+
         <Text style={styles.productoNombre}>{item.nombre}</Text>
         <Text style={styles.productoPrecio}>Precio: ${item.precio}</Text>
         <Text style={styles.productoDescripcion}>{item.descripcion}</Text>
@@ -196,10 +196,46 @@ const AgregarProducto = () => {
           <Image source={{ uri: productoImageUrls[0] }} style={styles.image} />
         )}
         <View style={styles.buttonContainer}>
-          <Button title="Seleccionar Imagen" onPress={() => handleSelectImage(item.id)} />
-          <Button title="Subir Imagen" onPress={() => handleUploadImage(item.id)} />
+          <TouchableOpacity
+            style={styles.touchable}
+            onPress={() => handleSelectImage(item.id)} >
+            <Text
+              style={{
+                color: "white",
+                fontSize: 12,
+                fontWeight: "bold",
+              }}
+            >
+              SELECCIONAR IMAGEN
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.touchable}
+            onPress={() => handleUploadImage(item.id)} >
+            <Text
+              style={{
+                color: "white",
+                fontSize: 14,
+                fontWeight: "bold",
+              }}
+            >
+              SUBIR IMÁGEN
+            </Text>
+          </TouchableOpacity>
         </View>
-        <Button title="Agregar Oferta" onPress={() => setModal(true)} />
+        <TouchableOpacity
+          style={styles.touchable}
+          onPress={() => setModal(true)} >
+          <Text
+            style={{
+              color: "white",
+              fontSize: 14,
+              fontWeight: "bold",
+            }}
+          >
+            AGREGAR OFERTA
+          </Text>
+        </TouchableOpacity>
 
         {/* Modal de la oferta */}
         <Modal visible={modal} animationType="slide" transparent={false}>
@@ -303,14 +339,76 @@ const AgregarProducto = () => {
               justifyContent: 'space-between',
               marginBottom: 10,
             }}>
-              <Button title="Registrar Producto" onPress={handleGuardar} />
-              <Button title="Cancelar" onPress={() => { setModalVisible(false); clearFields(); }} />
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: "#8B4513",
+                  borderRadius: 10,
+                  paddingVertical: 5,
+                  paddingHorizontal: 16,
+                  marginHorizontal: 5,
+                  alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                }}
+                onPress={handleGuardar} >
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 14,
+                    fontWeight: "bold",
+                  }}
+                >
+                  REGISTRAR
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: "#8B4513",
+                  borderRadius: 10,
+                  paddingVertical: 5,
+                  paddingHorizontal: 14,
+                  marginHorizontal: 5,
+                  alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                }}
+                onPress={() => { setModalVisible(false); clearFields(); }} >
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 15,
+                    fontWeight: "bold",
+                  }}
+                >
+                  CANCELAR
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
 
-      <Button title="Agregar Producto" onPress={() => setModalVisible(true)} />
+      <TouchableOpacity
+        style={{
+          backgroundColor: "#8B4513",
+          borderRadius: 10,
+          paddingVertical: 7, // Ajustar este valor para aumentar la altura
+          paddingHorizontal: 12,
+          marginHorizontal: 5,
+          alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+        }}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text
+          style={{
+            color: "white",
+            fontSize: 15,
+            fontWeight: "bold",
+          }}
+        >
+          AGREGAR PRODUCTO
+        </Text>
+      </TouchableOpacity>
+
+
     </View>
   );
 };
@@ -389,6 +487,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 10,
   },
+  touchable: {
+    flex: 1,
+    backgroundColor: "#97714D",
+    borderRadius: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 16,
+    marginHorizontal: 5,
+    alignItems: "center",
+  },
+  textBotones: {
+
+  }
 });
 
 export default AgregarProducto;

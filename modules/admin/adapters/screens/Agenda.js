@@ -21,13 +21,30 @@ export default function Agenda() {
   const [id, setId] = useState("");
   const [name, setName] = useState("");
   const [lastNameClient, setLastNameClient] = useState("");
-  const [ nameClient, setnameClient] = useState("");
+  const [nameClient, setnameClient] = useState("");
   const [typeOfService, setTypeOfService] = useState("");
   const [day, setDay] = useState("");
   const [startTime, setStartTime] = useState("");
   const [timeEnd, setTimeEnd] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [counter, setCounter] = useState(0);
+
+  const [fieldsCompleted, setFieldsCompleted] = useState(false);
+  //validar campos obligatorios
+  const validateFields = () => {
+    if (
+      name.trim() === "" ||
+      lastNameClient.trim() === "" ||
+      nameClient.trim() === "" ||
+      typeOfService.trim() === "" ||
+      day.trim() === "" ||
+      startTime.trim() === "" ||
+      timeEnd.trim() === ""
+    ) {
+      return false;
+    }
+    return true;
+  }
 
   useEffect(() => {
     setId(counter.toString());
@@ -57,7 +74,7 @@ export default function Agenda() {
           id: id,
           name: name,
           lastNameClient: lastNameClient,
-          nameClient:nameClient,
+          nameClient: nameClient,
           typeOfService: typeOfService,
           day: day,
           startTime: startTime,
@@ -76,7 +93,8 @@ export default function Agenda() {
       Alert.alert("Agendado correctamente")
     } catch (error) {
       console.log("Error al agendar la cita: ", error);
-      Alert.alert("Se produjo un error al agendar la cita");    }
+      Alert.alert("Se produjo un error al agendar la cita");
+    }
   };
   return (
     <ScrollView
@@ -107,7 +125,7 @@ export default function Agenda() {
 
                   <View style={styles.columnContainer}>
                     <Text style={styles.label}>Tipo de servicio:</Text>
-                    <Text>{cita.typeOfService}</Text>
+                    <Text style={styles.datos}>{cita.typeOfService}</Text>
                   </View>
                 </View>
 
@@ -116,11 +134,15 @@ export default function Agenda() {
                     <Text style={styles.label}>Nombre del usuario:</Text>
                     <Text>{cita.nameUser}</Text>
                   </View>
+                  <View style={styles.columnContainer}>
+                    <Text style={styles.label}>Sucursal:</Text>
+                    <Text>{cita.branch}</Text>
+                  </View>
                 </View>
 
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity
-                    style={styles.button}
+                    style={styles.touchable}
                     onPress={() => setModalVisible(true)}>
                     <Text style={styles.textButton}>Agendar Cita</Text>
                   </TouchableOpacity>
@@ -149,6 +171,7 @@ export default function Agenda() {
               value={name}
               onChangeText={(text) => {
                 setName(text);
+                setFieldsCompleted(validateFields());
               }}
             />
             <TextInput
@@ -157,6 +180,7 @@ export default function Agenda() {
               value={lastNameClient}
               onChangeText={(text) => {
                 setLastNameClient(text);
+                setFieldsCompleted(validateFields());
               }}
             />
             <TextInput
@@ -165,6 +189,7 @@ export default function Agenda() {
               value={nameClient}
               onChangeText={(text) => {
                 setnameClient(text);
+                setFieldsCompleted(validateFields());
               }}
             />
             <TextInput
@@ -173,6 +198,7 @@ export default function Agenda() {
               value={typeOfService}
               onChangeText={(text) => {
                 setTypeOfService(text);
+                setFieldsCompleted(validateFields());
               }}
             />
             <TextInput
@@ -181,6 +207,7 @@ export default function Agenda() {
               value={startTime}
               onChangeText={(text) => {
                 setStartTime(text);
+                setFieldsCompleted(validateFields());
               }}
             />
             <TextInput
@@ -189,6 +216,7 @@ export default function Agenda() {
               value={timeEnd}
               onChangeText={(text) => {
                 setTimeEnd(text);
+                setFieldsCompleted(validateFields());
               }}
             />
 
@@ -202,7 +230,14 @@ export default function Agenda() {
                   justifyContent: "center",
                   alignItems: "center",
                 }}
-                onPress={agendarCita}>
+                onPress={() => {
+                  if (fieldsCompleted) {
+                    agendarCita(); // Aquí llamas a la función cita() que realiza el registro
+                  } else {
+                    Alert.alert("Error", "Todos los campos son obligatorios.");
+                  }
+                }}
+              >
                 <Text style={{ color: "white", fontWeight: "bold" }}>
                   Agendar
                 </Text>
@@ -264,7 +299,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: "bold",
     marginBottom: 5,
-    color: "#AD093D",
+    color: "#000000", // Cambiar el valor a #000000 para hacerlo más negro
   },
   rowContainer: {
     flexDirection: "row",
@@ -309,4 +344,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     margin: 10,
   },
+  touchable: {
+    backgroundColor: "#97714D",
+    borderRadius: 10,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  datos: {
+  }
 });
