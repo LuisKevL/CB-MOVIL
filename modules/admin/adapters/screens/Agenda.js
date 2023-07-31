@@ -32,8 +32,20 @@ export default function Agenda() {
   const [counter, setCounter] = useState(0);
 
   const opcionesSucursales = ['Sucursal 1', 'Sucursal 2', 'Sucursal 3'];
-  const [selectedSucursal, setSelectedSucursal] = useState('');
   const opcionesService = ['Pies', 'Cabello'];
+  const horas = [
+    "08:00 a. m.", "08:30 a. m.",
+    "09:00 a. m.", "09:30 a. m.",
+    "10:00 a. m.", "10:30 a. m.",
+    "11:00 a. m.", "11:30 a. m.",
+    "12:00 p. m.", "12:30 p. m.",
+    "13:00 p. m.", "13:30 p. m.",
+    "14:00 p. m.", "14:30 p. m.",
+    "15:00 p. m.", "15:30 p. m.",
+    "16:00 p. m.", "16:30 p. m.",
+    "17:00 p. m.", "17:30 p. m.",
+    "18:00 p. m.", "18:30 p. m.",
+  ];
   const [fieldsCompleted, setFieldsCompleted] = useState(false);
   //validar campos obligatorios
   const validateFields = () => {
@@ -42,12 +54,10 @@ export default function Agenda() {
       lastNameClient.trim() === "" ||
       nameClient.trim() === "" ||
       typeOfService.trim() === "" ||
-      day.trim() === "" ||
       startTime.trim() === "" ||
       timeEnd.trim() === "" ||
-      branch.trim() === "" ||
-      opcionesService.trim() === "" ||
-      opcionesSucursales.trim() === ""
+      branch.trim() === ""
+
     ) {
       return false;
     }
@@ -106,6 +116,9 @@ export default function Agenda() {
       Alert.alert("Se produjo un error al agendar la cita");
     }
   };
+  useEffect(() => {
+    console.log('name:', name); // Agregar este console.log para depurar el valor de "name"
+  }, [name]);
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }}
@@ -177,11 +190,7 @@ export default function Agenda() {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalText}>Agendar cita </Text>
-              <TextInput
-                style={{ display: "none" }}
-                value={id}
-                editable={false}
-              />
+
               <TextInput
                 style={styles.input}
                 placeholder="Ingrese el Nombre de lo que se va a realizar "
@@ -224,22 +233,36 @@ export default function Agenda() {
                   ))}
                 </Picker>
               </View>
-              <TextInput
-                style={styles.input}
-                placeholder="Ingrese la hora de inicio "
-                value={startTime}
-                onChangeText={(text) => {
-                  setStartTime(text);
-                }}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Ingrese la hora de fin "
-                value={timeEnd}
-                onChangeText={(text) => {
-                  setTimeEnd(text);
-                }}
-              />
+              <View style={{ flexDirection: "row" }}>
+                <Picker
+                  style={{ ...styles.input, flex: 1 }}
+                  selectedValue={startTime}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setStartTime(itemValue);
+                    setFieldsCompleted(validateFields());
+                  }}
+                >
+                  <Picker.Item label="Ingrese la hora de inicio" value="" />
+                  {horas.map((startTime, index) => (
+                    <Picker.Item key={index} label={startTime} value={startTime} />
+                  ))}
+                </Picker>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <Picker
+                  style={{ ...styles.input, flex: 1 }}
+                  selectedValue={timeEnd}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setTimeEnd(itemValue);
+                    setFieldsCompleted(validateFields());
+                  }}
+                >
+                  <Picker.Item label="Ingrese la hora fin" value="" />
+                  {horas.map((timeEnd, index) => (
+                    <Picker.Item key={index} label={timeEnd} value={timeEnd} />
+                  ))}
+                </Picker>
+              </View>
               <View style={{ flexDirection: 'row' }}>
                 <Picker
                   style={{ ...styles.input, flex: 1 }}

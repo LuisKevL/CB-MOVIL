@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -10,66 +12,43 @@ import {
   TextInput,
   Button,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import Axios from "axios";
 import Iconn from "react-native-vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Notifications from "expo-notifications";
-import { CommonActions } from "@react-navigation/native";
-import { useNavigation } from "@react-navigation/native";
-
+import { Picker } from "@react-native-picker/picker";
 export default function ViewCitaClient() {
   const [citaData, setCitaData] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [nombreCita, setNombreCita] = useState("");
-  const [nombreCliente, setNombreCliente] = useState("");
-  const [tipoServicio, setTipoServicio] = useState("");
-  const [diaCita, setDiaCita] = useState("");
-  const [horaInicio, setHoraInicio] = useState("");
-  const [horaFin, setHoraFin] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [calificacion, setCalificacion] = useState(0);
+  const [calificacionesCitas, setCalificacionesCitas] = useState({});
+  const [citasPuntuadas, setCitasPuntuadas] = useState([]);
 
-
-
-  const handleScheduleNotification = async () => {
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== "granted") {
-      Alert.alert(
-        "Permisos de notificación requeridos",
-        "Debes permitir las notificaciones para utilizar esta función."
+  const enviarCalificacion = async (citaId, nombreCita) => {
+    try {
+      const id = generateId();
+      const response = await Axios.post(
+        "http://192.168.0.232:8080/api-beautypalace/servicio/",
+        {
+          id: id,
+          estrellas: calificacionesCitas[citaId], // Utiliza la calificación específica de esta cita
+          id_cita: citaId,
+          name_cita: nombreCita,
+        }
       );
-      return;
+      const updatedCitasPuntuadas = [...citasPuntuadas, citaId]; // Agrega el ID de la cita puntuada
+      setCitasPuntuadas(updatedCitasPuntuadas);
+      Alert.alert("Calificación enviada exitosamente");
+    } catch (error) {
+      console.log("Error al enviar la calificación: ", error);
+      Alert.alert("Error al enviar la calificación");
     }
+  };
 
-    Alert.alert(
-      "Programar notificación",
-      "¿Quieres programar un recordatorio cada 24 horas?",
-      [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Programar",
-          onPress: () => {
-            Notifications.scheduleNotificationAsync({
-              content: {
-                title: "Recordatorio de Cita",
-                body: `tiene una cita el ${citaData[0][1]}`,
-                sound: true,
-              },
-              trigger: { seconds: 3000 },
-            });
-          },
-        },
-      ]
-    );
+
+  const generateId = () => {
+    return Date.now().toString();
   };
 
   const fetchData = async () => {
@@ -87,13 +66,38 @@ export default function ViewCitaClient() {
     }
   };
 
+  const fetchCalificaciones = async () => {
+    try {
+      const response = await Axios.get(
+        "http://192.168.0.232:8080/api-beautypalace/servicio/"
+      );
+      const { data } = response.data;
+      const calificaciones = {};
+      const citasPuntuadas = [];
+      data.forEach((calificacion) => {
+        calificaciones[calificacion.id_cita] = calificacion.estrellas;
+        if (calificacion.estrellas > 0) {
+          citasPuntuadas.push(calificacion.id_cita);
+        }
+      });
+      setCalificacionesCitas(calificaciones);
+      setCitasPuntuadas(citasPuntuadas);
+    } catch (error) {
+      console.log("Error al obtener las calificaciones: ", error);
+    }
+  };
+
+
   useEffect(() => {
-    fetchData()
-  }, [])
+    fetchData();
+    fetchCalificaciones();
+  }, []);
+
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }}
-      showsVerticalScrollIndicator={false}>
+      showsVerticalScrollIndicator={false}
+    >
       {isLoading ? (
         <View style={styles.container}>
           <View style={styles.loadingContainer}>
@@ -104,14 +108,10 @@ export default function ViewCitaClient() {
         <>
           <ImageBackground
             source={require("../../../../assets/fondo.png")}
-            style={{ height: Dimensions.get("window").height / 2.5 }}>
+            style={{ height: Dimensions.get("window").height / 2.5 }}
+          >
             <View style={styles.brandView}>
-              <Iconn
-                name="spa"
-                size={24}
-                color="black"
-                style={{ fontSize: 100 }}
-              />
+              <Iconn name="spa" size={24} color="black" style={{ fontSize: 100 }} />
               <Text style={styles.brandViewText}>Ver Citas</Text>
             </View>
           </ImageBackground>
@@ -124,14 +124,12 @@ export default function ViewCitaClient() {
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}>Nombre de la cita:</Text>
                         <Text>{cita[3]}</Text>
-
                       </View>
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}>Tipo de servicio:</Text>
                         <Text>{cita[7]}</Text>
                       </View>
                     </View>
-
 
                     <View style={styles.rowContainer}>
                       <View style={styles.columnContainer}>
@@ -140,7 +138,6 @@ export default function ViewCitaClient() {
                           {cita[4]} {cita[2]}
                         </Text>
                       </View>
-
                     </View>
 
                     <View style={styles.rowContainer}>
@@ -164,71 +161,67 @@ export default function ViewCitaClient() {
                         <Text>{cita[8]}</Text>
                       </View>
                     </View>
+                    {/* ... */}
                     <View style={styles.buttonContainer}>
-                      {/*  <Button
-                        title="Programar notificación"
-                        onPress={handleScheduleNotification}
-                      />*/}
+                      {citasPuntuadas.includes(cita[0]) ? (
+                        <Text>Ya has puntuado el servicio</Text>
+                      ) : (
+                        <>
+                          <Picker
+                            selectedValue={calificacionesCitas[cita[0]]}
+                            style={{ width: 150 }}
+                            onValueChange={(itemValue) =>
+                              setCalificacionesCitas((prevCalificaciones) => ({
+                                ...prevCalificaciones,
+                                [cita[0]]: itemValue,
+                              }))
+                            }
+                          >
+                            <Picker.Item label="Calificar" value={0} />
+                            <Picker.Item label="⭐" value={1} />
+                            <Picker.Item label="⭐⭐" value={2} />
+                            <Picker.Item label="⭐⭐⭐" value={3} />
+                            <Picker.Item label="⭐⭐⭐⭐" value={4} />
+                            <Picker.Item label="⭐⭐⭐⭐⭐" value={5} />
+                          </Picker>
+
+                          <TouchableOpacity
+                            style={{
+                              flex: 1,
+                              flexDirection: "row",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              backgroundColor: "#8B4513",
+                              borderRadius: 10,
+                              paddingVertical: 8,
+                              paddingHorizontal: 16,
+                              marginHorizontal: 5,
+                            }}
+                            onPress={() => {
+                              if (!citasPuntuadas.includes(cita[0])) {
+                                enviarCalificacion(cita[0], cita[3]);
+                              }
+                            }}
+                          >
+                            <Text style={{ color: "white", fontSize: 10 }}>Puntuar Servicio</Text>
+                          </TouchableOpacity>
+                        </>
+                      )}
                     </View>
+                    {/* ... */}
+
+
+                    <TextInput
+                      style={styles.starInput}
+                      value={"⭐".repeat(calificacionesCitas[cita[0]])}
+                      editable={false}
+                    />
+                    <Text>{cita[0]}</Text>
                   </View>
                 ))}
               </View>
             </View>
           </View>
-
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)}>
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalText}>Actualizar Cita</Text>
-
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nombre de la cita"
-                  value={nombreCita}
-                  onChangeText={(text) => setNombreCita(text)}
-                />
-
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nombre del cliente"
-                  value={nombreCliente}
-                  onChangeText={(text) => setNombreCliente(text)}
-                />
-
-                <TextInput
-                  style={styles.input}
-                  placeholder="Tipo de servicio"
-                  value={tipoServicio}
-                  onChangeText={(text) => setTipoServicio(text)}
-                />
-
-                <TextInput
-                  style={styles.input}
-                  placeholder="Día de la cita"
-                  value={diaCita}
-                  onChangeText={(text) => setDiaCita(text)}
-                />
-
-                <TextInput
-                  style={styles.input}
-                  placeholder="Hora de inicio"
-                  value={horaInicio}
-                  onChangeText={(text) => setHoraInicio(text)}
-                />
-
-                <TextInput
-                  style={styles.input}
-                  placeholder="Hora de fin"
-                  value={horaFin}
-                  onChangeText={(text) => setHoraFin(text)}
-                />
-              </View>
-            </View>
-          </Modal>
         </>
       )}
     </ScrollView>
@@ -340,5 +333,14 @@ const styles = StyleSheet.create({
   cancelButton: {
     backgroundColor: "#a32f2f",
     marginTop: 10,
+  },
+  starInput: {
+    fontSize: 20,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    marginTop: 10,
+    textAlign: "center",
   },
 });

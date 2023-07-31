@@ -18,7 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect } from "react";
 import DatePicker from "react-native-modern-datepicker";
 import Axios from "axios";
-
+import { Picker } from '@react-native-picker/picker'; // Asegúrate de que estás importando desde @react-native-picker/picker
 export default function Cita({ navigation }) {
   const [id, setId] = useState("");
   const [userId, setUserId] = useState("");
@@ -31,7 +31,22 @@ export default function Cita({ navigation }) {
   const [typeOfService, setTypeOfService] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [counter, setCounter] = useState(0);
-
+  {/* Picker */ }
+  const opcionesSucursales = ["Sucursal 1", "Sucursal 2", "Sucursal 3"];
+  const opcionesService = ["Pies", "Cabello"];
+  const horas = [
+    "08:00", "08:30",
+    "09:00", "09:30",
+    "10:00", "10:30",
+    "11:00", "11:30",
+    "12:00", "12:30",
+    "13:00", "13:30",
+    "14:00", "14:30",
+    "15:00", "15:30",
+    "16:00", "16:30",
+    "17:00", "17:30",
+    "18:00", "18:30",
+  ];
   const [fieldsCompleted, setFieldsCompleted] = useState(false);
   const validateFields = () => {
     if (
@@ -155,17 +170,12 @@ export default function Cita({ navigation }) {
             <View style={{ marginTop: 15 }}>
               <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
                 {/* Estos no se muestran el ID Y el USERID */}
-                <TextInput
-                  style={{ display: "none" }}
-                  value={id}
-                  editable={false}
-                />
-
-                <TextInput style={{ display: "none" }}>{userId}</TextInput>
+                <Text style={{ display: "none" }}>{id}</Text>
+                <Text style={{ display: "none" }}>{userId}</Text>
 
                 <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Nombre del cliente</Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <TextInput
+                  <Text
                     style={{
                       marginBottom: 10,
                       padding: 10,
@@ -175,28 +185,31 @@ export default function Cita({ navigation }) {
                       width: 300,
                       color: "red"
                     }}
-                    placeholder="Nombre del cliente"
-                    editable={false}>
+                  >
                     {editedNameValue} {editedLastNameValue}
-                  </TextInput>
+                  </Text>
                   <Icon name="keyboard-o" style={{ color: "black" }} />
                 </View>
               </View>
 
+
               <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
                 <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Tipo de servicio</Text>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Nombre del servicio"
-                    value={typeOfService}
-                    onChangeText={(text) => {
-                      setTypeOfService(text);
+                <View style={{ flexDirection: "row" }}>
+                  <Picker
+                    style={{ ...styles.input, flex: 1 }}
+                    selectedValue={typeOfService}
+                    onValueChange={(itemValue, itemIndex) => {
+                      setTypeOfService(itemValue);
                       setFieldsCompleted(validateFields());
                     }}
-                  />
+                  >
+                    <Picker.Item label="Seleccione un servicio" value="" />
+                    {opcionesService.map((service, index) => (
+                      <Picker.Item key={index} label={service} value={service} />
+                    ))}
+                  </Picker>
 
-                  <Icon name="keyboard-o" style={{ color: "black" }} />
                 </View>
               </View>
 
@@ -225,17 +238,20 @@ export default function Cita({ navigation }) {
 
               <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
                 <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Ingresa la hora</Text>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Ingresa la hora"
-                    value={hour}
-                    onChangeText={(text) => {
-                      setHour(text);
+                <View style={{ flexDirection: "row" }}>
+                  <Picker
+                    style={{ ...styles.input, flex: 1 }}
+                    selectedValue={hour}
+                    onValueChange={(itemValue, itemIndex) => {
+                      setHour(itemValue);
                       setFieldsCompleted(validateFields());
                     }}
-                  />
-                  <Icon name="keyboard-o" style={{ color: "black" }} />
+                  >
+                    <Picker.Item label="Seleccione la hora" value="" />
+                    {horas.map((hour, index) => (
+                      <Picker.Item key={index} label={hour} value={hour} />
+                    ))}
+                  </Picker>
                 </View>
               </View>
 
@@ -258,17 +274,20 @@ export default function Cita({ navigation }) {
 
               <View style={{ borderColor: "#4632A1", marginTop: 5 }}>
                 <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Sucursal</Text>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Nombre de la sucursal"
-                    value={branch}
-                    onChangeText={(text) => {
-                      setBranch(text);
+                <View style={{ flexDirection: "row" }}>
+                  <Picker
+                    style={{ ...styles.input, flex: 1 }}
+                    selectedValue={branch}
+                    onValueChange={(itemValue, itemIndex) => {
+                      setBranch(itemValue);
                       setFieldsCompleted(validateFields());
                     }}
-                  />
-                  <Icon name="keyboard-o" style={{ color: "black" }} />
+                  >
+                    <Picker.Item label="Seleccione una sucursal" value="" />
+                    {opcionesSucursales.map((sucursal, index) => (
+                      <Picker.Item key={index} label={sucursal} value={sucursal} />
+                    ))}
+                  </Picker>
                 </View>
               </View>
 
