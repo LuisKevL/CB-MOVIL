@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, StyleSheet, Modal, Alert, FlatList, Text, Image } from 'react-native';
+import { View, StyleSheet, Modal, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import Axios from 'axios';
-import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
-import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref, getDownloadURL, listAll } from 'firebase/storage';
+import Iconn from 'react-native-vector-icons/MaterialIcons';
+import firebaseConfig from '../../../admin/adapters/screens/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import firebaseConfig from '../../../admin/adapters/screens/firebase'; // Archivo de configuración de Firebase
-// Inicializar la aplicación de Firebase
 const storage = getStorage(firebaseConfig);
 
 const ProductosClient = () => {
-    const [imageUpload, setImageUpload] = useState(null);
     const [imageUrls, setImageUrls] = useState([]);
-    const [nombre, setNombre] = useState('');
-    const [precio, setPrecio] = useState('');
-    const [descripcion, setDescripcion] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
-    const [modal, setModal] = useState(false);
     const [productos, setProductos] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState({});
 
     useEffect(() => {
         fetchImagesFromStorage();
@@ -52,22 +47,31 @@ const ProductosClient = () => {
         }
     };
 
+    const openModal = (product) => {
+        setSelectedProduct(product);
+        setModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+    };
 
     const renderItem = ({ item }) => {
         const productoImageUrls = imageUrls.filter((url) => url.includes(`image_${item.id}`));
 
         return (
             <View style={styles.productoContainer}>
-
                 <Text style={styles.productoNombre}>{item.nombre}</Text>
                 <Text style={styles.productoPrecio}>Precio: ${item.precio}</Text>
                 <Text style={styles.productoDescripcion}>{item.descripcion}</Text>
                 {productoImageUrls.length > 0 && (
                     <Image source={{ uri: productoImageUrls[0] }} style={styles.image} />
                 )}
+                <TouchableOpacity style={styles.iconContainer} onPress={() => openModal(item)}>
+                    <Iconn name="help-outline" size={30} color="black" />
+                </TouchableOpacity>
             </View>
         );
-
     };
 
     return (
@@ -77,8 +81,22 @@ const ProductosClient = () => {
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}
             />
-
-
+            <Modal
+                visible={modalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={closeModal}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalText}>{selectedProduct.descripcion}</Text>
+                        <TouchableOpacity style={[styles.botones, styles.agendarButton]}
+                            onPress={closeModal}>
+                            <Text style={styles.modalButton}>Cerrar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -92,7 +110,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.7)', // Cambiar la opacidad a un valor más bajo
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContent: {
         backgroundColor: '#fff',
@@ -100,19 +118,15 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         width: '80%',
     },
-    input: {
-        height: 40,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 4,
+    modalText: {
+        fontSize: 16,
+        color: '#333',
         marginBottom: 10,
-        paddingHorizontal: 10,
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginTop: 20,
-        marginBottom: 10,
+    modalButton: {
+        fontSize: 16,
+        color: 'white',
+        textAlign: 'center',
     },
     productoContainer: {
         marginBottom: 10,
@@ -129,9 +143,10 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     productoNombre: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 4,
+        textAlign: 'center',
     },
     productoPrecio: {
         fontSize: 16,
@@ -139,12 +154,7 @@ const styles = StyleSheet.create({
     },
     productoDescripcion: {
         fontSize: 14,
-        color: '#888',
-    },
-    imagen: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        color: '#9D9391',
     },
     image: {
         width: 150,
@@ -152,10 +162,18 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         alignSelf: 'center',
     },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 10,
+    iconContainer: {
+        alignItems: 'flex-end',
+    },
+    botones: {
+        height: 40,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    agendarButton: {
+        backgroundColor: '#97714D',
     },
 });
 
