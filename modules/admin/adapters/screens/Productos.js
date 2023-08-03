@@ -143,6 +143,11 @@ const AgregarProducto = () => {
     setNombre('');
     setPrecio('');
     setDescripcion('');
+    setOfertaNombre('');
+    setOfertaDescripcion('');
+    setDescripcion('');
+    setFechaInicio('');
+
   };
 
   const [ofertaNombre, setOfertaNombre] = useState('');
@@ -150,16 +155,20 @@ const AgregarProducto = () => {
   const [ofertaDescripcion, setOfertaDescripcion] = useState('');
   const [fechaInicio, setFechaInicio] = useState('');
 
-  const handleRegistrarOferta = async (item) => {
+  const handleRegistrarOferta = async () => {
     try {
+      if (!selectedProduct) {
+        Alert.alert('Selecciona un producto antes de registrar una oferta');
+        return;
+      }
       const idd = generateId(); // Generar el ID automáticamente
 
       // Verificar y asignar los datos del producto
       const productData = {
-        id: item.id,
-        nombre: item.nombre,
-        precio: parseFloat(item.precio),
-        descripcion: item.descripcion,
+        id: selectedProduct.id,
+        nombre: selectedProduct.nombre,
+        precio: parseFloat(selectedProduct.precio),
+        descripcion: selectedProduct.descripcion,
       };
 
       const ofertaData = {
@@ -182,6 +191,7 @@ const AgregarProducto = () => {
       Alert.alert('Error al registrar la oferta');
     }
   };
+  const [selectedProduct, setSelectedProduct] = useState(null); // Nuevo estado para el producto seleccionado
 
   const renderItem = ({ item }) => {
     const productoImageUrls = imageUrls.filter((url) => url.includes(`image_${item.id}`));
@@ -192,6 +202,12 @@ const AgregarProducto = () => {
         <Text style={styles.productoNombre}>{item.nombre}</Text>
         <Text style={styles.productoPrecio}>Precio: ${item.precio}</Text>
         <Text style={styles.productoDescripcion}>{item.descripcion}</Text>
+
+        {item.ofertaNombre && (
+        <Text style={styles.ofertaNombre}>Oferta: {item.ofertaNombre}</Text>
+      )}
+
+
         {productoImageUrls.length > 0 && (
           <Image source={{ uri: productoImageUrls[0] }} style={styles.image} />
         )}
@@ -225,7 +241,11 @@ const AgregarProducto = () => {
         </View>
         <TouchableOpacity
           style={styles.touchable}
-          onPress={() => setModal(true)} >
+          onPress={() => {
+            setSelectedProduct(item); // Guardar el producto seleccionado en el estado
+            setModal(true);
+          }}
+        >
           <Text
             style={{
               color: "white",
@@ -238,65 +258,69 @@ const AgregarProducto = () => {
         </TouchableOpacity>
 
         {/* Modal de la oferta */}
-        <Modal visible={modal} animationType="slide" transparent={false}>
+        <Modal visible={modal} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <TextInput
-                style={styles.input}
-                placeholder="Nombre de la oferta"
-                value={ofertaNombre}
-                onChangeText={setOfertaNombre}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Descuento"
-                keyboardType="numeric"
-                value={descuento}
-                onChangeText={setDescuento}
-              />
-              <TextInput
-                style={styles.input}
-                value={item.id.toString()}
-                editable={false}
-              />
-              <TextInput
-                style={styles.input}
-                value={item.nombre}
-                editable={false}
-              />
-              <TextInput
-                style={styles.input}
-                value={item.precio.toString()}
-                editable={false}
-              />
-              <TextInput
-                style={styles.input}
-                value={item.descripcion}
-                editable={false}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Descripción de Oferta"
-                value={ofertaDescripcion}
-                onChangeText={setOfertaDescripcion}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Fecha de inicio"
-                value={fechaInicio}
-                onChangeText={setFechaInicio}
-              />
-              <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 10,
-              }}>
-                <Button title="Registrar Oferta" onPress={() => handleRegistrarOferta(item)} />
-                <Button title="Cancelar" onPress={() => { setModal(false); clearFields(); }} />
-              </View>
+              {selectedProduct ? (
+                <>
+                  <Text style={styles.modalTitle}>Agregar Oferta para {selectedProduct.nombre}</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Nombre de la oferta"
+                    value={ofertaNombre}
+                    onChangeText={setOfertaNombre}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Descuento"
+                    keyboardType="numeric"
+                    value={descuento}
+                    onChangeText={setDescuento}
+                  />
+                    <TextInput
+                    style={styles.input}
+                    value={selectedProduct.id.toString()}
+                    editable={false}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    value={selectedProduct.nombre}
+                    editable={false}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    value={selectedProduct.precio.toString()}
+                    editable={false}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    value={selectedProduct.descripcion}
+                    editable={false}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Descripción de Oferta"
+                    value={ofertaDescripcion}
+                    onChangeText={setOfertaDescripcion}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Fecha de inicio: 2023-12-31"
+                    value={fechaInicio}
+                    onChangeText={setFechaInicio}
+                  />
+                  <View style={styles.buttonContainer}>
+                    <Button title="Registrar Oferta" onPress={handleRegistrarOferta} />
+                    <Button title="Cancelar" onPress={() => { setModal(false); clearFields(); }} />
+                  </View>
+                </>
+              ) : (
+                <Text style={styles.noProductSelected}>Selecciona un producto para agregar una oferta.</Text>
+              )}
             </View>
           </View>
         </Modal>
+
 
       </View>
     );
@@ -422,7 +446,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Cambiar la opacidad a un valor más bajo
+    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Cambiar la opacidad a un valor más bajo
   },
   modalContent: {
     backgroundColor: '#fff',
