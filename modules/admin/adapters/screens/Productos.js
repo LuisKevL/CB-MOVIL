@@ -73,6 +73,14 @@ const AgregarProducto = () => {
     );
   };
 
+  const [fieldsOferta, setFieldsOferta] = useState(false);
+  const validateOferta = (ofertaNombre, descuento, ofertaDescripcion, fechaInicio) => {
+    if (ofertaNombre.trim() === "" || descuento.trim() === "" || ofertaDescripcion.trim() === "" || fechaInicio.trim() === "") {
+      return false;
+    } else {
+      return true;
+    }
+  }
 
 
   const [fieldsCompleted, setFieldsCompleted] = useState(false);
@@ -271,7 +279,30 @@ const AgregarProducto = () => {
     setNombree('');
     setPrecioo('');
     setDescripcionn('');
+    setDescuento('');
   };
+  const [ofertas, setOfertas] = useState([]); // Estado para almacenar las ofertas
+
+  useEffect(() => {
+    fetchOfertas(); // Llamada a la función para obtener las ofertas al cargar el componente
+  }, []);
+  const fetchOfertas = async () => {
+    try {
+      const response = await Axios.get('http://192.168.0.232:8080/api-beautypalace/oferta/', {
+        params: {
+          nombre: ofertaNombre,
+          descuento: parseInt(descuento),
+        }
+      });
+      const data = response.data;
+      // Resto del código para manejar los datos...
+      console.log(data);
+    } catch (error) {
+      console.error('Error al obtener las ofertas:', error);
+    }
+  };
+
+
 
   const [ofertaNombre, setOfertaNombre] = useState('');
   const [descuento, setDescuento] = useState('');
@@ -326,14 +357,11 @@ const AgregarProducto = () => {
         <Text style={styles.productoPrecio}>Precio: ${item.precio}</Text>
         <Text style={styles.productoDescripcion}>{item.descripcion}</Text>
 
-        {item.ofertaNombre && (
-          <Text style={styles.ofertaNombre}>Oferta: {item.ofertaNombre}</Text>
-        )}
-
 
         {productoImageUrls.length > 0 && (
           <Image source={{ uri: productoImageUrls[0] }} style={styles.image} />
         )}
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.touchable}
@@ -426,14 +454,20 @@ const AgregarProducto = () => {
                     style={styles.input}
                     placeholder="Nombre de la oferta"
                     value={ofertaNombre}
-                    onChangeText={setOfertaNombre}
+                    onChangeText={(text) => {
+                      setOfertaNombre(text);
+                      setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio));
+                    }}
                   />
                   <TextInput
                     style={styles.input}
                     placeholder="Descuento"
                     keyboardType="numeric"
                     value={descuento}
-                    onChangeText={setDescuento}
+                    onChangeText={(text) => {
+                      setDescuento(text);
+                      setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio))
+                    }}
                   />
                   <TextInput
                     style={styles.input}
@@ -459,16 +493,28 @@ const AgregarProducto = () => {
                     style={styles.input}
                     placeholder="Descripción de Oferta"
                     value={ofertaDescripcion}
-                    onChangeText={setOfertaDescripcion}
+                    onChangeText={(text) => {
+                      setOfertaDescripcion(text);
+                      setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio))
+                    }}
                   />
                   <TextInput
                     style={styles.input}
                     placeholder="Fecha de inicio: 2023-12-31"
                     value={fechaInicio}
-                    onChangeText={setFechaInicio}
+                    onChangeText={(text) => {
+                      setFechaInicio(text);
+                      setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio))
+                    }}
                   />
                   <View style={styles.buttonContainer}>
-                    <Button title="Registrar Oferta" onPress={handleRegistrarOferta} />
+                    <Button title="Registrar Oferta" onPress={() => {
+                      if (fieldsOferta) {
+                        handleRegistrarOferta();
+                      } else {
+                        Alert.alert('Por favor, completa todos los campos.');
+                      }
+                    }} />
                     <Button title="Cancelar" onPress={() => { setModal(false); clearFields(); }} />
                   </View>
                 </>

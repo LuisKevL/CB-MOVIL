@@ -6,6 +6,8 @@ import Profile from "../../modules/profile/adapters/screens/Profile";
 import { Icon } from "@rneui/base";
 import ViewCita from "../../modules/admin/adapters/screens/ViewCita";
 import Productos from "../../modules/admin/adapters/screens/Productos";
+import ConsejosAdmin from "../../modules/admin/adapters/screens/ConsejosAdmin";
+import PreguntasAdmin from "../../modules/admin/adapters/screens/PreguntasAdmin";
 const Tab = createBottomTabNavigator();
 
 export default function NavigationUser() {
@@ -34,11 +36,18 @@ export default function NavigationUser() {
         component={ViewCita}
       />
 
-      <Tab.Screen 
-        name= "Productos"
+      <Tab.Screen
+        name="Productos"
         component={Productos}
       />
-
+      <Tab.Screen
+        name="PreguntasAdmin"
+        component={PreguntasAdmin}
+      />
+      <Tab.Screen
+        name="ConsejosAdmin"
+        component={ConsejosAdmin}
+      />
 
     </Tab.Navigator>
   )
