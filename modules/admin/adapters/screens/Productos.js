@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import firebaseConfig from './firebase'; // Archivo de configuración de Firebase
 import ProductosClient from '../../../profile/adapters/screens/ProductosClient';
+import { number } from 'yup';
 // Inicializar la aplicación de Firebase
 const storage = getStorage(firebaseConfig);
 
@@ -14,16 +15,94 @@ const AgregarProducto = () => {
   const [imageUpload, setImageUpload] = useState(null);
   const [imageUrls, setImageUrls] = useState([]);
   const [nombre, setNombre] = useState('');
+  const [nombree, setNombree] = useState('');
   const [precio, setPrecio] = useState('');
+  const [precioo, setPrecioo] = useState('');
+  const [descripcionn, setDescripcionn] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [modal, setModal] = useState(false);
+  const [actModal, setActModal] = useState(false);
   const [productos, setProductos] = useState([]);
+  //CANCELAR CITA
+  const [nombreProductoEliminar, setNombreProductoEliminar] = useState('');
+  const [confirmarEliminacion, setConfirmarEliminacion] = useState('');
+  const [cancelModal, setCancelModal] = useState(false);
+  //CANCELAR CITA
+  const deleteProduct = async () => {
+    if (!selectedProduct) {
+      Alert.alert('Error', 'Selecciona un producto para eliminar.');
+      return;
+    }
+    if (confirmarEliminacion.trim() !== 'CONFIRMAR') {
+      Alert.alert('Error', 'Por favor ingresa "CONFIRMAR" para eliminar el producto.');
+      return;
+    }
 
+    Alert.alert(
+      'Confirmación',
+      `¿Estás seguro de eliminar el producto "${selectedProduct.nombre}"?`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Aceptar',
+          onPress: async () => {
+            try {
+              await Axios.delete(`http://192.168.0.232:8080/api-beautypalace/product/${selectedProduct.id}`);
+
+              // Si la eliminación en el servidor fue exitosa, actualiza el estado local para refrescar la lista de productos.
+              setProductos((prevProductos) =>
+                prevProductos.filter((producto) => producto.id !== selectedProduct.id)
+              );
+
+              // También puedes mostrar una alerta o mensaje de éxito para informar que el producto fue eliminado.
+              Alert.alert('Éxito', `El producto "${selectedProduct.nombre}" ha sido eliminado.`);
+              setCancelModal(false); // Cierra el modal
+              fetchProductos(); // Actualizar la lista de productos
+            } catch (error) {
+              console.error('Error al eliminar el producto:', error);
+              Alert.alert('Error', 'No se pudo eliminar el producto. Inténtalo de nuevo más tarde.');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+
+
+  const [fieldsCompleted, setFieldsCompleted] = useState(false);
+
+  const validateFields = (nombree, precioo, descripcionn) => {
+    if (nombree.trim() === "" || precioo.trim() === "" || descripcionn.trim() === "") {
+      return false;
+    } else {
+      return true;
+    }
+  };
+  const validateFieldss = (nombre, precio, descripcion) => {
+    if (nombre.trim() === "" || precio.trim() === "" || descripcion.trim() === "") {
+      return false;
+    } else {
+      return true;
+    }
+  };
   useEffect(() => {
     fetchImagesFromStorage();
     fetchProductos();
   }, []);
+
+  useEffect(() => {
+    if (selectedProduct) {
+      setNombre(selectedProduct.nombre);
+      setPrecio(selectedProduct.precio.toString());
+      setDescripcion(selectedProduct.descripcion);
+    }
+  }, [selectedProduct]);
 
   const fetchImagesFromStorage = async () => {
     try {
@@ -91,6 +170,49 @@ const AgregarProducto = () => {
     }
   };
 
+  const actualizar = async () => {
+    try {
+      // Mostrar una alerta de confirmación
+      Alert.alert(
+        'Confirmar Actualización',
+        '¿Estás seguro de actualizar los datos?',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: 'Actualizar',
+            onPress: async () => {
+              const response = await Axios.put('http://192.168.0.232:8080/api-beautypalace/product/update/', {
+                id: selectedProduct.id, // Usa el id del producto seleccionado
+                nombre: nombre,
+                precio: parseFloat(precio),
+                descripcion: descripcion,
+              });
+
+              // Actualiza los estados con los nuevos valores
+              setSelectedProduct({
+                ...selectedProduct,
+                nombre: nombre,
+                precio: parseFloat(precio),
+                descripcion: descripcion,
+              });
+
+              console.log('Producto actualizado con éxito');
+              Alert.alert('Producto actualizado con éxito');
+              setActModal(false); // Cierra el modal
+              clearFields();
+              fetchProductos(); // Actualizar la lista de productos
+            },
+          },
+        ],
+      );
+    } catch (error) {
+      console.error('Error al actualizar el producto:', error);
+      Alert.alert('Error al actualizar el producto');
+    }
+  }
 
   const handleGuardar = async () => {
     try {
@@ -98,9 +220,9 @@ const AgregarProducto = () => {
 
       const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/product/', {
         id: id,
-        nombre: nombre,
-        precio: parseFloat(precio),
-        descripcion: descripcion,
+        nombre: nombree,
+        precio: parseFloat(precioo),
+        descripcion: descripcionn,
       });
 
       console.log('Producto registrado con éxito');
@@ -112,9 +234,9 @@ const AgregarProducto = () => {
       // Guardar los datos del producto en AsyncStorage
       const producto = {
         id: id,
-        nombre: nombre,
-        precio: parseFloat(precio),
-        descripcion: descripcion,
+        nombre: nombree,
+        precio: parseFloat(precioo),
+        descripcion: descripcionn,
       };
       await AsyncStorage.setItem('producto', JSON.stringify(producto));
       console.log('Datos del producto guardados en AsyncStorage');
@@ -142,12 +264,13 @@ const AgregarProducto = () => {
   const clearFields = () => {
     setNombre('');
     setPrecio('');
-    setDescripcion('');
     setOfertaNombre('');
     setOfertaDescripcion('');
     setDescripcion('');
     setFechaInicio('');
-
+    setNombree('');
+    setPrecioo('');
+    setDescripcionn('');
   };
 
   const [ofertaNombre, setOfertaNombre] = useState('');
@@ -204,8 +327,8 @@ const AgregarProducto = () => {
         <Text style={styles.productoDescripcion}>{item.descripcion}</Text>
 
         {item.ofertaNombre && (
-        <Text style={styles.ofertaNombre}>Oferta: {item.ofertaNombre}</Text>
-      )}
+          <Text style={styles.ofertaNombre}>Oferta: {item.ofertaNombre}</Text>
+        )}
 
 
         {productoImageUrls.length > 0 && (
@@ -236,6 +359,41 @@ const AgregarProducto = () => {
               }}
             >
               SUBIR IMÁGEN
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.touchable}>
+            <Text
+              style={{
+                color: "white",
+                fontSize: 12,
+                fontWeight: "bold",
+              }}
+              onPress={() => {
+                setSelectedProduct(item); // Guardar el producto seleccionado en el estado
+                setActModal(true)
+              }}
+            >
+              ACTUALIZAR
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.touchable}
+            onPress={() => {
+              setSelectedProduct(item);
+              setCancelModal(true)
+            }}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontSize: 14,
+                fontWeight: "bold",
+              }}
+            >
+              ELIMINAR
             </Text>
           </TouchableOpacity>
         </View>
@@ -277,7 +435,7 @@ const AgregarProducto = () => {
                     value={descuento}
                     onChangeText={setDescuento}
                   />
-                    <TextInput
+                  <TextInput
                     style={styles.input}
                     value={selectedProduct.id.toString()}
                     editable={false}
@@ -321,7 +479,189 @@ const AgregarProducto = () => {
           </View>
         </Modal>
 
+        <View>
+          <Modal visible={actModal} animationType="slide" transparent={true}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                {selectedProduct ? (
+                  <>
+                    <Text>Actualizar Producto</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={nombre}
+                      placeholder={selectedProduct.nombre}
+                      onChangeText={(text) => {
+                        setNombre(text);
+                        setFieldsCompleted(validateFieldss(nombre, precio, descripcion));
+                      }}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      value={precio}
+                      placeholder={selectedProduct.precio.toString()}
+                      onChangeText={(text) => {
+                        setPrecio(text);
+                        setFieldsCompleted(validateFieldss(nombre, precio, descripcion));
+                      }} keyboardType="numeric"
+                    />
+                    <TextInput
+                      style={styles.input}
+                      value={descripcion}
+                      placeholder={selectedProduct.descripcion}
+                      onChangeText={(text) => {
+                        setDescripcion(text);
+                        setFieldsCompleted(validateFieldss(nombre, precio, descripcion));
+                      }} />
+                    <View style={styles.buttonContainer}>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: 10,
+                          backgroundColor: '#8B4513',
+                          paddingVertical: 8,
+                          paddingHorizontal: 16,
+                          marginHorizontal: 5,
+                          borderWidth: 1,
+                          borderColor: '#8B4513',
+                        }}
+                        onPress={() => {
+                          if (fieldsCompleted) {
+                            actualizar();
+                          } else {
+                            Alert.alert('Por favor, completa todos los campos.');
+                          }
+                        }}
+                      >
+                        {/* Envuelve la cadena de texto en un componente Text */}
+                        <Text style={{ color: "white", fontSize: 18, fontWeight: "bold", marginLeft: 8 }}>
+                          Actualizar
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: 10,
+                          backgroundColor: '#8B4513',
+                          paddingVertical: 8,
+                          paddingHorizontal: 16,
+                          marginHorizontal: 5,
+                          borderWidth: 1,
+                          borderColor: '#8B4513',
+                        }} onPress={() => { setActModal(false); clearFields(); }} >
+                        <Text
+                          style={{
+                            color: "white",
+                            fontSize: 18,
+                            fontWeight: "bold",
+                            marginLeft: 8,
+                          }}
+                        >
+                          Cancelar
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
 
+                  </>
+                ) : (
+                  <Text style={styles.noProductSelected}>Selecciona un producto para agregar una oferta.</Text>
+                )}
+              </View>
+            </View>
+          </Modal>
+        </View>
+        <View style={{
+          flex: 1,
+          padding: 60,
+        }}>
+          <Modal visible={cancelModal} animationType="slide" transparent={true}
+            onRequestClose={() => setCancelModal(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                {selectedProduct ? (
+                  <>
+                    <Text style={styles.modalText}>Cancelar Cita</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Nombre del producto a eliminar"
+                      value={nombreProductoEliminar}
+                      onChangeText={(text) => setNombreProductoEliminar(text)}
+                    />
+                    <Text>Es importante confirmar la cancelación, introduzca: CONFIRMAR</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="CONFIRMAR"
+                      value={confirmarEliminacion}
+                      onChangeText={(text) => setConfirmarEliminacion(text)}
+
+                    />
+                    <View style={styles.buttonContainer}>
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: 10,
+                          backgroundColor: '#8B4513',
+                          paddingVertical: 8,
+                          paddingHorizontal: 16,
+                          marginHorizontal: 5,
+                          borderWidth: 1,
+                          borderColor: '#8B4513',
+                        }}
+                        onPress={() => {
+                          deleteProduct();
+
+                        }}
+                      >
+                        <Text style={{ color: "white", fontSize: 18, fontWeight: "bold", marginLeft: 8 }}>
+                          ELIMINAR PRODUCTO
+                        </Text>
+                      </TouchableOpacity>
+
+
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: 10,
+                          backgroundColor: '#8B4513',
+                          paddingVertical: 8,
+                          paddingHorizontal: 16,
+                          marginHorizontal: 5,
+                          borderWidth: 1,
+                          borderColor: '#8B4513',
+                        }} onPress={() => { setCancelModal(false); }} >
+                        <Text
+                          style={{
+                            color: "white",
+                            fontSize: 18,
+                            fontWeight: "bold",
+                            marginLeft: 8,
+                          }}
+                        >
+                          Cancelar
+                        </Text>
+                      </TouchableOpacity>
+
+                    </View>
+                  </>
+                ) : (
+                  <Text style={styles.noProductSelected}>Selecciona un producto para agregar una oferta.</Text>
+                )}
+              </View>
+            </View>
+          </Modal>
+        </View>
       </View>
     );
 
@@ -341,22 +681,32 @@ const AgregarProducto = () => {
             <TextInput
               style={styles.input}
               placeholder="Nombre del producto"
-              value={nombre}
-              onChangeText={setNombre}
+              value={nombree}
+              onChangeText={(text) => {
+                setNombree(text);
+                setFieldsCompleted(validateFields(nombree, precioo, descripcionn));
+              }}
             />
             <TextInput
               style={styles.input}
               placeholder="Precio"
-              value={precio}
-              onChangeText={setPrecio}
+              value={precioo}
+              onChangeText={(text) => {
+                setPrecioo(text);
+                setFieldsCompleted(validateFields(nombree, precioo, descripcionn));
+              }}
               keyboardType="numeric"
             />
             <TextInput
               style={styles.input}
               placeholder="Descripción"
-              value={descripcion}
-              onChangeText={setDescripcion}
+              value={descripcionn}
+              onChangeText={(text) => {
+                setDescripcionn(text);
+                setFieldsCompleted(validateFields(nombree, precioo, descripcionn));
+              }}
             />
+
 
             <View style={{
               flexDirection: 'row',
@@ -373,7 +723,13 @@ const AgregarProducto = () => {
                   marginHorizontal: 5,
                   alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
                 }}
-                onPress={handleGuardar} >
+                onPress={() => {
+                  if (fieldsCompleted) {
+                    handleGuardar();
+                  } else {
+                    Alert.alert('Por favor, completa todos los campos.');
+                  }
+                }} >
                 <Text
                   style={{
                     color: "white",
@@ -398,7 +754,7 @@ const AgregarProducto = () => {
                 <Text
                   style={{
                     color: "white",
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: "bold",
                   }}
                 >

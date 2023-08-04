@@ -11,6 +11,7 @@ import Token from './Token';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AdminStack from '../../../../config/stack/AdminStack';
 const Login = (props) => {
+    const horario = " 8 a. m. - 6 p. m.";
     //navigation
     const { navigation } = props;
 
@@ -186,10 +187,18 @@ const Login = (props) => {
 
                                         <Token modalVisible={modalVisible} setModalVisible={setModalVisible} />
 
-
-
                                     </View>
-
+                                    <View style={{
+                                        flex: 1,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 16,
+                                            fontWeight: 'bold',
+                                            marginBottom: 15,
+                                        }}>Horario de Trabajo: {horario}</Text>
+                                    </View>
 
                                     {/*-------------------------------------------------------------------------------------------- */}
                                 </View>
@@ -312,7 +321,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 40,
+        marginTop: 20,
     },
     loginWithText: {
         textAlign: 'center',
