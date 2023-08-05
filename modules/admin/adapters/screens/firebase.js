@@ -1,14 +1,15 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
-const firebaseConfig = {
-  apiKey: "AIzaSyAXupjWKUt_LvWn0VofanwTG7GW5ixYXLM",
-  authDomain: "estadias-87c3e.firebaseapp.com",
-  projectId: "estadias-87c3e",
-  storageBucket: "estadias-87c3e.appspot.com",
-  messagingSenderId: "185799262840",
-  appId: "1:185799262840:web:e9042a2aa4477b9b19238d"
+const firebaseConfigg = {
+  apiKey: "AIzaSyB_lHJTfmB1_nQY31kM6YoJLyUUlEKjtLU",
+  authDomain: "estadiasnew.firebaseapp.com",
+  projectId: "estadiasnew",
+  storageBucket: "estadiasnew.appspot.com",
+  messagingSenderId: "278370932654",
+  appId: "1:278370932654:web:6577447f965e69cec81a3f"
 };
 
+
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfigg);
 export const storage = getStorage(app);

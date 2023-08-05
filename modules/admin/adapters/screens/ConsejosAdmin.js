@@ -19,9 +19,11 @@ export default function ConsejosAdmin() {
     const [consejos, setConsejos] = useState([]);
     const [modal, setModal] = useState(false);
     const [modalDatos, setModalDatos] = useState(false);
+    const [modalDelete, setModalDelete] = useState(false)
     const [selectedConsejo, setSelectedConsejo] = useState(null); // Agregar esta línea
     const [titulo, setTitulo] = useState("");
     const [consejo, setConsejo] = useState("");
+
     const [fieldsCompleted, setFieldsCompleted] = useState(false);
     const validateFields = () => {
         if (
@@ -33,6 +35,54 @@ export default function ConsejosAdmin() {
             return true;
         }
     }
+
+    //CANCELAR CITA
+    const [nombreConsejoEliminar, setNombreConsejoEliminar] = useState('');
+    const [confirmarEliminacion, setConfirmarEliminacion] = useState('');
+    //CANCELAR CITA
+    const deleteProduct = async () => {
+        if (!selectedConsejo) {
+            Alert.alert('Error', 'Selecciona el consejo a eliminar.');
+            return;
+        }
+        if (confirmarEliminacion.trim() !== 'CONFIRMAR') {
+            Alert.alert('Error', 'Por favor ingresa "CONFIRMAR" para eliminar el consejo.');
+            return;
+        }
+        Alert.alert(
+            'Confirmación',
+            `¿Estás seguro de eliminar el consejo "${selectedConsejo.titulo}"?`,
+            [
+                {
+                    text: 'Cancelar',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Aceptar',
+                    onPress: async () => {
+                        try {
+                            await Axios.delete(`http://192.168.0.232:8080/api-beautypalace/consejos/${selectedConsejo.id}`);
+
+                            setConsejos((prevConsejo) =>
+                                prevConsejo.filter((titulo) => titulo.id !== selectedConsejo.id)
+                            );
+
+                            Alert.alert('Éxito', `El consejo "${selectedConsejo.titulo}" ha sido eliminado.`);
+                            setModalDelete(false); // Cierra el modal
+                            fetchConsejos(); // Actualizar la lista de consejos
+                        } catch (error) {
+                            console.error('Error al eliminar el consejo:', error);
+                            Alert.alert('Error', 'No se pudo eliminar el consejo. Inténtalo de nuevo más tarde.');
+                        }
+                    },
+                },
+            ],
+            { cancelable: false }
+        );
+    };
+
+
+
 
     const generateId = () => {
         // Generar un ID único utilizando la fecha actual
@@ -61,6 +111,7 @@ export default function ConsejosAdmin() {
     const clearFields = () => {
         setTitulo('');
         setConsejo('');
+        confirmarEliminacion('');
     }
 
     useEffect(() => {
@@ -104,10 +155,10 @@ export default function ConsejosAdmin() {
                                 console.log('Pregunta actualizada con éxito');
                                 Alert.alert('Pregunta actualizada con éxito');
                                 setModalDatos(false);
-                                clearFields();
                                 fetchConsejos();
+                                clearAct();
                             } catch (error) {
-                                console.error('Error al actualizar la pregunta:', error);
+                                console.error('Error al actualizar consejo:', error);
                             }
                         },
                     },
@@ -118,7 +169,10 @@ export default function ConsejosAdmin() {
         }
     };
 
-
+    const clearAct = () => {
+        setTitulo('');
+        setConsejo('');
+    }
     return (
         <ScrollView
             style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }}
@@ -142,25 +196,47 @@ export default function ConsejosAdmin() {
                             <View style={styles.cardContent}>
                                 <Text style={styles.preguntaText}>{consejos.titulo}</Text>
                                 <Text style={styles.respuestaText}>{consejos.consejo}</Text>
-                                <TouchableOpacity
-                                    style={{
-                                        backgroundColor: "#8B4513",
-                                        borderRadius: 10,
-                                        paddingVertical: 7, // Ajustar este valor para aumentar la altura
-                                        paddingHorizontal: 12,
-                                        marginHorizontal: 5,
-                                        alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
-                                    }}
-                                    onPress={() => {
-                                        setModalDatos(true);
-                                        setSelectedConsejo(consejos);
-                                    }}>
-                                    <Text style={{
-                                        color: "white",
-                                        fontSize: 15,
-                                        fontWeight: "bold",
-                                    }}>Modificar</Text>
-                                </TouchableOpacity>
+                                <View style={styles.buttonContainer}>
+                                    <TouchableOpacity
+                                        style={{
+                                            backgroundColor: "#8B4513",
+                                            borderRadius: 10,
+                                            paddingVertical: 7, // Ajustar este valor para aumentar la altura
+                                            paddingHorizontal: 12,
+                                            marginHorizontal: 5,
+                                            alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                                        }}
+                                        onPress={() => {
+                                            setModalDatos(true);
+                                            setSelectedConsejo(consejos);
+                                        }}>
+                                        <Text style={{
+                                            color: "white",
+                                            fontSize: 15,
+                                            fontWeight: "bold",
+                                        }}>Actualizar</Text>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity
+                                        style={{
+                                            backgroundColor: "#8B4513",
+                                            borderRadius: 10,
+                                            paddingVertical: 7, // Ajustar este valor para aumentar la altura
+                                            paddingHorizontal: 12,
+                                            marginHorizontal: 5,
+                                            alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                                        }}
+                                        onPress={() => {
+                                            setModalDelete(true);
+                                            setSelectedConsejo(consejos);
+                                        }}>
+                                        <Text style={{
+                                            color: "white",
+                                            fontSize: 15,
+                                            fontWeight: "bold",
+                                        }}>ELIMINAR</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         </View>
                     ))}
@@ -225,34 +301,29 @@ export default function ConsejosAdmin() {
                             <>
                                 <TextInput
                                     style={styles.input}
-                                    value={titulo}  // Mostrar el valor actual de la pregunta seleccionada
+                                    value={titulo}
                                     placeholder={selectedConsejo.titulo}
                                     onChangeText={(text) => {
                                         setTitulo(text);
-                                        setFieldsCompleted(validateFields());
                                     }}
                                 />
                                 <TextInput
                                     style={styles.input}
-                                    value={consejo}  // Mostrar el valor actual de la respuesta seleccionada
+                                    value={consejo}
                                     placeholder={selectedConsejo.consejo}
                                     onChangeText={(text) => {
                                         setConsejo(text);
-                                        setFieldsCompleted(validateFields());
                                     }}
                                 />
-                                <View style={styles.containerColum}>
 
+                                <View style={styles.containerColum}>
                                     <TouchableOpacity
                                         style={[styles.botones, styles.agregarButton]}
                                         onPress={() => {
-                                            if (fieldsCompleted) {
-                                                actualizarConsejo();
-                                                setModalDatos(false);
-                                                clearFields();
-                                            } else {
-                                                Alert.alert('Error', 'Todos los campos son obligatorios');
-                                            }
+                                            actualizarConsejo();
+                                            setModalDatos(false);
+                                            clearAct();
+
                                         }}>
                                         <Text style={{
                                             color: "white",
@@ -266,7 +337,8 @@ export default function ConsejosAdmin() {
                                         style={[styles.botones, styles.agregarButton]}
                                         onPress={() => {
                                             setModalDatos(false);
-                                            clearFields();
+                                            clearAct();
+
                                         }}>
                                         <Text style={{
                                             color: "white",
@@ -281,7 +353,7 @@ export default function ConsejosAdmin() {
                                 style={[styles.botones, styles.agregarButton]}
                                 onPress={() => {
                                     setModalDatos(false);
-                                    clearFields();
+                                    clearAct();
                                 }}>
                                 <Text style={{
                                     color: "white",
@@ -293,6 +365,81 @@ export default function ConsejosAdmin() {
                     </View>
                 </View>
             </Modal>
+
+            <Modal visible={modalDelete} animationType="slide" transparent={true}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        {selectedConsejo ? (
+                            <>
+                                <Text style={styles.modalText}>Eliminar Pregunta</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Nombre de la pregunta a eliminar"
+                                    value={nombreConsejoEliminar}
+                                    onChangeText={(text) => {
+                                        setNombreConsejoEliminar(text);
+                                    }}
+                                />
+                                <Text>Es importante confirmar la cancelación, introduzca: CONFIRMAR</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="CONFIRMAR"
+                                    value={confirmarEliminacion}
+                                    onChangeText={(text) => {
+                                        setConfirmarEliminacion(text);
+                                    }}
+                                />
+
+
+                                <View style={styles.containerColum}>
+                                    <TouchableOpacity
+                                        style={[styles.botones, styles.agregarButton]}
+                                        onPress={() => {
+                                            deleteProduct();
+                                            setModalDelete(false);
+
+
+                                        }}>
+                                        <Text style={{
+                                            color: "white",
+                                            fontSize: 15,
+                                            fontWeight: "bold",
+                                        }}>Eliminar Pregunta</Text>
+                                    </TouchableOpacity>
+
+
+                                    <TouchableOpacity
+                                        style={[styles.botones, styles.agregarButton]}
+                                        onPress={() => {
+                                            setModalDelete(false);
+                                        }}>
+                                        <Text style={{
+                                            color: "white",
+                                            fontSize: 15,
+                                            fontWeight: "bold",
+                                        }}>Cancelar</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </>
+                        ) : (
+                            <TouchableOpacity
+                                style={[styles.botones, styles.agregarButton]}
+                                onPress={() => {
+                                    setModalDatos(false);
+                                }}>
+                                <Text style={{
+                                    color: "white",
+                                    fontSize: 15,
+                                    fontWeight: "bold",
+                                }}>Cancelar</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
+                </View>
+
+            </Modal>
+
             <View>
                 <TouchableOpacity
                     onPress={() => { setModal(true); fetchConsejos(); }}
@@ -434,5 +581,10 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         marginBottom: 10,
         paddingHorizontal: 10,
-    }
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+    },
 });

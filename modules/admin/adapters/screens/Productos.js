@@ -5,11 +5,11 @@ import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from 'firebase/
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import firebaseConfig from './firebase'; // Archivo de configuración de Firebase
+import firebaseConfigg from './firebase'; // Archivo de configuración de Firebase
 import ProductosClient from '../../../profile/adapters/screens/ProductosClient';
 import { number } from 'yup';
 // Inicializar la aplicación de Firebase
-const storage = getStorage(firebaseConfig);
+const storage = getStorage(firebaseConfigg);
 
 const AgregarProducto = () => {
   const [imageUpload, setImageUpload] = useState(null);
