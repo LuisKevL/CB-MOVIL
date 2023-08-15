@@ -5,20 +5,46 @@ import Contraseña from './Contraseña';
 
 const Token = ({ modalVisible, setModalVisible }) => {
   const [email, setEmail] = useState('');
+  const [fieldsCompleted, setFieldsCompleted] = useState(false);
+  //validar campos obligatorios
+  const validateFields = () => {
+    if (
+      email.trim() === ""
 
+    ) {
+      return false;
+    }
+    return true;
+  }
   const handlePasswordRecovery = async () => {
     try {
-      await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/token/', { email });
-      Alert.alert('Token enviado exitosamente');
-
-      // Realiza cualquier acción adicional después de enviar el token
+      Alert.alert(
+        'Confirmación',
+        '¿Estás seguro de realizar esta acción?',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: 'Aceptar',
+            onPress: async () => {
+              const response = await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/token/', { email });
+              Alert.alert('Token enviado exitosamente');
+              clearFields();
+            },
+          },
+        ],
+        { cancelable: false }
+      );
     } catch (error) {
       console.error('Error al enviar el Token:', error.message);
     }
   };
 
-  
-
+  const clearFields = () => {
+    setEmail('');
+  }
   return (
     <Modal visible={modalVisible} animationType="slide" transparent={true}>
       <View style={styles.modalContainer}>
@@ -29,11 +55,26 @@ const Token = ({ modalVisible, setModalVisible }) => {
             style={styles.modalInput}
             placeholder="Correo electrónico"
             value={email}
-            onChangeText={text => setEmail(text)}
-            editable={true} // Asegúrate de que el TextInput sea editable
+            onChangeText={(text) => { setEmail(text); setFieldsCompleted(validateFields()) }}
+            editable={true}
           />
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginTop: 15,
+          }}>
+            <TouchableOpacity style={styles.Token} onPress={() => {
+              if (fieldsCompleted) {
+                handlePasswordRecovery();
+              } else {
+                Alert.alert("Por favor, llene todos los campos")
+              }
+            }}>
+              <Text style={styles.loginButtonText}>Enviar Token</Text>
+            </TouchableOpacity>
+          </View>
 
-          <Button title="Enviar Token" onPress={handlePasswordRecovery} />
+
 
           <Contraseña />
           <TouchableOpacity onPress={() => setModalVisible(false)}>
@@ -74,6 +115,19 @@ const styles = StyleSheet.create({
     color: 'blue',
     marginTop: 10,
     alignSelf: 'flex-end',
+  },
+  Token: {
+    backgroundColor: '#8B4513',
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    marginRight: 5,
+  },
+  loginButtonText: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: 'bold',
+    textAlign: "center"
   },
 });
 

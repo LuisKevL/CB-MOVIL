@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, StyleSheet, Modal, Alert, FlatList, Text, Image, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Modal, Alert, FlatList, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Axios from 'axios';
 import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
@@ -24,11 +24,13 @@ const AgregarProducto = () => {
   const [modal, setModal] = useState(false);
   const [actModal, setActModal] = useState(false);
   const [productos, setProductos] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   //CANCELAR CITA
   const [nombreProductoEliminar, setNombreProductoEliminar] = useState('');
   const [confirmarEliminacion, setConfirmarEliminacion] = useState('');
   const [cancelModal, setCancelModal] = useState(false);
-  //CANCELAR CITA
+
   const deleteProduct = async () => {
     if (!selectedProduct) {
       Alert.alert('Error', 'Selecciona un producto para eliminar.');
@@ -36,6 +38,13 @@ const AgregarProducto = () => {
     }
     if (confirmarEliminacion.trim() !== 'CONFIRMAR') {
       Alert.alert('Error', 'Por favor ingresa "CONFIRMAR" para eliminar el producto.');
+      return;
+    }
+
+    const productoDelete = productos.find((producto) => producto.nombre === nombreProductoEliminar);
+
+    if (!productoDelete) {
+      Alert.alert('Error', 'No se encontró ningun producto con ese nombre.');
       return;
     }
 
@@ -51,17 +60,17 @@ const AgregarProducto = () => {
           text: 'Aceptar',
           onPress: async () => {
             try {
+              setIsLoading(true);
               await Axios.delete(`http://192.168.0.232:8080/api-beautypalace/product/${selectedProduct.id}`);
-
               // Si la eliminación en el servidor fue exitosa, actualiza el estado local para refrescar la lista de productos.
               setProductos((prevProductos) =>
                 prevProductos.filter((producto) => producto.id !== selectedProduct.id)
               );
-
-              // También puedes mostrar una alerta o mensaje de éxito para informar que el producto fue eliminado.
               Alert.alert('Éxito', `El producto "${selectedProduct.nombre}" ha sido eliminado.`);
-              setCancelModal(false); // Cierra el modal
-              fetchProductos(); // Actualizar la lista de productos
+              setCancelModal(false);
+              clearFields();
+              setIsLoading(false);
+              fetchProductos();
             } catch (error) {
               console.error('Error al eliminar el producto:', error);
               Alert.alert('Error', 'No se pudo eliminar el producto. Inténtalo de nuevo más tarde.');
@@ -132,6 +141,7 @@ const AgregarProducto = () => {
 
   const handleSelectImage = async () => {
     try {
+      setIsLoading(true);
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (permissionResult.granted === false) {
@@ -149,6 +159,7 @@ const AgregarProducto = () => {
 
       if (!result.canceled) {
         setImageUpload(result);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Error al seleccionar la imagen:', error);
@@ -158,6 +169,7 @@ const AgregarProducto = () => {
   const handleUploadImage = async (productId) => {
     if (imageUpload) {
       try {
+        setIsLoading(true);
         const imageName = `image_${productId}_${Date.now()}`;
         const imageRef = ref(storage, `productos/${imageName}`);
 
@@ -168,8 +180,9 @@ const AgregarProducto = () => {
 
         const downloadUrl = await getDownloadURL(imageRef);
         setImageUrls((prevUrls) => [...prevUrls, downloadUrl]);
-        Alert.alert('Imagen subida exitosamente');
-        console.log('Imagen subida exitosamente.');
+        Alert.alert('Imagen cargada exitosamente');
+        console.log('Imagen cargada exitosamente.');
+        setIsLoading(false);
       } catch (error) {
         console.error('Error al subir la imagen:', error);
       }
@@ -180,7 +193,6 @@ const AgregarProducto = () => {
 
   const actualizar = async () => {
     try {
-      // Mostrar una alerta de confirmación
       Alert.alert(
         'Confirmar Actualización',
         '¿Estás seguro de actualizar los datos?',
@@ -192,26 +204,26 @@ const AgregarProducto = () => {
           {
             text: 'Actualizar',
             onPress: async () => {
+              setIsLoading(true); // Set isLoading to true before making the API call
               const response = await Axios.put('http://192.168.0.232:8080/api-beautypalace/product/update/', {
-                id: selectedProduct.id, // Usa el id del producto seleccionado
+                id: selectedProduct.id, // Use the id of the selected product
                 nombre: nombre,
                 precio: parseFloat(precio),
                 descripcion: descripcion,
               });
-
-              // Actualiza los estados con los nuevos valores
+              // Update the state with the new values
               setSelectedProduct({
                 ...selectedProduct,
                 nombre: nombre,
                 precio: parseFloat(precio),
                 descripcion: descripcion,
               });
-
               console.log('Producto actualizado con éxito');
               Alert.alert('Producto actualizado con éxito');
-              setActModal(false); // Cierra el modal
-              clearFields();
-              fetchProductos(); // Actualizar la lista de productos
+              setActModal(false); // Close the modal
+              clearFieldss();
+              setIsLoading(false); // Set isLoading back to false after completing the API call
+              fetchProductos(); // Update the list of products
             },
           },
         ],
@@ -220,12 +232,20 @@ const AgregarProducto = () => {
       console.error('Error al actualizar el producto:', error);
       Alert.alert('Error al actualizar el producto');
     }
-  }
+  };
+
+  // Define the clearFields function to reset input fields
+  const clearFieldss = () => {
+    setNombre('');
+    setPrecio('');
+    setDescripcion('');
+    setFieldsCompleted(false);
+  };
 
   const handleGuardar = async () => {
     try {
-      const id = generateId(); // Generar el ID automáticamente
-
+      const id = generateId();
+      setIsLoading(true);
       const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/product/', {
         id: id,
         nombre: nombree,
@@ -238,8 +258,8 @@ const AgregarProducto = () => {
       setModalVisible(false);
       clearFields();
       fetchProductos(); // Actualizar la lista de productos
-
-      // Guardar los datos del producto en AsyncStorage
+      setIsLoading(false);
+      // Guardar datos del producto en AsyncStorage
       const producto = {
         id: id,
         nombre: nombree,
@@ -280,6 +300,8 @@ const AgregarProducto = () => {
     setPrecioo('');
     setDescripcionn('');
     setDescuento('');
+    setConfirmarEliminacion('');
+    setNombreProductoEliminar('');
   };
   const [ofertas, setOfertas] = useState([]); // Estado para almacenar las ofertas
 
@@ -333,13 +355,14 @@ const AgregarProducto = () => {
         descripcion: ofertaDescripcion,
         fechaInicio: fechaInicio,
       };
-
+      setIsLoading(true);
       const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/oferta/', ofertaData);
 
       console.log('Oferta registrada con éxito');
       Alert.alert('Oferta registrada con éxito');
       setModal(false);
       clearFields();
+      setIsLoading(false);
     } catch (error) {
       console.error('Error al registrar la oferta:', error);
       Alert.alert('Error al registrar la oferta');
@@ -361,35 +384,41 @@ const AgregarProducto = () => {
         {productoImageUrls.length > 0 && (
           <Image source={{ uri: productoImageUrls[0] }} style={styles.image} />
         )}
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.touchable}
-            onPress={() => handleSelectImage(item.id)} >
-            <Text
-              style={{
-                color: "white",
-                fontSize: 12,
-                fontWeight: "bold",
-              }}
-            >
-              SELECCIONAR IMAGEN
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.touchable}
-            onPress={() => handleUploadImage(item.id)} >
-            <Text
-              style={{
-                color: "white",
-                fontSize: 14,
-                fontWeight: "bold",
-              }}
-            >
-              SUBIR IMÁGEN
-            </Text>
-          </TouchableOpacity>
-        </View>
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#97714D" />
+            <Text style={styles.loadingText}>Cargando...</Text>
+          </View>
+        ) : (
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.touchable}
+              onPress={() => handleSelectImage(item.id)} >
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 12,
+                  fontWeight: "bold",
+                }}
+              >
+                SELECCIONAR IMAGEN
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.touchable}
+              onPress={() => handleUploadImage(item.id)} >
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 14,
+                  fontWeight: "bold",
+                }}
+              >
+                SUBIR IMÁGEN
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.touchable}>
@@ -446,118 +475,75 @@ const AgregarProducto = () => {
         {/* Modal de la oferta */}
         <Modal visible={modal} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              {selectedProduct ? (
-                <>
-                  <Text style={styles.modalTitle}>Agregar Oferta para {selectedProduct.nombre}</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Nombre de la oferta"
-                    value={ofertaNombre}
-                    onChangeText={(text) => {
-                      setOfertaNombre(text);
-                      setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio));
-                    }}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Descuento"
-                    keyboardType="numeric"
-                    value={descuento}
-                    onChangeText={(text) => {
-                      setDescuento(text);
-                      setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio))
-                    }}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    value={selectedProduct.id.toString()}
-                    editable={false}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    value={selectedProduct.nombre}
-                    editable={false}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    value={selectedProduct.precio.toString()}
-                    editable={false}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    value={selectedProduct.descripcion}
-                    editable={false}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Descripción de Oferta"
-                    value={ofertaDescripcion}
-                    onChangeText={(text) => {
-                      setOfertaDescripcion(text);
-                      setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio))
-                    }}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Fecha de inicio: 2023-12-31"
-                    value={fechaInicio}
-                    onChangeText={(text) => {
-                      setFechaInicio(text);
-                      setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio))
-                    }}
-                  />
-                  <View style={styles.buttonContainer}>
-                    <Button title="Registrar Oferta" onPress={() => {
-                      if (fieldsOferta) {
-                        handleRegistrarOferta();
-                      } else {
-                        Alert.alert('Por favor, completa todos los campos.');
-                      }
-                    }} />
-                    <Button title="Cancelar" onPress={() => { setModal(false); clearFields(); }} />
-                  </View>
-                </>
-              ) : (
-                <Text style={styles.noProductSelected}>Selecciona un producto para agregar una oferta.</Text>
-              )}
-            </View>
-          </View>
-        </Modal>
-
-        <View>
-          <Modal visible={actModal} animationType="slide" transparent={true}>
-            <View style={styles.modalContainer}>
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#97714D" />
+                <Text style={styles.loadingText}>Cargando...</Text>
+              </View>
+            ) : (
               <View style={styles.modalContent}>
                 {selectedProduct ? (
                   <>
-                    <Text>Actualizar Producto</Text>
+                    <Text style={styles.modalTitle}>Agregar Oferta para {selectedProduct.nombre}</Text>
                     <TextInput
                       style={styles.input}
-                      value={nombre}
-                      placeholder={selectedProduct.nombre}
+                      placeholder="Nombre de la oferta"
+                      value={ofertaNombre}
                       onChangeText={(text) => {
-                        setNombre(text);
-                        setFieldsCompleted(validateFieldss(nombre, precio, descripcion));
+                        setOfertaNombre(text);
+                        setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio));
                       }}
                     />
                     <TextInput
                       style={styles.input}
-                      value={precio}
-                      placeholder={selectedProduct.precio.toString()}
+                      placeholder="Descuento"
+                      keyboardType="numeric"
+                      value={descuento}
                       onChangeText={(text) => {
-                        setPrecio(text);
-                        setFieldsCompleted(validateFieldss(nombre, precio, descripcion));
-                      }} keyboardType="numeric"
+                        setDescuento(text);
+                        setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio))
+                      }}
                     />
                     <TextInput
                       style={styles.input}
-                      value={descripcion}
-                      placeholder={selectedProduct.descripcion}
+                      value={selectedProduct.id.toString()}
+                      editable={false}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      value={selectedProduct.nombre}
+                      editable={false}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      value={selectedProduct.precio.toString()}
+                      editable={false}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      value={selectedProduct.descripcion}
+                      editable={false}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Descripción de Oferta"
+                      value={ofertaDescripcion}
+                      multiline
+                      scrollEnabled={true}
                       onChangeText={(text) => {
-                        setDescripcion(text);
-                        setFieldsCompleted(validateFieldss(nombre, precio, descripcion));
-                      }} />
+                        setOfertaDescripcion(text);
+                        setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio))
+                      }}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Fecha de inicio: 2023-12-31"
+                      value={fechaInicio}
+                      onChangeText={(text) => {
+                        setFechaInicio(text);
+                        setFieldsOferta(validateOferta(ofertaNombre, descuento, ofertaDescripcion, fechaInicio))
+                      }}
+                    />
                     <View style={styles.buttonContainer}>
                       <TouchableOpacity
                         style={{
@@ -568,22 +554,20 @@ const AgregarProducto = () => {
                           borderRadius: 10,
                           backgroundColor: '#8B4513',
                           paddingVertical: 8,
-                          paddingHorizontal: 16,
+                          paddingHorizontal: 12,
                           marginHorizontal: 5,
                           borderWidth: 1,
                           borderColor: '#8B4513',
-                        }}
-                        onPress={() => {
-                          if (fieldsCompleted) {
-                            actualizar();
+                        }} onPress={() => {
+                          if (fieldsOferta) {
+                            handleRegistrarOferta();
+                            clearFields();
                           } else {
                             Alert.alert('Por favor, completa todos los campos.');
                           }
-                        }}
-                      >
-                        {/* Envuelve la cadena de texto en un componente Text */}
+                        }} >
                         <Text style={{ color: "white", fontSize: 18, fontWeight: "bold", marginLeft: 8 }}>
-                          Actualizar
+                          registrar oferta
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -595,29 +579,125 @@ const AgregarProducto = () => {
                           borderRadius: 10,
                           backgroundColor: '#8B4513',
                           paddingVertical: 8,
-                          paddingHorizontal: 16,
+                          paddingHorizontal: 12,
                           marginHorizontal: 5,
                           borderWidth: 1,
                           borderColor: '#8B4513',
-                        }} onPress={() => { setActModal(false); clearFields(); }} >
-                        <Text
-                          style={{
-                            color: "white",
-                            fontSize: 18,
-                            fontWeight: "bold",
-                            marginLeft: 8,
-                          }}
-                        >
-                          Cancelar
-                        </Text>
+                        }} onPress={() => { setModal(false); clearFields(); }} >
+                        <Text style={{ color: "white", fontSize: 18, fontWeight: "bold", marginLeft: 8 }}>
+                          Cancelar                      </Text>
                       </TouchableOpacity>
                     </View>
-
                   </>
                 ) : (
                   <Text style={styles.noProductSelected}>Selecciona un producto para agregar una oferta.</Text>
                 )}
               </View>
+            )}
+          </View>
+        </Modal>
+
+        <View>
+          <Modal visible={actModal} animationType="slide" transparent={true}>
+            <View style={styles.modalContainer}>
+              {isLoading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color="#97714D" />
+                  <Text style={styles.loadingText}>Cargando...</Text>
+                </View>
+              ) : (
+                <View style={styles.modalContent}>
+                  {selectedProduct ? (
+                    <>
+                      <Text>Actualizar Producto</Text>
+                      <TextInput
+                        style={styles.input}
+                        value={nombre}
+                        placeholder={selectedProduct.nombre}
+                        onChangeText={(text) => {
+                          setNombre(text);
+                          setFieldsCompleted(validateFieldss(nombre, precio, descripcion));
+                        }}
+                      />
+                      <TextInput
+                        style={styles.input}
+                        value={precio}
+                        placeholder={selectedProduct.precio.toString()}
+                        onChangeText={(text) => {
+                          setPrecio(text);
+                          setFieldsCompleted(validateFieldss(nombre, precio, descripcion));
+                        }} keyboardType="numeric"
+                      />
+                      <TextInput
+                        style={styles.input}
+                        value={descripcion}
+                        placeholder={selectedProduct.descripcion}
+                        onChangeText={(text) => {
+                          setDescripcion(text);
+                          setFieldsCompleted(validateFieldss(nombre, precio, descripcion));
+                        }} />
+                      <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                          style={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: 10,
+                            backgroundColor: '#8B4513',
+                            paddingVertical: 8,
+                            paddingHorizontal: 16,
+                            marginHorizontal: 5,
+                            borderWidth: 1,
+                            borderColor: '#8B4513',
+                          }}
+                          onPress={() => {
+                            if (fieldsCompleted) {
+                              actualizar();
+                              clearFieldss();
+                            } else {
+                              Alert.alert('Por favor, completa todos los campos.');
+                            }
+                          }}
+                        >
+                          {/* Envuelve la cadena de texto en un componente Text */}
+                          <Text style={{ color: "white", fontSize: 18, fontWeight: "bold", marginLeft: 8 }}>
+                            Actualizar
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: 10,
+                            backgroundColor: '#8B4513',
+                            paddingVertical: 8,
+                            paddingHorizontal: 16,
+                            marginHorizontal: 5,
+                            borderWidth: 1,
+                            borderColor: '#8B4513',
+                          }} onPress={() => { setActModal(false); clearFields(); }} >
+                          <Text
+                            style={{
+                              color: "white",
+                              fontSize: 18,
+                              fontWeight: "bold",
+                              marginLeft: 8,
+                            }}
+                          >
+                            Cancelar
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </>
+                  ) : (
+                    <Text style={styles.noProductSelected}>Selecciona un producto para agregar una oferta.</Text>
+                  )}
+                </View>
+              )}
+
             </View>
           </Modal>
         </View>
@@ -647,59 +727,66 @@ const AgregarProducto = () => {
                       onChangeText={(text) => setConfirmarEliminacion(text)}
 
                     />
-                    <View style={styles.buttonContainer}>
-                      <TouchableOpacity
-                        style={{
-                          flex: 1,
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          borderRadius: 10,
-                          backgroundColor: '#8B4513',
-                          paddingVertical: 8,
-                          paddingHorizontal: 16,
-                          marginHorizontal: 5,
-                          borderWidth: 1,
-                          borderColor: '#8B4513',
-                        }}
-                        onPress={() => {
-                          deleteProduct();
-
-                        }}
-                      >
-                        <Text style={{ color: "white", fontSize: 18, fontWeight: "bold", marginLeft: 8 }}>
-                          ELIMINAR PRODUCTO
-                        </Text>
-                      </TouchableOpacity>
-
-
-                      <TouchableOpacity
-                        style={{
-                          flex: 1,
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          borderRadius: 10,
-                          backgroundColor: '#8B4513',
-                          paddingVertical: 8,
-                          paddingHorizontal: 16,
-                          marginHorizontal: 5,
-                          borderWidth: 1,
-                          borderColor: '#8B4513',
-                        }} onPress={() => { setCancelModal(false); }} >
-                        <Text
+                    {isLoading ? (
+                      <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#97714D" />
+                        <Text style={styles.loadingText}>Cargando...</Text>
+                      </View>
+                    ) : (
+                      <View style={styles.buttonContainer}>
+                        <TouchableOpacity
                           style={{
-                            color: "white",
-                            fontSize: 18,
-                            fontWeight: "bold",
-                            marginLeft: 8,
+                            flex: 1,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: 10,
+                            backgroundColor: '#8B4513',
+                            paddingVertical: 8,
+                            paddingHorizontal: 16,
+                            marginHorizontal: 5,
+                            borderWidth: 1,
+                            borderColor: '#8B4513',
+                          }}
+                          onPress={() => {
+                            deleteProduct();
+
                           }}
                         >
-                          Cancelar
-                        </Text>
-                      </TouchableOpacity>
+                          <Text style={{ color: "white", fontSize: 18, fontWeight: "bold", marginLeft: 8 }}>
+                            ELIMINAR PRODUCTO
+                          </Text>
+                        </TouchableOpacity>
 
-                    </View>
+
+                        <TouchableOpacity
+                          style={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: 10,
+                            backgroundColor: '#8B4513',
+                            paddingVertical: 8,
+                            paddingHorizontal: 16,
+                            marginHorizontal: 5,
+                            borderWidth: 1,
+                            borderColor: '#8B4513',
+                          }} onPress={() => { setCancelModal(false); clearFields(); }} >
+                          <Text
+                            style={{
+                              color: "white",
+                              fontSize: 18,
+                              fontWeight: "bold",
+                              marginLeft: 8,
+                            }}
+                          >
+                            Cancelar
+                          </Text>
+                        </TouchableOpacity>
+
+                      </View>
+                    )}
                   </>
                 ) : (
                   <Text style={styles.noProductSelected}>Selecciona un producto para agregar una oferta.</Text>
@@ -747,67 +834,75 @@ const AgregarProducto = () => {
               style={styles.input}
               placeholder="Descripción"
               value={descripcionn}
+              multiline
+              scrollEnabled={true}
               onChangeText={(text) => {
                 setDescripcionn(text);
                 setFieldsCompleted(validateFields(nombree, precioo, descripcionn));
               }}
             />
 
-
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginBottom: 10,
-            }}>
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  backgroundColor: "#8B4513",
-                  borderRadius: 10,
-                  paddingVertical: 5,
-                  paddingHorizontal: 16,
-                  marginHorizontal: 5,
-                  alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
-                }}
-                onPress={() => {
-                  if (fieldsCompleted) {
-                    handleGuardar();
-                  } else {
-                    Alert.alert('Por favor, completa todos los campos.');
-                  }
-                }} >
-                <Text
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#97714D" />
+                <Text style={styles.loadingText}>Cargando...</Text>
+              </View>
+            ) : (
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginBottom: 10,
+              }}>
+                <TouchableOpacity
                   style={{
-                    color: "white",
-                    fontSize: 14,
-                    fontWeight: "bold",
+                    flex: 1,
+                    backgroundColor: "#8B4513",
+                    borderRadius: 10,
+                    paddingVertical: 5,
+                    paddingHorizontal: 16,
+                    marginHorizontal: 5,
+                    alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
                   }}
-                >
-                  REGISTRAR
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  backgroundColor: "#8B4513",
-                  borderRadius: 10,
-                  paddingVertical: 5,
-                  paddingHorizontal: 14,
-                  marginHorizontal: 5,
-                  alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
-                }}
-                onPress={() => { setModalVisible(false); clearFields(); }} >
-                <Text
+                  onPress={() => {
+                    if (fieldsCompleted) {
+                      handleGuardar();
+                    } else {
+                      Alert.alert('Por favor, completa todos los campos.');
+                    }
+                  }} >
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 14,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    REGISTRAR
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
                   style={{
-                    color: "white",
-                    fontSize: 14,
-                    fontWeight: "bold",
+                    flex: 1,
+                    backgroundColor: "#8B4513",
+                    borderRadius: 10,
+                    paddingVertical: 5,
+                    paddingHorizontal: 14,
+                    marginHorizontal: 5,
+                    alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
                   }}
-                >
-                  CANCELAR
-                </Text>
-              </TouchableOpacity>
-            </View>
+                  onPress={() => { setModalVisible(false); clearFields(); }} >
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 14,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    CANCELAR
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </View>
       </Modal>
@@ -924,7 +1019,15 @@ const styles = StyleSheet.create({
   },
   textBotones: {
 
-  }
+  },
+  loadingContainer: {
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#97714D',
+    fontWeight: 'bold',
+  },
 });
 
 export default AgregarProducto;

@@ -27,12 +27,11 @@ export default function PreguntasAdmin({ navigation }) {
     const [editedRespuesta, setEditedRespuesta] = useState(respuesta); // Estado para almacenar la respuesta que se va a editar
     const [modalDatos, setModalDatos] = useState(false);
     const [modalDelete, setModalDelete] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [fieldsCompletedEl, setFieldsCompletedEl] = useState(false);
     const validateEliminate = () => {
         if (
-            confirmarEliminacion.trim() === "" ||
-            nombrePreguntaEliminar.trim() === ""
-                (selectedPregunta && (nombrePreguntaEliminar.trim() === "" || confirmarEliminacion.trim() === ""))
+            (selectedPregunta && (nombrePreguntaEliminar.trim() === ""))
 
         ) {
             return false;
@@ -56,8 +55,8 @@ export default function PreguntasAdmin({ navigation }) {
     //CANCELAR CITA
     const [nombrePreguntaEliminar, setNombrePreguntaEliminar] = useState('');
     const [confirmarEliminacion, setConfirmarEliminacion] = useState('');
-    //CANCELAR CITA
-    const deleteProduct = async () => {
+
+    const deletePregunta = async () => {
         if (!selectedPregunta) {
             Alert.alert('Error', 'Selecciona la pregunta para eliminar.');
             return;
@@ -66,7 +65,12 @@ export default function PreguntasAdmin({ navigation }) {
             Alert.alert('Error', 'Por favor ingresa "CONFIRMAR" para eliminar la pregunta.');
             return;
         }
+        const preguntaDelete = preguntas.find((pregunta) => pregunta.pregunta === nombrePreguntaEliminar);
 
+        if (!preguntaDelete) {
+            Alert.alert('Error', 'No se encontró ninguna cita con ese nombre.');
+            return;
+        }
         Alert.alert(
             'Confirmación',
             `¿Estás seguro de eliminar la pregunta "${selectedPregunta.pregunta}"?`,
@@ -86,8 +90,9 @@ export default function PreguntasAdmin({ navigation }) {
                             );
 
                             Alert.alert('Éxito', `La pregunta "${selectedPregunta.pregunta}" ha sido eliminado.`);
-                            setModalDelete(false); // Cierra el modal
-                            fetchPreguntas(); // Actualizar la lista de preguntas
+                            setModalDelete(false);
+                            clearFields();
+                            fetchPreguntas();
                         } catch (error) {
                             console.error('Error al eliminar la pregunta:', error);
                             Alert.alert('Error', 'No se pudo eliminar la pregunta. Inténtalo de nuevo más tarde.');
@@ -114,7 +119,6 @@ export default function PreguntasAdmin({ navigation }) {
         }
     };
     const generateId = () => {
-        // Generar un ID único utilizando la fecha actual
         return Date.now().toString();
     };
 
@@ -122,13 +126,15 @@ export default function PreguntasAdmin({ navigation }) {
     const agregarPregunta = async () => {
         try {
             const id = generateId(); // Generar el ID automáticamente
-
+            setIsLoading(true);
             const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/preguntas/', {
                 id: id,
                 pregunta: pregunta,
                 respuesta: respuesta,
             });
             setModal(false);
+            setIsLoading(false);
+            fetchPreguntas();
             Alert.alert('Éxito', 'Pregunta agregada exitosamente');
             console.log("Registrada correctamente");
         } catch (error) {
@@ -142,18 +148,16 @@ export default function PreguntasAdmin({ navigation }) {
         setRespuesta('');
         setEditedPregunta('');
         setEditedRespuesta('');
+        setNombrePreguntaEliminar('');
+        setConfirmarEliminacion('');
     }
 
-    const clearEliminate = () => {
-        setFieldsCompletedEl('')
-        setConfirmarEliminacion('')
-    }
+
     const [selectedPregunta, setSelectedPregunta] = useState(null); // Estado para almacenar la pregunta seleccionada
     // ... (código anterior)
 
     const actualizarPregunta = async () => {
         try {
-            // Mostrar una alerta de confirmación
             Alert.alert(
                 'Confirmar Actualización',
                 '¿Estás seguro de actualizar la pregunta?',
@@ -166,6 +170,7 @@ export default function PreguntasAdmin({ navigation }) {
                         text: 'Actualizar',
                         onPress: async () => {
                             try {
+                                setIsLoading(true);
                                 const response = await Axios.put(
                                     `http://192.168.0.232:8080/api-beautypalace/preguntas/update/`,
                                     {
@@ -174,10 +179,10 @@ export default function PreguntasAdmin({ navigation }) {
                                         respuesta: respuesta, // Usamos el estado respuesta
                                     }
                                 );
-
                                 console.log('Pregunta actualizada con éxito');
                                 Alert.alert('Pregunta actualizada con éxito');
                                 setModalDatos(false);
+                                setIsLoading(false);
                                 clearFields();
                                 fetchPreguntas();
                             } catch (error) {
@@ -192,22 +197,18 @@ export default function PreguntasAdmin({ navigation }) {
         }
     };
 
-    // eliminar pregunta
 
     return (
         <ScrollView
             style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }}
             showsVerticalScrollIndicator={false}>
             <ImageBackground
-                source={require("../../../../assets/fondo.png")}
+                source={require("../../../../assets/preguntas.png")}
                 style={{
                     height: Dimensions.get("window").height / 2.5,
-                    marginTop: -80,
                 }}>
                 <View style={styles.brandView}>
-                    <Iconn name="spa" size={24} color="black" style={{ fontSize: 100 }} />
-
-                    <Text style={styles.brandViewText}>Preguntas</Text>
+                    <Text style={styles.brandViewText}></Text>
                 </View>
             </ImageBackground>
             <View style={styles.bottomView}>
@@ -266,129 +267,150 @@ export default function PreguntasAdmin({ navigation }) {
             </View>
             <Modal visible={modal} animationType="slide" transparent={true}>
                 <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalText}>Agregar Pregunta</Text>
-
-                        <TextInput
-                            placeholder="Pregunta"
-                            style={styles.input}
-                            value={pregunta}
-                            onChangeText={(text) => {
-                                setPregunta(text); setFieldsCompleted(validateFields());
-                            }}
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Respuesta"
-                            value={respuesta}
-                            onChangeText={(text) => {
-                                setRespuesta(text); setFieldsCompleted(validateFields());
-                            }}
-                        />
-                        <View style={styles.containerColum}>
-                            <TouchableOpacity style={[styles.botones, styles.agregarButton]}
-                                onPress={() => {
-                                    if (fieldsCompleted) {
-                                        agregarPregunta();
-                                        clearFields();
-                                    } else {
-                                        Alert.alert('Error', 'Todos los campos son obligatorios');
-                                    }
-                                }}>
-                                <Text style={{
-                                    color: "white",
-                                    fontSize: 15,
-                                    fontWeight: "bold",
-                                }}>Agregar Pregunta</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.botones, styles.agregarButton]}
-                                onPress={() => { setModal(false); clearFields() }}>
-                                <Text style={{
-                                    color: "white",
-                                    fontSize: 15,
-                                    fontWeight: "bold",
-                                }}>Cancelar</Text>
-                            </TouchableOpacity>
+                    {isLoading ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color="#97714D" />
+                            <Text style={styles.loadingText}>Cargando...</Text>
                         </View>
+                    ) : (
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalText}>Agregar Pregunta</Text>
 
-                    </View>
+                            <TextInput
+                                placeholder="Pregunta"
+                                style={styles.input}
+                                value={pregunta}
+                                onChangeText={(text) => {
+                                    setPregunta(text); setFieldsCompleted(validateFields());
+                                }}
+                            />
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Respuesta"
+                                multiline
+                                scrollEnabled
+                                value={respuesta}
+                                onChangeText={(text) => {
+                                    setRespuesta(text); setFieldsCompleted(validateFields());
+                                }}
+                            />
+                            <View style={styles.containerColum}>
+                                <TouchableOpacity style={[styles.botones, styles.agregarButton]}
+                                    onPress={() => {
+                                        if (fieldsCompleted) {
+                                            agregarPregunta();
+                                            clearFields();
+                                        } else {
+                                            Alert.alert('Error', 'Todos los campos son obligatorios');
+                                        }
+                                    }}>
+                                    <Text style={{
+                                        color: "white",
+                                        fontSize: 15,
+                                        fontWeight: "bold",
+                                    }}>Agregar Pregunta</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.botones, styles.agregarButton]}
+                                    onPress={() => { setModal(false); clearFields() }}>
+                                    <Text style={{
+                                        color: "white",
+                                        fontSize: 15,
+                                        fontWeight: "bold",
+                                    }}>Cancelar</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                        </View>
+                    )}
                 </View>
             </Modal>
             <Modal visible={modalDatos} animationType="slide" transparent={true}>
                 <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalText}>Modificar Pregunta</Text>
-                        {selectedPregunta ? (
-                            <>
-                                <TextInput
-                                    style={styles.input}
-                                    value={pregunta}  // Mostrar el valor actual de la pregunta seleccionada
-                                    placeholder={selectedPregunta.pregunta}
-                                    onChangeText={(text) => {
-                                        setPregunta(text);
-                                        setFieldsCompleted(validateFields());
-                                    }}
-                                />
-                                <TextInput
-                                    style={styles.input}
-                                    value={respuesta}  // Mostrar el valor actual de la respuesta seleccionada
-                                    placeholder={selectedPregunta.respuesta}
-                                    onChangeText={(text) => {
-                                        setRespuesta(text);
-                                        setFieldsCompleted(validateFields());
-                                    }}
-                                />
-                                <View style={styles.containerColum}>
+                    {isLoading ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color="#97714D" />
+                            <Text style={styles.loadingText}>Cargando...</Text>
+                        </View>
+                    ) : (
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalText}>Modificar Pregunta</Text>
+                            {selectedPregunta ? (
+                                <>
+                                    <TextInput
+                                        style={styles.input}
+                                        value={pregunta}  // Mostrar el valor actual de la pregunta seleccionada
+                                        placeholder={selectedPregunta.pregunta}
+                                        multiline
+                                        scrollEnabled
+                                        onChangeText={(text) => {
+                                            setPregunta(text);
+                                            setFieldsCompleted(validateFields());
+                                        }}
+                                    />
+                                    <TextInput
+                                        style={styles.input}
+                                        value={respuesta}  // Mostrar el valor actual de la respuesta seleccionada
+                                        placeholder={selectedPregunta.respuesta}
+                                        multiline
+                                        scrollEnabled
+                                        onChangeText={(text) => {
+                                            setRespuesta(text);
+                                            setFieldsCompleted(validateFields());
+                                        }}
+                                    />
+                                    <View style={styles.containerColum}>
 
-                                    <TouchableOpacity
-                                        style={[styles.botones, styles.agregarButton]}
-                                        onPress={() => {
-                                            if (fieldsCompleted) {
-                                                actualizarPregunta();
+                                        <TouchableOpacity
+                                            style={[styles.botones, styles.agregarButton]}
+                                            onPress={() => {
+                                                if (fieldsCompleted) {
+                                                    actualizarPregunta();
+                                                    setModalDatos(false);
+                                                    clearFields();
+                                                } else {
+                                                    Alert.alert('Error', 'Todos los campos son obligatorios');
+                                                }
+                                            }}>
+                                            <Text style={{
+                                                color: "white",
+                                                fontSize: 15,
+                                                fontWeight: "bold",
+                                            }}>Modificar Pregunta</Text>
+                                        </TouchableOpacity>
+
+
+                                        <TouchableOpacity
+                                            style={[styles.botones, styles.agregarButton]}
+                                            onPress={() => {
                                                 setModalDatos(false);
                                                 clearFields();
-                                            } else {
-                                                Alert.alert('Error', 'Todos los campos son obligatorios');
-                                            }
-                                        }}>
-                                        <Text style={{
-                                            color: "white",
-                                            fontSize: 15,
-                                            fontWeight: "bold",
-                                        }}>Modificar Pregunta</Text>
-                                    </TouchableOpacity>
-
-
-                                    <TouchableOpacity
-                                        style={[styles.botones, styles.agregarButton]}
-                                        onPress={() => {
-                                            setModalDatos(false);
-                                            clearFields();
-                                        }}>
-                                        <Text style={{
-                                            color: "white",
-                                            fontSize: 15,
-                                            fontWeight: "bold",
-                                        }}>Cancelar</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </>
-                        ) : (
-                            <TouchableOpacity
-                                style={[styles.botones, styles.agregarButton]}
-                                onPress={() => {
-                                    setModalDatos(false);
-                                    clearFields();
-                                }}>
-                                <Text style={{
-                                    color: "white",
-                                    fontSize: 15,
-                                    fontWeight: "bold",
-                                }}>Cancelar</Text>
-                            </TouchableOpacity>
-                        )}
-                    </View>
+                                            }}>
+                                            <Text style={{
+                                                color: "white",
+                                                fontSize: 15,
+                                                fontWeight: "bold",
+                                            }}>Cancelar</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </>
+                            ) : (
+                                <TouchableOpacity
+                                    style={[styles.botones, styles.agregarButton]}
+                                    onPress={() => {
+                                        setModalDatos(false);
+                                        clearFields();
+                                    }}>
+                                    <Text style={{
+                                        color: "white",
+                                        fontSize: 15,
+                                        fontWeight: "bold",
+                                    }}>Cancelar</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    )}
                 </View>
+
             </Modal>
 
             <Modal visible={modalDelete} animationType="slide" transparent={true}>
@@ -423,9 +445,9 @@ export default function PreguntasAdmin({ navigation }) {
                                         style={[styles.botones, styles.agregarButton]}
                                         onPress={() => {
                                             if (fieldsCompletedEl) {
-                                                deleteProduct();
+                                                deletePregunta();
                                                 setModalDatos(false);
-                                                clearEliminate();
+                                                clearFields();
                                             } else {
                                                 Alert.alert('Error', 'Todos los campos son obligatorios');
                                             }
@@ -443,7 +465,7 @@ export default function PreguntasAdmin({ navigation }) {
                                         style={[styles.botones, styles.agregarButton]}
                                         onPress={() => {
                                             setModalDelete(false);
-                                            clearEliminate();
+                                            clearFields();
                                         }}>
                                         <Text style={{
                                             color: "white",
@@ -473,26 +495,24 @@ export default function PreguntasAdmin({ navigation }) {
 
             </Modal>
 
-            <View>
-                <TouchableOpacity
-                    onPress={() => { setModal(true) }}
-                    style={{
-                        backgroundColor: "#8B4513",
-                        borderRadius: 10,
-                        paddingVertical: 7, // Ajustar este valor para aumentar la altura
-                        paddingHorizontal: 12,
-                        marginHorizontal: 5,
-                        alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
-                    }}
-                >
-                    <Text style={{
-                        color: "white",
-                        fontSize: 15,
-                        fontWeight: "bold",
-                    }}>Agregar Pregunta</Text>
-                </TouchableOpacity>
+            <TouchableOpacity
+                onPress={() => { setModal(true) }}
+                style={{
+                    backgroundColor: "#8B4513",
+                    borderRadius: 10,
+                    paddingVertical: 7, // Ajustar este valor para aumentar la altura
+                    paddingHorizontal: 12,
+                    marginHorizontal: 5,
+                    alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                }}
+            >
+                <Text style={{
+                    color: "white",
+                    fontSize: 15,
+                    fontWeight: "bold",
+                }}>Agregar Pregunta</Text>
+            </TouchableOpacity>
 
-            </View>
         </ScrollView>
     );
 }
@@ -618,5 +638,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 20,
+    },
+    loadingContainer: {
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: 10,
+        color: '#97714D',
+        fontWeight: 'bold',
     },
 });

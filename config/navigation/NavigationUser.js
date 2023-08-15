@@ -25,17 +25,14 @@ export default function NavigationUser() {
         name="Profile"
         component={Profile}
       />
-
       <Tab.Screen
         name="Citas"
         component={Agenda}
       />
-
       <Tab.Screen
         name="ViewCita"
         component={ViewCita}
       />
-
       <Tab.Screen
         name="Productos"
         component={Productos}
@@ -60,13 +57,23 @@ const screenOptions = (route, color) => {
       iconName = "account";
       break;
     case "Citas":
-      iconName = "information";
+      iconName = "calendar-clock";
       break;
     case "ViewCita":
-      iconName = "information";
+      iconName = "calendar";
+      break;
+    case "Productos":
+      iconName = "package";
+      break;
+    case "PreguntasAdmin":
+      iconName = "comment-question";
+      break;
+    case "ConsejosAdmin":
+      iconName = "comment-alert";
       break;
   }
   return (
     <Icon type="material-community" name={iconName} size={22} color={color} />
   );
 };
+

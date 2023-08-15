@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ImageBackground, Dimensions, Modal, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Dimensions, Modal, TextInput, Button, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Axios from 'axios';
 import Iconn from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -9,15 +9,17 @@ const ViewCita = () => {
     const [cancelModal, setCancelModal] = useState(false);
     const [nombreCitaEliminar, setNombreCitaEliminar] = useState('');
     const [confirmarEliminacion, setConfirmarEliminacion] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [cargar, setCargar] = useState(false);
 
     const deleteCita = async () => {
         if (!nombreCitaEliminar.trim()) {
-            Alert.alert('Error', 'Por favor ingrese el nombre de la cita a eliminar.');
+            Alert.alert('Error', 'Por favor ingrese el nombre de la cita a cancelar.');
             return;
         }
 
         if (confirmarEliminacion.trim() !== 'CONFIRMAR') {
-            Alert.alert('Error', 'Por favor ingrese "CONFIRMAR" para eliminar la cita.');
+            Alert.alert('Error', 'Por favor ingrese "CONFIRMAR" para cancelar la cita.');
             return;
         }
 
@@ -30,7 +32,7 @@ const ViewCita = () => {
 
         Alert.alert(
             'Confirmación',
-            `¿Estás seguro de eliminar la cita "${nombreCitaEliminar}"?`,
+            `¿Estás seguro de cancelar la cita "${nombreCitaEliminar}"?`,
             [
                 {
                     text: 'Cancelar',
@@ -40,14 +42,14 @@ const ViewCita = () => {
                     text: 'Aceptar',
                     onPress: async () => {
                         try {
+                            setIsLoading(true);
                             await Axios.delete(`http://192.168.0.232:8080/api-beautypalace/agenda/${citaToDelete.id}`);
-
-                            // Si la eliminación en el servidor fue exitosa, actualiza el estado local para refrescar la lista de citas.
                             setCitaData((prevCitaData) => prevCitaData.filter((cita) => cita.id !== citaToDelete.id));
-
-                            // También puedes mostrar una alerta o mensaje de éxito para informar que la cita fue eliminada.
-                            Alert.alert('Éxito', `La cita "${nombreCitaEliminar}" ha sido eliminada.`);
+                            Alert.alert('Éxito', `La cita "${nombreCitaEliminar}" ha sido cancelada.`);
                             setNombreCitaEliminar(''); // Limpia el TextInput después de eliminar la cita.
+                            setConfirmarEliminacion(''); // Limpia el TextInput después de eliminar la cita.
+                            setCancelModal(false);
+                            setIsLoading(false);
                         } catch (error) {
                             console.error('Error al eliminar la cita:', error);
                             Alert.alert('Error', 'No se pudo eliminar la cita. Inténtalo de nuevo más tarde.');
@@ -131,6 +133,7 @@ const ViewCita = () => {
                     text: 'Aceptar',
                     onPress: async () => {
                         try {
+                            setCargar(true);
                             await Axios.put(`http://192.168.0.232:8080/api-beautypalace/agenda/update/`, {
                                 id: currentCita.id,
                                 name: nombreCita,
@@ -144,7 +147,7 @@ const ViewCita = () => {
 
                             console.log("Cambio de datos exitoso");
                             setModalVisible(false);
-
+                            setCargar(false);
                             const updatedCitaData = citaData.map((c) => {
                                 if (c.id === currentCita.id) {
                                     return {
@@ -162,7 +165,7 @@ const ViewCita = () => {
                                 }
                             });
                             setCitaData(updatedCitaData);
-
+                            Alert.alert('Éxito', 'Los datos de la cita han sido actualizados.');
                         } catch (error) {
                             console.log("Error al cambiar los datos", error.message);
                         }
@@ -175,10 +178,9 @@ const ViewCita = () => {
 
     return (
         <ScrollView style={{ flex: 1, backgroundColor: '#ffffff', width: '100%' }} showsVerticalScrollIndicator={false}>
-            <ImageBackground source={require('../../../../assets/fondo.png')} style={{ height: Dimensions.get('window').height / 2.5 }}>
+            <ImageBackground source={require('../../../../assets/agenda.png')} style={{ height: Dimensions.get('window').height / 2.5 }}>
                 <View style={styles.brandView}>
-                    <Iconn name="spa" size={24} color="black" style={{ fontSize: 100 }} />
-                    <Text style={styles.brandViewText}>Ver Citas</Text>
+                    <Text style={styles.brandViewText}></Text>
                 </View>
             </ImageBackground>
             <View style={styles.bottomView}>
@@ -204,21 +206,21 @@ const ViewCita = () => {
 
                                 <View style={styles.rowContainer}>
                                     <View style={styles.columnContainer}>
-                                        <Text style={styles.label}>Dia de la cita:</Text>
+                                        <Text style={styles.label}>Dia cita:</Text>
                                         <Text>{cita.day}</Text>
                                     </View>
 
                                     <View style={styles.columnContainer}>
-                                        <Text style={styles.label}> Hora Inicio: </Text>
+                                        <Text style={styles.label}> Inicio: </Text>
                                         <Text>{cita.startTime}</Text>
                                     </View>
 
                                     <View style={styles.columnContainer}>
-                                        <Text style={styles.label}> Hora fin:</Text>
+                                        <Text style={styles.label}> Fin:</Text>
                                         <Text>{cita.timeEnd}</Text>
                                     </View>
                                     <View style={styles.columnContainer}>
-                                        <Text style={styles.label}>Sucursal:</Text>
+                                        <Text style={styles.label}>Sucursal</Text>
                                         <Text>{cita.branch}</Text>
                                     </View>
                                     <View style={styles.rowContainer}>
@@ -308,20 +310,65 @@ const ViewCita = () => {
                                 onChangeText={(text) => setConfirmarEliminacion(text)}
 
                             />
-                            <View style={{ flexDirection: "row" }}>
-                                <Button
-                                    title="Eliminar Cita"
-                                    onPress={deleteCita}
-                                />
-                                <Button
-                                    title="Cancelar"
+                            {isLoading ? (
+                                <View style={styles.loadingContainer}>
+                                    <ActivityIndicator size="large" color="#97714D" />
+                                    <Text style={styles.loadingText}>Cargando...</Text>
+                                </View>
+                            ) : (
+                                <View style={{ flexDirection: "row" }}>
+                                    <TouchableOpacity
+                                        style={{
+                                            flex: 1,
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            borderRadius: 10,
+                                            backgroundColor: '#8B4513',
+                                            paddingVertical: 8,
+                                            paddingHorizontal: 12,
+                                            marginHorizontal: 5,
+                                            borderWidth: 1,
+                                            borderColor: '#8B4513',
+                                        }}
+                                        onPress={() => {
+                                            deleteCita();
 
-                                    onPress={() => {
-                                        resetModal(); setCancelModal(false);
-                                    }}
-
-                                />
-                            </View>
+                                        }}
+                                    >
+                                        {/* Envuelve la cadena de texto en un componente Text */}
+                                        <Text style={{ color: "white", fontSize: 18, fontWeight: "bold", marginLeft: 8 }}>
+                                            eliminar
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={{
+                                            flex: 1,
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            borderRadius: 10,
+                                            backgroundColor: '#8B4513',
+                                            paddingVertical: 8,
+                                            paddingHorizontal: 12,
+                                            marginHorizontal: 5,
+                                            borderWidth: 1,
+                                            borderColor: '#8B4513',
+                                        }}
+                                        onPress={() => { resetModal(); setCancelModal(false); }} >
+                                        <Text
+                                            style={{
+                                                color: "white",
+                                                fontSize: 18,
+                                                fontWeight: "bold",
+                                                marginLeft: 8,
+                                            }}
+                                        >
+                                            cancelar
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
                         </View>
                     </View>
                 </Modal>
@@ -339,7 +386,6 @@ const ViewCita = () => {
                     <View style={styles.modalContainer}>
                         <View style={styles.modalContent}>
                             <Text style={styles.modalText}>Actualizar Cita</Text>
-
                             {/* Campos de datos para modificar */}
                             <TextInput
                                 style={styles.input}
@@ -402,27 +448,33 @@ const ViewCita = () => {
                             />
 
                             {/* Botón para guardar los cambios */}
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-
-                                <TouchableOpacity
-                                    style={[styles.button, styles.cancelButton]}
-                                    onPress={() => setModalVisible(false)}
-                                >
-                                    <Text style={styles.buttonText}>Cancelar</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.button, styles.saveButton]}
-                                    onPress={() => {
-                                        if (fieldsCompleted) {
-                                            cambiaDatos();
-                                        } else {
-                                            Alert.alert('Error', 'Por favor llene todos los campos');
-                                        }
-                                    }}
-                                >
-                                    <Text style={styles.buttonText}>Guardar cambios</Text>
-                                </TouchableOpacity>
-                            </View>
+                            {cargar ? (
+                                <View style={styles.loadingContainer}>
+                                    <ActivityIndicator size="large" color="#97714D" />
+                                    <Text style={styles.loadingText}>Cargando...</Text>
+                                </View>
+                            ) : (
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                                    <TouchableOpacity
+                                        style={[styles.button, styles.cancelButton]}
+                                        onPress={() => setModalVisible(false)}
+                                    >
+                                        <Text style={styles.buttonText}>Cancelar</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.button, styles.saveButton]}
+                                        onPress={() => {
+                                            if (fieldsCompleted) {
+                                                cambiaDatos();
+                                            } else {
+                                                Alert.alert('Error', 'Por favor llene todos los campos');
+                                            }
+                                        }}
+                                    >
+                                        <Text style={styles.buttonText}>Guardar cambios</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
 
 
                             {/* Botón para guardar los cambios */}
@@ -456,10 +508,12 @@ const styles = StyleSheet.create({
     },
     cardContainer: {
         backgroundColor: '#f1f1f1',
-        padding: 20,
+        padding: 10,
         marginBottom: 20,
         borderRadius: 10,
+        width: "100%", // Aumenta este valor para agregar más altura al contenedor
     },
+
     label: {
         fontWeight: 'bold',
         marginBottom: 5,
@@ -527,7 +581,14 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
-
+    loadingContainer: {
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: 10,
+        color: '#97714D',
+        fontWeight: 'bold',
+    },
 
 
 

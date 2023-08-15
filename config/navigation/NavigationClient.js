@@ -11,7 +11,7 @@ import PreguntasFrec from "../../modules/profile/adapters/screens/PreguntasFrec"
 import Consejos from "../../modules/profile/adapters/screens/Consejos";
 const Tab = createBottomTabNavigator();
 
-export default function NavigationUser() {
+export default function NavigationClient() {
   return (
     <Tab.Navigator
       initialRouteName="Login"
@@ -32,25 +32,24 @@ export default function NavigationUser() {
         component={Cita}
       />
 
-
       <Tab.Screen
-        name="CitasClient"
+        name="Agenda"
         component={CitasClient}
       />
 
       <Tab.Screen
-        name="ProductosClient"
+        name="Productos"
         component={ProductosClient}
       />
 
-      <Tab.Screen 
-        name="PreguntasFrec"
+      <Tab.Screen
+        name="Preguntas"
         component={PreguntasFrec}
       />
 
-      <Tab.Screen 
-      name= "Consejos"
-      component={Consejos}
+      <Tab.Screen
+        name="Consejos"
+        component={Consejos}
       />
     </Tab.Navigator>
   )
@@ -63,13 +62,19 @@ const screenOptions = (route, color) => {
       iconName = "account";
       break;
     case "Cita":
-      iconName = "information";
+      iconName = "calendar-clock";
       break;
-    case "CitasClient":
-      iconName = "information";
+    case "Agenda":
+      iconName = "calendar";
       break;
-    case "ProductosClient":
-      iconName = "information";
+    case "Productos":
+      iconName = "package";
+      break;
+    case "Preguntas":
+      iconName = "comment-question";
+      break;
+    case "Consejos":
+      iconName = "lightbulb-on";
       break;
   }
   return (

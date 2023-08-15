@@ -9,16 +9,12 @@ import Axios from 'axios';
 import Profile from '../../../profile/adapters/screens/Profile';
 import Token from './Token';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import AdminStack from '../../../../config/stack/AdminStack';
 const Login = (props) => {
     const horario = " 8 a. m. - 6 p. m.";
     //navigation
     const { navigation } = props;
-
     //modal y email
     const [modalVisible, setModalVisible] = useState(false);
-
-    //
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -126,11 +122,10 @@ const Login = (props) => {
                 ) : (
                     <>
                         <ImageBackground
-                            source={require('../../../../assets/fondo.jpg')}
+                            source={require('../../../../assets/login.png')}
                             style={{ height: Dimensions.get('window').height / 2.5 }}>
                             <View style={styles.brandView}>
-                                <Iconn name="spa" size={24} color="black" style={{ fontSize: 100 }} />
-                                <Text style={styles.brandViewText}>Beauty Palace</Text>
+                                <Text style={styles.brandViewText}></Text>
                             </View>
                         </ImageBackground>
                         <View style={styles.bottomView}>
@@ -180,14 +175,23 @@ const Login = (props) => {
                                         </TouchableOpacity>
                                     </View>
                                     {/* modal -------------------------------------------------------------------------- */}
-                                    <View>
+                                    <View style={{
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        alignSelf: 'center', // Centra verticalmente
+                                        backgroundColor: '#8B4513',
+                                        borderRadius: 5,
+                                        marginTop: 10,
+                                        width: 200,
+                                        height: 25,
+                                    }}>
                                         <TouchableOpacity onPress={() => setModalVisible(true)}>
-                                            <Text style={styles.forgotPasswordText}>Enviar Token *Recuperar Contraseña*</Text>
+                                            <Text style={styles.forgotPasswordText}>Recuperar Contraseña</Text>
                                         </TouchableOpacity>
 
                                         <Token modalVisible={modalVisible} setModalVisible={setModalVisible} />
-
                                     </View>
+
                                     <View style={{
                                         flex: 1,
                                         justifyContent: 'center',
@@ -198,21 +202,6 @@ const Login = (props) => {
                                             fontWeight: 'bold',
                                             marginBottom: 15,
                                         }}>Horario de Trabajo: {horario}</Text>
-                                    </View>
-
-                                    {/*-------------------------------------------------------------------------------------------- */}
-                                </View>
-                                <View style={styles.loginWithTextContainer}>
-                                    <Text style={styles.loginWithText}>Loguear Con:</Text>
-                                    <View style={styles.socialButtonsContainer}>
-                                        <TouchableOpacity style={styles.socialButton} onPress={() => console.log('Botón de Facebook presionado')}>
-                                            <FontAwesomeIcon icon={faFacebookF} style={styles.socialIcon} />
-                                            <Text style={styles.socialButtonText}>Facebook</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity style={styles.socialButton} onPress={() => console.log('Botón de Google presionado')}>
-                                            <FontAwesomeIcon icon={faGoogle} style={styles.socialIcon} />
-                                            <Text style={styles.socialButtonText}>Google</Text>
-                                        </TouchableOpacity>
                                     </View>
                                 </View>
                             </View>
@@ -312,9 +301,9 @@ const styles = StyleSheet.create({
         textAlign: "center"
     },
     forgotPasswordText: {
-        color: 'black',
+        color: 'white',
         fontWeight: 'bold',
-        marginTop: 10,
+        fontSize: 15,
         textAlign: "center"
     },
     loginWithTextContainer: {

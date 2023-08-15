@@ -19,18 +19,16 @@ const Productos = () => {
 
   const handleRegister = async () => {
     try {
-      // Validar que todos los campos estén completos
+      // Valida campos completos
       if (!name || !lastName || !email || !password || !confirmPassword) {
         Alert.alert('Error', 'Todos los campos son obligatorios.');
         return;
       }
-  
-      // Validar que las contraseñas sean iguales
+      // Valida contraseñas iguales
       if (password !== confirmPassword) {
         Alert.alert('Error', 'Las contraseñas deben coincidir.');
         return;
       }
-  
       // Validar la contraseña
       const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
       if (!passwordRegex.test(password)) {
@@ -40,7 +38,6 @@ const Productos = () => {
         );
         return;
       }
-  
       // Si todos los campos están completos y la contraseña es válida, realizar el registro
       const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/user/', {
         name,
@@ -57,7 +54,7 @@ const Productos = () => {
       Alert.alert('Registro exitoso', '¡Te has registrado correctamente!');
     } catch (error) {
       console.error('Error al registrar:', error.message);
-      Alert.alert('Error', 'Hubo un error al registrar el usuario.');
+      Alert.alert('Error', 'Hubo un error al registrar el cliente.');
     }
   };
   

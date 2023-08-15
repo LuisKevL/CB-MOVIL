@@ -158,10 +158,9 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
         <Bienvenido navigation={navigation} />
       ) : (
         <View>
-          <ImageBackground source={require('../../../../assets/fondo.png')} style={{ height: Dimensions.get('window').height / 2.5 }}>
+          <ImageBackground source={require('../../../../assets/perfil.jpg')} style={{ height: Dimensions.get('window').height / 2.5 }}>
             <View style={styles.brandView}>
-              <Iconn name="spa" size={24} color="black" style={{ fontSize: 100 }} />
-              <Text style={styles.brandViewText}>Perfil</Text>
+              <Text style={styles.brandViewText}></Text>
             </View>
           </ImageBackground>
           <View style={styles.bottomView}>
@@ -177,7 +176,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                     marginBottom: 5, textShadowColor: "black", textShadowRadius: 2, marginTop: 10, fontWeight: 'bold',
                   }}>Nombre:</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text>{names}</Text>
+                    <Text style={{ flex: 1 }}>{names}</Text>
                     <Icon name="user" style={{ color: "black" }} />
                   </View>
                 </View>

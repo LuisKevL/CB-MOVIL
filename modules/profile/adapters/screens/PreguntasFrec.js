@@ -37,15 +37,13 @@ export default function PreguntasFrec({ navigation }) {
             style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }}
             showsVerticalScrollIndicator={false}>
             <ImageBackground
-                source={require("../../../../assets/fondo.png")}
+                source={require("../../../../assets/preguntas.png")}
                 style={{
                     height: Dimensions.get("window").height / 2.5,
-                    marginTop: -80,
                 }}>
                 <View style={styles.brandView}>
-                    <Iconn name="spa" size={24} color="black" style={{ fontSize: 100 }} />
 
-                    <Text style={styles.brandViewText}>Preguntas</Text>
+                    <Text style={styles.brandViewText}></Text>
                 </View>
             </ImageBackground>
             <View style={styles.bottomView}>

@@ -8,8 +8,7 @@ const Stack = createNativeStackNavigator();
 
 export default function LoginStack() {
   return (
-    <Stack.Navigator
-    >
+    <Stack.Navigator >
       <Stack.Screen
         name='loginStack'
         options={{ title: 'Inicio de sesión' }}
@@ -34,8 +33,7 @@ export default function LoginStack() {
         options={title = { title: 'Client' }}
 
       />
-
-
     </Stack.Navigator>
   )
 }
+

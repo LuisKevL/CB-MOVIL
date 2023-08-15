@@ -23,6 +23,7 @@ export default function ConsejosAdmin() {
     const [selectedConsejo, setSelectedConsejo] = useState(null); // Agregar esta línea
     const [titulo, setTitulo] = useState("");
     const [consejo, setConsejo] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const [fieldsCompleted, setFieldsCompleted] = useState(false);
     const validateFields = () => {
@@ -36,11 +37,10 @@ export default function ConsejosAdmin() {
         }
     }
 
-    //CANCELAR CITA
     const [nombreConsejoEliminar, setNombreConsejoEliminar] = useState('');
     const [confirmarEliminacion, setConfirmarEliminacion] = useState('');
-    //CANCELAR CITA
-    const deleteProduct = async () => {
+
+    const deleteConsejo = async () => {
         if (!selectedConsejo) {
             Alert.alert('Error', 'Selecciona el consejo a eliminar.');
             return;
@@ -49,6 +49,14 @@ export default function ConsejosAdmin() {
             Alert.alert('Error', 'Por favor ingresa "CONFIRMAR" para eliminar el consejo.');
             return;
         }
+
+        const consejoDelete = consejos.find((consejo) => consejo.titulo === nombreConsejoEliminar);
+
+        if (!consejoDelete) {
+            Alert.alert('Error', 'No se encontró ninguna cita con ese nombre.');
+            return;
+        }
+
         Alert.alert(
             'Confirmación',
             `¿Estás seguro de eliminar el consejo "${selectedConsejo.titulo}"?`,
@@ -61,6 +69,7 @@ export default function ConsejosAdmin() {
                     text: 'Aceptar',
                     onPress: async () => {
                         try {
+                            setIsLoading(true);
                             await Axios.delete(`http://192.168.0.232:8080/api-beautypalace/consejos/${selectedConsejo.id}`);
 
                             setConsejos((prevConsejo) =>
@@ -70,6 +79,8 @@ export default function ConsejosAdmin() {
                             Alert.alert('Éxito', `El consejo "${selectedConsejo.titulo}" ha sido eliminado.`);
                             setModalDelete(false); // Cierra el modal
                             fetchConsejos(); // Actualizar la lista de consejos
+                            clearFields(); // Limpiar los campos
+                            setIsLoading(false);
                         } catch (error) {
                             console.error('Error al eliminar el consejo:', error);
                             Alert.alert('Error', 'No se pudo eliminar el consejo. Inténtalo de nuevo más tarde.');
@@ -92,14 +103,16 @@ export default function ConsejosAdmin() {
     const agregarConsejo = async () => {
         try {
             const id = generateId(); // Generar el ID automáticamente
-
+            setIsLoading(true);
             const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/consejos/', {
                 id: id,
                 titulo: titulo,
                 consejo: consejo,
             });
             setModal(false);
+            setIsLoading(false);
             fetchConsejos();
+            clearTitulo();
             Alert.alert("Exito", "Consejo agregado exitosamente");
             console.log("Registrado correctamente");
         } catch (error) {
@@ -109,9 +122,16 @@ export default function ConsejosAdmin() {
     }
 
     const clearFields = () => {
+        setSelectedConsejo('');
+        setConfirmarEliminacion('');
+        setNombreConsejoEliminar('');
         setTitulo('');
         setConsejo('');
-        confirmarEliminacion('');
+    };
+
+    const clearTitulo = () => {
+        setTitulo('');
+        setConsejo('');
     }
 
     useEffect(() => {
@@ -130,10 +150,9 @@ export default function ConsejosAdmin() {
 
     const actualizarConsejo = async () => {
         try {
-            // Mostrar una alerta de confirmación
             Alert.alert(
                 'Confirmar Actualización',
-                '¿Estás seguro de actualizar la pregunta?',
+                '¿Estás seguro de actualizar el consejo?',
                 [
                     {
                         text: 'Cancelar',
@@ -143,18 +162,20 @@ export default function ConsejosAdmin() {
                         text: 'Actualizar',
                         onPress: async () => {
                             try {
+                                setIsLoading(true);
                                 const response = await Axios.put(
                                     `http://192.168.0.232:8080/api-beautypalace/consejos/update/`,
                                     {
                                         id: selectedConsejo.id,
-                                        titulo: titulo, // Usamos el estado pregunta
-                                        consejo: consejo, // Usamos el estado respuesta
+                                        titulo: titulo,
+                                        consejo: consejo,
                                     }
                                 );
 
-                                console.log('Pregunta actualizada con éxito');
-                                Alert.alert('Pregunta actualizada con éxito');
+                                console.log('Consejo actualizado con éxito');
+                                Alert.alert('Consejo actualizado con éxito');
                                 setModalDatos(false);
+                                setIsLoading(true);
                                 fetchConsejos();
                                 clearAct();
                             } catch (error) {
@@ -178,15 +199,12 @@ export default function ConsejosAdmin() {
             style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }}
             showsVerticalScrollIndicator={false}>
             <ImageBackground
-                source={require("../../../../assets/fondo.png")}
+                source={require("../../../../assets/consejos.png")}
                 style={{
                     height: Dimensions.get("window").height / 2.5,
-                    marginTop: -80,
                 }}>
                 <View style={styles.brandView}>
-                    <Iconn name="spa" size={24} color="black" style={{ fontSize: 100 }} />
-
-                    <Text style={styles.brandViewText}>Consejos</Text>
+                    <Text style={styles.brandViewText}></Text>
                 </View>
             </ImageBackground>
             <View style={styles.bottomView}>
@@ -244,205 +262,228 @@ export default function ConsejosAdmin() {
             </View>
             <Modal visible={modal} animationType="slide" transparent={true}>
                 <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalText}>Agregar consejo</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={titulo}
-                            placeholder="agrega el titulo"
-                            onChangeText={(text) => {
-                                setTitulo(text); setFieldsCompleted(validateFields());
-                            }}
-                        />
-                        <TextInput
-                            style={styles.input}
-                            value={consejo}
-                            placeholder="Agrega el consejo"
-                            multiline={true}
-                            onChangeText={(text) => {
-                                setConsejo(text);
-                                setFieldsCompleted(validateFields());
-                            }}
-                        />
-
-                        <View style={styles.containerColum}>
-                            <TouchableOpacity style={[styles.botones, styles.agregarButton]}
-                                onPress={() => {
-                                    if (fieldsCompleted) {
-                                        agregarConsejo();
-                                        clearFields();
-                                    } else {
-                                        Alert.alert('Error', 'Todos los campos son obligatorios');
-                                    }
-                                }}>
-                                <Text style={{
-                                    color: "white",
-                                    fontSize: 15,
-                                    fontWeight: "bold",
-                                }}>Agregar Consejo</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.botones, styles.agregarButton]}
-                                onPress={() => { setModal(false); clearFields() }}>
-                                <Text style={{
-                                    color: "white",
-                                    fontSize: 15,
-                                    fontWeight: "bold",
-                                }}>Cancelar</Text>
-                            </TouchableOpacity>
+                    {isLoading ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color="#97714D" />
+                            <Text style={styles.loadingText}>Cargando...</Text>
                         </View>
-                    </View>
+                    ) : (
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalText}>Agregar consejo</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={titulo}
+                                placeholder="agrega el titulo"
+                                multiline
+                                onChangeText={(text) => {
+                                    setTitulo(text);
+                                    setFieldsCompleted(validateFields());
+                                }}
+                            />
+                            <TextInput
+                                style={styles.input}
+                                value={consejo}
+                                placeholder="Agrega el consejo"
+                                scrollEnabled
+                                multiline
+                                onChangeText={(text) => {
+                                    setConsejo(text);
+                                    setFieldsCompleted(validateFields());
+                                }}
+                            />
+
+                            <View style={styles.containerColum}>
+                                <TouchableOpacity style={[styles.botones, styles.agregarButton]}
+                                    onPress={() => {
+                                        if (fieldsCompleted) {
+                                            agregarConsejo();
+                                            clearTitulo();
+                                        } else {
+                                            Alert.alert('Error', 'Todos los campos son obligatorios');
+                                        }
+                                    }}>
+                                    <Text style={{
+                                        color: "white",
+                                        fontSize: 15,
+                                        fontWeight: "bold",
+                                    }}>Agregar Consejo</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.botones, styles.agregarButton]}
+                                    onPress={() => { setModal(false); clearTitulo(); }}>
+                                    <Text style={{
+                                        color: "white",
+                                        fontSize: 15,
+                                        fontWeight: "bold",
+                                    }}>Cancelar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    )}
                 </View>
             </Modal>
             <Modal visible={modalDatos} animationType="slide" transparent={true}>
                 <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalText}>Modificar Consejo</Text>
-                        {selectedConsejo ? (
-                            <>
-                                <TextInput
-                                    style={styles.input}
-                                    value={titulo}
-                                    placeholder={selectedConsejo.titulo}
-                                    onChangeText={(text) => {
-                                        setTitulo(text);
-                                    }}
-                                />
-                                <TextInput
-                                    style={styles.input}
-                                    value={consejo}
-                                    placeholder={selectedConsejo.consejo}
-                                    onChangeText={(text) => {
-                                        setConsejo(text);
-                                    }}
-                                />
+                    {isLoading ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color="#97714D" />
+                            <Text style={styles.loadingText}>Cargando...</Text>
+                        </View>
+                    ) : (
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalText}>Modificar Consejo</Text>
+                            {selectedConsejo ? (
+                                <>
+                                    <TextInput
+                                        style={styles.input}
+                                        value={titulo}
+                                        placeholder={selectedConsejo.titulo}
+                                        onChangeText={(text) => {
+                                            setTitulo(text);
+                                        }}
+                                    />
+                                    <TextInput
+                                        style={styles.input}
+                                        value={consejo}
+                                        placeholder={selectedConsejo.consejo}
+                                        onChangeText={(text) => {
+                                            setConsejo(text);
+                                        }}
+                                    />
 
-                                <View style={styles.containerColum}>
-                                    <TouchableOpacity
-                                        style={[styles.botones, styles.agregarButton]}
-                                        onPress={() => {
-                                            actualizarConsejo();
-                                            setModalDatos(false);
-                                            clearAct();
+                                    <View style={styles.containerColum}>
+                                        <TouchableOpacity
+                                            style={[styles.botones, styles.agregarButton]}
+                                            onPress={() => {
+                                                actualizarConsejo();
+                                                setModalDatos(false);
+                                                clearAct();
 
-                                        }}>
-                                        <Text style={{
-                                            color: "white",
-                                            fontSize: 15,
-                                            fontWeight: "bold",
-                                        }}>Modificar Pregunta</Text>
-                                    </TouchableOpacity>
+                                            }}>
+                                            <Text style={{
+                                                color: "white",
+                                                fontSize: 15,
+                                                fontWeight: "bold",
+                                            }}>Modificar Pregunta</Text>
+                                        </TouchableOpacity>
 
 
-                                    <TouchableOpacity
-                                        style={[styles.botones, styles.agregarButton]}
-                                        onPress={() => {
-                                            setModalDatos(false);
-                                            clearAct();
+                                        <TouchableOpacity
+                                            style={[styles.botones, styles.agregarButton]}
+                                            onPress={() => {
+                                                setModalDatos(false);
+                                                clearAct();
 
-                                        }}>
-                                        <Text style={{
-                                            color: "white",
-                                            fontSize: 15,
-                                            fontWeight: "bold",
-                                        }}>Cancelar</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </>
-                        ) : (
-                            <TouchableOpacity
-                                style={[styles.botones, styles.agregarButton]}
-                                onPress={() => {
-                                    setModalDatos(false);
-                                    clearAct();
-                                }}>
-                                <Text style={{
-                                    color: "white",
-                                    fontSize: 15,
-                                    fontWeight: "bold",
-                                }}>Cancelar</Text>
-                            </TouchableOpacity>
-                        )}
-                    </View>
+                                            }}>
+                                            <Text style={{
+                                                color: "white",
+                                                fontSize: 15,
+                                                fontWeight: "bold",
+                                            }}>Cancelar</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </>
+                            ) : (
+                                <TouchableOpacity
+                                    style={[styles.botones, styles.agregarButton]}
+                                    onPress={() => {
+                                        setModalDatos(false);
+                                        clearAct();
+                                    }}>
+                                    <Text style={{
+                                        color: "white",
+                                        fontSize: 15,
+                                        fontWeight: "bold",
+                                    }}>Cancelar</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    )}
                 </View>
             </Modal>
 
             <Modal visible={modalDelete} animationType="slide" transparent={true}>
                 <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        {selectedConsejo ? (
-                            <>
-                                <Text style={styles.modalText}>Eliminar Pregunta</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Nombre de la pregunta a eliminar"
-                                    value={nombreConsejoEliminar}
-                                    onChangeText={(text) => {
-                                        setNombreConsejoEliminar(text);
-                                    }}
-                                />
-                                <Text>Es importante confirmar la cancelación, introduzca: CONFIRMAR</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="CONFIRMAR"
-                                    value={confirmarEliminacion}
-                                    onChangeText={(text) => {
-                                        setConfirmarEliminacion(text);
-                                    }}
-                                />
+                    {isLoading ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color="#97714D" />
+                            <Text style={styles.loadingText}>Cargando...</Text>
+                        </View>
+                    ) : (
+                        <View style={styles.modalContent}>
+                            {selectedConsejo ? (
+                                <>
+                                    <Text style={styles.modalText}>Eliminar Consejo</Text>
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="Nombre de la pregunta a eliminar"
+                                        value={nombreConsejoEliminar}
+                                        onChangeText={(text) => {
+                                            setNombreConsejoEliminar(text);
+                                        }}
+                                    />
+                                    <Text>Es importante confirmar la cancelación, introduzca: CONFIRMAR</Text>
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="CONFIRMAR"
+                                        value={confirmarEliminacion}
+                                        onChangeText={(text) => {
+                                            setConfirmarEliminacion(text);
+                                        }}
+                                    />
 
 
-                                <View style={styles.containerColum}>
-                                    <TouchableOpacity
-                                        style={[styles.botones, styles.agregarButton]}
-                                        onPress={() => {
-                                            deleteProduct();
-                                            setModalDelete(false);
+                                    <View style={styles.containerColum}>
+                                        <TouchableOpacity
+                                            style={[styles.botones, styles.agregarButton]}
+                                            onPress={() => {
+                                                deleteConsejo();
+                                                setModalDelete(false);
 
 
-                                        }}>
-                                        <Text style={{
-                                            color: "white",
-                                            fontSize: 15,
-                                            fontWeight: "bold",
-                                        }}>Eliminar Pregunta</Text>
-                                    </TouchableOpacity>
+                                            }}>
+                                            <Text style={{
+                                                color: "white",
+                                                fontSize: 15,
+                                                fontWeight: "bold",
+                                            }}>Eliminar Pregunta</Text>
+                                        </TouchableOpacity>
 
 
-                                    <TouchableOpacity
-                                        style={[styles.botones, styles.agregarButton]}
-                                        onPress={() => {
-                                            setModalDelete(false);
-                                        }}>
-                                        <Text style={{
-                                            color: "white",
-                                            fontSize: 15,
-                                            fontWeight: "bold",
-                                        }}>Cancelar</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </>
-                        ) : (
-                            <TouchableOpacity
-                                style={[styles.botones, styles.agregarButton]}
-                                onPress={() => {
-                                    setModalDatos(false);
-                                }}>
-                                <Text style={{
-                                    color: "white",
-                                    fontSize: 15,
-                                    fontWeight: "bold",
-                                }}>Cancelar</Text>
-                            </TouchableOpacity>
-                        )}
-                    </View>
-
+                                        <TouchableOpacity
+                                            style={[styles.botones, styles.agregarButton]}
+                                            onPress={() => {
+                                                setModalDelete(false);
+                                                clearFields();
+                                            }}>
+                                            <Text style={{
+                                                color: "white",
+                                                fontSize: 15,
+                                                fontWeight: "bold",
+                                            }}>Cancelar</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </>
+                            ) : (
+                                <TouchableOpacity
+                                    style={[styles.botones, styles.agregarButton]}
+                                    onPress={() => {
+                                        setModalDatos(false);
+                                    }}>
+                                    <Text style={{
+                                        color: "white",
+                                        fontSize: 15,
+                                        fontWeight: "bold",
+                                    }}>Cancelar</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    )}
                 </View>
 
             </Modal>
 
-            <View>
                 <TouchableOpacity
-                    onPress={() => { setModal(true); fetchConsejos(); }}
+                    onPress={() => { setModal(true); }}
                     style={{
                         backgroundColor: "#8B4513",
                         borderRadius: 10,
@@ -456,10 +497,9 @@ export default function ConsejosAdmin() {
                         color: "white",
                         fontSize: 15,
                         fontWeight: "bold",
-                    }}>Agregar Pregunta</Text>
+                    }}>Agregar Consejo</Text>
                 </TouchableOpacity>
 
-            </View>
         </ScrollView>
     );
 }
@@ -586,5 +626,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 20,
+    },
+    loadingContainer: {
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: 10,
+        color: '#97714D',
+        fontWeight: 'bold',
     },
 });

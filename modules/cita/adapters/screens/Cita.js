@@ -32,6 +32,17 @@ export default function Cita({ navigation }) {
   const [isLoading, setLoading] = useState(false);
   const [counter, setCounter] = useState(0);
   {/* Picker */ }
+  const formatDate = (dateString) => {
+    // Convierte "2023/08/14" a "2023-08-14"
+    const formattedDate = dateString.replace(/\//g, '-');
+    return formattedDate;
+  };
+
+  const handleDateChange = (date) => {
+    const formattedDate = formatDate(date);
+    setDay(formattedDate);
+  };
+
   const opcionesSucursales = ["Sucursal 1", "Sucursal 2", "Sucursal 3"];
   const opcionesService = ["Pies", "Cabello"];
   const horas = [
@@ -146,15 +157,11 @@ export default function Cita({ navigation }) {
       style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }}
       showsVerticalScrollIndicator={false}>
       <ImageBackground
-        source={require("../../../../assets/fondo.png")}
+        source={require("../../../../assets/cita.png")}
         style={{
-          height: Dimensions.get("window").height / 2.5,
-          marginTop: -80,
-        }}>
+          height: Dimensions.get("window").height / 2.5        }}>
         <View style={styles.brandView}>
-          <Iconn name="spa" size={24} color="black" style={{ fontSize: 100 }} />
-
-          <Text style={styles.brandViewText}>Citas</Text>
+          <Text style={styles.brandViewText}></Text>
         </View>
       </ImageBackground>
       <View style={styles.bottomView}>
@@ -229,7 +236,7 @@ export default function Cita({ navigation }) {
                     }}
                     mode="calendar"
                     minuteInterval={30}
-                    onSelectedChange={(date) => setDay(date)}
+                    onSelectedChange={handleDateChange}
                     value={day}
 
                   />
