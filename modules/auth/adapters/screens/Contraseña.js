@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Alert, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Alert, TouchableOpacity, ActivityIndicator, Text } from 'react-native';
 import Axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
@@ -9,7 +9,7 @@ const PasswordChangeScreen = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const navigation = useNavigation();
-
+    const [isLoading, setIsLoading] = useState(false); // Para mostrar el spinner de carga
     const [fieldsCompleted, setFieldsCompleted] = useState(false);
     //validar campos obligatorios
     const validateFields = () => {
@@ -45,6 +45,7 @@ const PasswordChangeScreen = () => {
                 password,
             };
 
+
             Alert.alert(
                 'Confirmación',
                 '¿Estás seguro de realizar esta acción?',
@@ -56,12 +57,18 @@ const PasswordChangeScreen = () => {
                     {
                         text: 'Aceptar',
                         onPress: async () => {
-                            const response = await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/tokenPassword/', requestBody);
-                            Alert.alert('Contraseña cambiada exitosamente');
-                            console.log('Respuesta:', response.data);
-                            console.log('Fields Completed:', fieldsCompleted);
-                            clearFields();
-                            navigation.navigate('loginStack');
+                            setIsLoading(true); // Agregamos el setIsLoading aquí
+                            try {
+                                const response = await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/tokenPassword/', requestBody);
+                                Alert.alert('Contraseña cambiada exitosamente');
+                                console.log('Respuesta:', response.data);
+                                console.log('Fields Completed:', fieldsCompleted);
+                                clearFields();
+                                navigation.navigate('loginStack');
+                            } catch (error) {
+                                Alert.alert('Error al cambiar contraseña', error.message);
+                            }
+                            setIsLoading(false); // Agregamos el setIsLoading aquí
                         },
                     },
                 ],
@@ -72,6 +79,7 @@ const PasswordChangeScreen = () => {
         }
     };
 
+
     const clearFields = () => {
         setEmail('');
         setTokenPassword('');
@@ -81,50 +89,64 @@ const PasswordChangeScreen = () => {
 
     return (
         <View style={{ marginTop: 30 }}>
-            <TextInput
-                placeholder="Correo electrónico"
-                value={email}
-                onChangeText={(text) => { setEmail(text); setFieldsCompleted(validateFields()) }}
-                style={styles.modal}
-            />
-            <TextInput
-                placeholder="Token Recibido"
-                value={tokenPassword}
-                onChangeText={setTokenPassword}
-                style={styles.modal}
+            <View style={styles.modalContainer}>
+                {isLoading ? (
+                    <View style={styles.loadingContainer}>
+                        <View style={styles.loadingBox}>
+                            <ActivityIndicator size="large" color="#97714D" />
+                            <Text style={styles.loadingText}>Cambiando contraseña...</Text>
+                        </View>
+                    </View>
+                ) : (
+                    <View style={styles.modalContent}>
 
-            />
-            <TextInput
-                placeholder="Nueva contraseña"
-                value={password}
-                onChangeText={(text) => { setPassword(text); setFieldsCompleted(validateFields()) }}
-                secureTextEntry={true}
-                style={styles.modal}
+                        <TextInput
+                            placeholder="Correo electrónico"
+                            value={email}
+                            onChangeText={(text) => { setEmail(text); setFieldsCompleted(validateFields()) }}
+                            style={styles.modal}
+                        />
+                        <TextInput
+                            placeholder="Token Recibido"
+                            value={tokenPassword}
+                            onChangeText={setTokenPassword}
+                            style={styles.modal}
 
-            />
+                        />
+                        <TextInput
+                            placeholder="Nueva contraseña"
+                            value={password}
+                            onChangeText={(text) => { setPassword(text); setFieldsCompleted(validateFields()) }}
+                            secureTextEntry={true}
+                            style={styles.modal}
 
-            <TextInput
-                placeholder="Repetir contraseña"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry={true}
-                style={styles.modal}
+                        />
 
-            />
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginTop: 15,
-            }}>
-                <TouchableOpacity style={styles.Contra} onPress={() => {
-                    if (fieldsCompleted) {
-                        handlePasswordChange(); // Aquí llamas a la función cita() que realiza el registro
-                    } else {
-                        Alert.alert("Por favor, llene todos los campos")
-                    }
-                }}>
-                    <Text style={styles.contraText}>Cambiar contraseña</Text>
-                </TouchableOpacity>
+                        <TextInput
+                            placeholder="Repetir contraseña"
+                            value={confirmPassword}
+                            onChangeText={setConfirmPassword}
+                            secureTextEntry={true}
+                            style={styles.modal}
+
+                        />
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            marginTop: 15,
+                        }}>
+                            <TouchableOpacity style={styles.Contra} onPress={() => {
+                                if (fieldsCompleted) {
+                                    handlePasswordChange(); // Aquí llamas a la función cita() que realiza el registro
+                                } else {
+                                    Alert.alert("Por favor, llene todos los campos")
+                                }
+                            }}>
+                                <Text style={styles.contraText}>Cambiar contraseña</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                )}
             </View>
         </View>
     );
@@ -151,5 +173,22 @@ styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: "center"
     },
+    loadingContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.4)', // Fondo semi-transparente
+    },
+    loadingBox: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+
 })
 export default PasswordChangeScreen;

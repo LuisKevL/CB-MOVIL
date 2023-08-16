@@ -1,27 +1,30 @@
-// WelcomeScreen.js
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Image } from 'react-native';
 
 const Bienvenido = ({ navigation }) => {
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            navigation.navigate('Client'); // Navegar a la pantalla "Client" después de 3 segundos
-        }, 2500); // 3000 milisegundos (3 segundos)
+    const navigationRef = useRef(navigation);
 
-        return () => clearTimeout(timer); // Limpiar el temporizador al desmontar el componente
-    }, [navigation]);
+    useEffect(() => {
+        console.log('Temporizador configurado');
+    
+        const timer = setTimeout(() => {
+            console.log('Navegando a "Client"');
+            navigationRef.current.navigate('Client');
+        }, 60000);
+    
+        return () => {
+            console.log('Limpiando temporizador');
+            clearTimeout(timer);
+        };
+    }, []);
+    
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>¡Pantalla de Bienvenido!</Text>
-
-            <Text style={styles.text}>¡Bienvenido!</Text>
-
-            <Text style={styles.text}>¡Bienvenido!</Text>
-            <Text style={styles.text}>¡Bienvenido!</Text>
-            <Text style={styles.text}>¡Bienvenido!</Text>
-            <Text style={styles.text}>¡Bienvenido!</Text>
-
+            <Image
+                source={require('../../../../assets/bienvenidos.png')}
+                style={styles.gif}
+            />
         </View>
     );
 };
@@ -29,14 +32,13 @@ const Bienvenido = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: 50,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f9f9f9',
     },
-    text: {
-        fontSize: 24,
-        fontWeight: 'bold',
+    gif: {
+        flex: 1,
+        width: 400, // Cambia el ancho para que el GIF cubra toda la pantalla
+        height: 700, // Cambia la altura para que el GIF cubra toda la pantalla
     },
 });
 

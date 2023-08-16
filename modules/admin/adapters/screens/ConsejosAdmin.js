@@ -24,7 +24,7 @@ export default function ConsejosAdmin() {
     const [titulo, setTitulo] = useState("");
     const [consejo, setConsejo] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-
+    
     const [fieldsCompleted, setFieldsCompleted] = useState(false);
     const validateFields = () => {
         if (

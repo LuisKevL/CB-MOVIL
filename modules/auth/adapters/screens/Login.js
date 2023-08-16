@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ImageBackground, Dimensions, TextInput, Button, Modal, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ImageBackground, ActivityIndicator, Dimensions, TextInput, Button, Modal, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -20,6 +20,7 @@ const Login = (props) => {
     const [password, setPassword] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userData, setUserData] = useState({ name: '', email: '', lastName: '', id: '' });
+    const [isLoading, setIsLoading] = useState(false);
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -27,13 +28,13 @@ const Login = (props) => {
     //FUNCION PARA PODER HACER EL LOGIN
     const handleLogin = async () => {
         try {
+            setIsLoading(true);
             const clientsResponse = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/clients/', {
                 params: { email },
             });
             const adminsResponse = await Axios.get('http://192.168.0.232:8080/api-beautypalace/user/admins/', {
                 params: { email },
             });
-
             const clientsData = clientsResponse.data.data;
             const adminsData = adminsResponse.data.data;
 
@@ -87,8 +88,9 @@ const Login = (props) => {
                     Alert.alert("Contraseña y/o correo invalidos")
                 }
             } else {
-                console.error('Usuario no encontrado');
+                Alert.alert("Usuario no encontrado");
             }
+            setIsLoading(false);
         } catch (error) {
             if (error.response && error.response.status === 404) {
                 console.error('Correo o contraseña no encontrados');
@@ -115,101 +117,113 @@ const Login = (props) => {
 
 
     return (
-        <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
-            <View style={{ flex: 1, backgroundColor: '#ffffff', width: '100%' }}>
-                {isLoggedIn ? (
-                    <Profile name={userData.name} lastName={userData.lastName} email={userData.email} password={userData.password} id={userData.id} handleLogout={handleLogout} />
-                ) : (
-                    <>
-                        <ImageBackground
-                            source={require('../../../../assets/login.png')}
-                            style={{ height: Dimensions.get('window').height / 2.5 }}>
-                            <View style={styles.brandView}>
-                                <Text style={styles.brandViewText}></Text>
-                            </View>
-                        </ImageBackground>
-                        <View style={styles.bottomView}>
-                            <View style={{ padding: 40 }}>
-                                <Text style={styles.title}>Bienvenido...</Text>
-                                <View style={styles.formContainer}>
-                                    <View style={styles.inputContainer}>
-                                        <Text style={styles.inputLabel}>Email</Text>
-                                        <View style={styles.inputWrapper}>
-                                            <TextInput
-                                                style={styles.input}
-                                                value={email}
-                                                onChangeText={setEmail}
-                                                placeholder="Ingrese su correo electrónico"
-                                            />
-                                            <Icon name="envelope" style={styles.inputIcon} />
-                                        </View>
-                                    </View>
-                                    <View style={styles.inputContainer}>
-                                        <Text style={styles.inputLabel}>Contraseña</Text>
-                                        <View style={styles.inputWrapper}>
-                                            <TextInput
-                                                style={styles.input}
-                                                value={password}
-                                                onChangeText={setPassword}
-                                                placeholder="********"
-                                                secureTextEntry={!showPassword}
-                                            />
-                                            <TouchableOpacity onPress={togglePasswordVisibility}>
-                                                <FontAwesomeIcon
-                                                    icon={showPassword ? faEye : faEyeSlash}
-                                                    size={20}
-                                                    style={styles.inputIcon}
+        <View style={styles.containerr}>
+
+            <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
+                <View style={{ flex: 1, backgroundColor: '#ffffff', width: '100%' }}>
+                    {isLoggedIn ? (
+                        <Profile name={userData.name} lastName={userData.lastName} email={userData.email} password={userData.password} id={userData.id} handleLogout={handleLogout} />
+                    ) : (
+                        <>
+                            <ImageBackground
+                                source={require('../../../../assets/login.png')}
+                                style={{ height: Dimensions.get('window').height / 2.5 }}>
+                                <View style={styles.brandView}>
+                                    <Text style={styles.brandViewText}></Text>
+                                </View>
+                            </ImageBackground>
+                            <View style={styles.bottomView}>
+                                <View style={{ padding: 40 }}>
+                                    <Text style={styles.title}>Bienvenido...</Text>
+                                    <View style={styles.formContainer}>
+                                        <View style={styles.inputContainer}>
+                                            <Text style={styles.inputLabel}>Email</Text>
+                                            <View style={styles.inputWrapper}>
+                                                <TextInput
+                                                    style={styles.input}
+                                                    value={email}
+                                                    onChangeText={setEmail}
+                                                    placeholder="Ingrese su correo electrónico"
                                                 />
+                                                <Icon name="envelope" style={styles.inputIcon} />
+                                            </View>
+                                        </View>
+                                        <View style={styles.inputContainer}>
+                                            <Text style={styles.inputLabel}>Contraseña</Text>
+                                            <View style={styles.inputWrapper}>
+                                                <TextInput
+                                                    style={styles.input}
+                                                    value={password}
+                                                    onChangeText={setPassword}
+                                                    placeholder="********"
+                                                    secureTextEntry={!showPassword}
+                                                />
+                                                <TouchableOpacity onPress={togglePasswordVisibility}>
+                                                    <FontAwesomeIcon
+                                                        icon={showPassword ? faEye : faEyeSlash}
+                                                        size={20}
+                                                        style={styles.inputIcon}
+                                                    />
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+
+                                        <View style={styles.buttonContainer}>
+                                            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+                                                <Text style={styles.loginButtonText}>Iniciar sesión</Text>
+                                            </TouchableOpacity>
+
+
+                                            <TouchableOpacity style={styles.registreButton} onPress={() => navigation.navigate('Registro')}>
+                                                <Text style={styles.loginButtonText}>Registrar Cliente</Text>
                                             </TouchableOpacity>
                                         </View>
-                                    </View>
-                                    <View style={styles.buttonContainer}>
 
-                                        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                                            <Text style={styles.loginButtonText}>Iniciar sesión</Text>
-                                        </TouchableOpacity>
+                                        {/* modal -------------------------------------------------------------------------- */}
+                                        <View style={{
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            alignSelf: 'center', // Centra verticalmente
+                                            backgroundColor: '#8B4513',
+                                            borderRadius: 5,
+                                            marginTop: 10,
+                                            width: 200,
+                                            height: 25,
+                                        }}>
+                                            <TouchableOpacity onPress={() => setModalVisible(true)}>
+                                                <Text style={styles.forgotPasswordText}>Recuperar Contraseña</Text>
+                                            </TouchableOpacity>
 
+                                            <Token modalVisible={modalVisible} setModalVisible={setModalVisible} />
+                                        </View>
 
-                                        <TouchableOpacity style={styles.registreButton} onPress={() => navigation.navigate('Registro')}>
-                                            <Text style={styles.loginButtonText}>Registrar Cliente</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    {/* modal -------------------------------------------------------------------------- */}
-                                    <View style={{
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        alignSelf: 'center', // Centra verticalmente
-                                        backgroundColor: '#8B4513',
-                                        borderRadius: 5,
-                                        marginTop: 10,
-                                        width: 200,
-                                        height: 25,
-                                    }}>
-                                        <TouchableOpacity onPress={() => setModalVisible(true)}>
-                                            <Text style={styles.forgotPasswordText}>Recuperar Contraseña</Text>
-                                        </TouchableOpacity>
-
-                                        <Token modalVisible={modalVisible} setModalVisible={setModalVisible} />
-                                    </View>
-
-                                    <View style={{
-                                        flex: 1,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                        <Text style={{
-                                            fontSize: 16,
-                                            fontWeight: 'bold',
-                                            marginBottom: 15,
-                                        }}>Horario de Trabajo: {horario}</Text>
+                                        <View style={{
+                                            flex: 1,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}>
+                                            <Text style={{
+                                                fontSize: 16,
+                                                fontWeight: 'bold',
+                                                marginBottom: 15,
+                                            }}>Horario de Trabajo: {horario}</Text>
+                                        </View>
                                     </View>
                                 </View>
                             </View>
-                        </View>
-                    </>
-                )}
-            </View>
-        </ScrollView>
+                        </>
+                    )}
+                </View>
+            </ScrollView>
+            {isLoading && (
+                <View style={styles.loadingContainer}>
+                    <View style={styles.loadingBox}>
+                        <ActivityIndicator size="large" color="#97714D" />
+                        <Text style={styles.loadingText}>Iniciando sesión...</Text>
+                    </View>
+                </View>
+            )}
+        </View>
     );
 }
 
@@ -390,6 +404,34 @@ const styles = StyleSheet.create({
     modalCloseText: {
         color: 'blue',
         marginTop: 10,
+    },
+
+    loadingText: {
+        marginTop: 10,
+        color: '#97714D',
+        fontWeight: 'bold',
+    },
+    containerr: {
+        flex: 1,
+        justifyContent: 'center', // Centra verticalmente
+        alignItems: 'center', // Centra horizontalmente
+        backgroundColor: '#ffffff', // Define el color de fondo que desees
+    },
+    loadingContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.4)', // Fondo semi-transparente
+    },
+    loadingBox: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
     },
 });
 

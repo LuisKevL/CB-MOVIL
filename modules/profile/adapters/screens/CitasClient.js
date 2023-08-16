@@ -17,6 +17,7 @@ import {
 import Axios from "axios";
 import Iconn from "react-native-vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
 import { Picker } from "@react-native-picker/picker";
 export default function ViewCitaClient() {
   const [citaData, setCitaData] = useState([]);
@@ -46,7 +47,8 @@ export default function ViewCitaClient() {
     }
   };
 
-
+  
+  
   const generateId = () => {
     return Date.now().toString();
   };
@@ -206,6 +208,7 @@ export default function ViewCitaClient() {
                           >
                             <Text style={{ color: "white", fontSize: 10 }}>Puntuar Servicio</Text>
                           </TouchableOpacity>
+
                         </>
                       )}
                     </View>

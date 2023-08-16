@@ -140,6 +140,7 @@ export default function Cita({ navigation }) {
               setNameUser(nameUser);
               setBranch(branch);
               setTypeOfService(typeOfService);
+              clearFields();
             } catch (error) {
               console.log("Error al guardar la cita", error.message);
             } finally {
@@ -152,6 +153,13 @@ export default function Cita({ navigation }) {
     );
   };
 
+    const clearFields=()=> {
+      setDay("");
+      setHour("");
+      setNameUser("");
+      setBranch("");
+      setTypeOfService("");
+    }
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }}
@@ -319,6 +327,7 @@ export default function Cita({ navigation }) {
                   onPress={() => {
                     if (fieldsCompleted) {
                       cita(); // Aquí llamas a la función cita() que realiza el registro
+                      clearFields();
                     } else {
                       Alert.alert("Error", "Todos los campos son obligatorios.");
                     }
