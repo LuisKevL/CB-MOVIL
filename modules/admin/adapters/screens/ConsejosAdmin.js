@@ -20,7 +20,7 @@ export default function ConsejosAdmin() {
     const [modal, setModal] = useState(false);
     const [modalDatos, setModalDatos] = useState(false);
     const [modalDelete, setModalDelete] = useState(false)
-    const [selectedConsejo, setSelectedConsejo] = useState(null); // Agregar esta línea
+    const [selectedConsejo, setSelectedConsejo] = useState(null);
     const [titulo, setTitulo] = useState("");
     const [consejo, setConsejo] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -77,9 +77,9 @@ export default function ConsejosAdmin() {
                             );
 
                             Alert.alert('Éxito', `El consejo "${selectedConsejo.titulo}" ha sido eliminado.`);
-                            setModalDelete(false); // Cierra el modal
-                            fetchConsejos(); // Actualizar la lista de consejos
-                            clearFields(); // Limpiar los campos
+                            setModalDelete(false); 
+                            fetchConsejos(); 
+                            clearFields(); 
                             setIsLoading(false);
                         } catch (error) {
                             console.error('Error al eliminar el consejo:', error);
@@ -96,13 +96,12 @@ export default function ConsejosAdmin() {
 
 
     const generateId = () => {
-        // Generar un ID único utilizando la fecha actual
         return Date.now().toString();
     };
 
     const agregarConsejo = async () => {
         try {
-            const id = generateId(); // Generar el ID automáticamente
+            const id = generateId();
             setIsLoading(true);
             const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/consejos/', {
                 id: id,
@@ -219,10 +218,10 @@ export default function ConsejosAdmin() {
                                         style={{
                                             backgroundColor: "#8B4513",
                                             borderRadius: 10,
-                                            paddingVertical: 7, // Ajustar este valor para aumentar la altura
+                                            paddingVertical: 7,
                                             paddingHorizontal: 12,
                                             marginHorizontal: 5,
-                                            alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                                            alignItems: "center", 
                                         }}
                                         onPress={() => {
                                             setModalDatos(true);
@@ -239,10 +238,10 @@ export default function ConsejosAdmin() {
                                         style={{
                                             backgroundColor: "#8B4513",
                                             borderRadius: 10,
-                                            paddingVertical: 7, // Ajustar este valor para aumentar la altura
+                                            paddingVertical: 7,
                                             paddingHorizontal: 12,
                                             marginHorizontal: 5,
-                                            alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                                            alignItems: "center", 
                                         }}
                                         onPress={() => {
                                             setModalDelete(true);
@@ -487,10 +486,10 @@ export default function ConsejosAdmin() {
                     style={{
                         backgroundColor: "#8B4513",
                         borderRadius: 10,
-                        paddingVertical: 7, // Ajustar este valor para aumentar la altura
+                        paddingVertical: 7,
                         paddingHorizontal: 12,
                         marginHorizontal: 5,
-                        alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                        alignItems: "center", 
                     }}
                 >
                     <Text style={{
@@ -591,7 +590,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.1)', // Cambiar la opacidad a un valor más bajo
+        backgroundColor: 'rgba(0, 0, 0, 0.1)', 
     },
     modalContent: {
         backgroundColor: '#fff',

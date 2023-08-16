@@ -5,10 +5,9 @@ import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from 'firebase/
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import firebaseConfigg from './firebase'; // Archivo de configuración de Firebase
+import firebaseConfigg from './firebase'; 
 import ProductosClient from '../../../profile/adapters/screens/ProductosClient';
 import { number } from 'yup';
-// Inicializar la aplicación de Firebase
 const storage = getStorage(firebaseConfigg);
 
 const AgregarProducto = () => {
@@ -26,7 +25,6 @@ const AgregarProducto = () => {
   const [productos, setProductos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  //CANCELAR CITA
   const [nombreProductoEliminar, setNombreProductoEliminar] = useState('');
   const [confirmarEliminacion, setConfirmarEliminacion] = useState('');
   const [cancelModal, setCancelModal] = useState(false);
@@ -62,7 +60,6 @@ const AgregarProducto = () => {
             try {
               setIsLoading(true);
               await Axios.delete(`http://192.168.0.232:8080/api-beautypalace/product/${selectedProduct.id}`);
-              // Si la eliminación en el servidor fue exitosa, actualiza el estado local para refrescar la lista de productos.
               setProductos((prevProductos) =>
                 prevProductos.filter((producto) => producto.id !== selectedProduct.id)
               );
@@ -204,14 +201,14 @@ const AgregarProducto = () => {
           {
             text: 'Actualizar',
             onPress: async () => {
-              setIsLoading(true); // Set isLoading to true before making the API call
+              setIsLoading(true); 
               const response = await Axios.put('http://192.168.0.232:8080/api-beautypalace/product/update/', {
-                id: selectedProduct.id, // Use the id of the selected product
+                id: selectedProduct.id, 
                 nombre: nombre,
                 precio: parseFloat(precio),
                 descripcion: descripcion,
               });
-              // Update the state with the new values
+         
               setSelectedProduct({
                 ...selectedProduct,
                 nombre: nombre,
@@ -220,10 +217,10 @@ const AgregarProducto = () => {
               });
               console.log('Producto actualizado con éxito');
               Alert.alert('Producto actualizado con éxito');
-              setActModal(false); // Close the modal
+              setActModal(false);
               clearFieldss();
-              setIsLoading(false); // Set isLoading back to false after completing the API call
-              fetchProductos(); // Update the list of products
+              setIsLoading(false); 
+              fetchProductos(); 
             },
           },
         ],
@@ -234,7 +231,6 @@ const AgregarProducto = () => {
     }
   };
 
-  // Define the clearFields function to reset input fields
   const clearFieldss = () => {
     setNombre('');
     setPrecio('');
@@ -257,9 +253,8 @@ const AgregarProducto = () => {
       Alert.alert('Producto registrado con éxito');
       setModalVisible(false);
       clearFields();
-      fetchProductos(); // Actualizar la lista de productos
+      fetchProductos(); 
       setIsLoading(false);
-      // Guardar datos del producto en AsyncStorage
       const producto = {
         id: id,
         nombre: nombree,
@@ -275,7 +270,6 @@ const AgregarProducto = () => {
   };
 
   const generateId = () => {
-    // Generar un ID único utilizando la fecha actual
     return Date.now().toString();
   };
 
@@ -303,10 +297,10 @@ const AgregarProducto = () => {
     setConfirmarEliminacion('');
     setNombreProductoEliminar('');
   };
-  const [ofertas, setOfertas] = useState([]); // Estado para almacenar las ofertas
+  const [ofertas, setOfertas] = useState([]);
 
   useEffect(() => {
-    fetchOfertas(); // Llamada a la función para obtener las ofertas al cargar el componente
+    fetchOfertas(); 
   }, []);
   const fetchOfertas = async () => {
     try {
@@ -317,7 +311,6 @@ const AgregarProducto = () => {
         }
       });
       const data = response.data;
-      // Resto del código para manejar los datos...
       console.log(data);
     } catch (error) {
       console.error('Error al obtener las ofertas:', error);
@@ -337,9 +330,8 @@ const AgregarProducto = () => {
         Alert.alert('Selecciona un producto antes de registrar una oferta');
         return;
       }
-      const idd = generateId(); // Generar el ID automáticamente
+      const idd = generateId();
 
-      // Verificar y asignar los datos del producto
       const productData = {
         id: selectedProduct.id,
         nombre: selectedProduct.nombre,
@@ -368,7 +360,7 @@ const AgregarProducto = () => {
       Alert.alert('Error al registrar la oferta');
     }
   };
-  const [selectedProduct, setSelectedProduct] = useState(null); // Nuevo estado para el producto seleccionado
+  const [selectedProduct, setSelectedProduct] = useState(null); 
 
   const renderItem = ({ item }) => {
     const productoImageUrls = imageUrls.filter((url) => url.includes(`image_${item.id}`));
@@ -429,7 +421,7 @@ const AgregarProducto = () => {
                 fontWeight: "bold",
               }}
               onPress={() => {
-                setSelectedProduct(item); // Guardar el producto seleccionado en el estado
+                setSelectedProduct(item); 
                 setActModal(true)
               }}
             >
@@ -457,7 +449,7 @@ const AgregarProducto = () => {
         <TouchableOpacity
           style={styles.touchable}
           onPress={() => {
-            setSelectedProduct(item); // Guardar el producto seleccionado en el estado
+            setSelectedProduct(item); 
             setModal(true);
           }}
         >
@@ -660,7 +652,6 @@ const AgregarProducto = () => {
                             }
                           }}
                         >
-                          {/* Envuelve la cadena de texto en un componente Text */}
                           <Text style={{ color: "white", fontSize: 18, fontWeight: "bold", marginLeft: 8 }}>
                             Actualizar
                           </Text>
@@ -861,7 +852,7 @@ const AgregarProducto = () => {
                     paddingVertical: 5,
                     paddingHorizontal: 16,
                     marginHorizontal: 5,
-                    alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                    alignItems: "center", 
                   }}
                   onPress={() => {
                     if (fieldsCompleted) {
@@ -888,7 +879,7 @@ const AgregarProducto = () => {
                     paddingVertical: 5,
                     paddingHorizontal: 14,
                     marginHorizontal: 5,
-                    alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                    alignItems: "center", 
                   }}
                   onPress={() => { setModalVisible(false); clearFields(); }} >
                   <Text
@@ -911,10 +902,10 @@ const AgregarProducto = () => {
         style={{
           backgroundColor: "#8B4513",
           borderRadius: 10,
-          paddingVertical: 7, // Ajustar este valor para aumentar la altura
+          paddingVertical: 7, 
           paddingHorizontal: 12,
           marginHorizontal: 5,
-          alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+          alignItems: "center", 
         }}
         onPress={() => setModalVisible(true)}
       >
@@ -943,7 +934,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Cambiar la opacidad a un valor más bajo
+    backgroundColor: 'rgba(0, 0, 0, 0.1)', 
   },
   modalContent: {
     backgroundColor: '#fff',

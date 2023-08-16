@@ -33,12 +33,12 @@ export default function ViewCitaClient() {
         "http://192.168.0.232:8080/api-beautypalace/servicio/",
         {
           id: id,
-          estrellas: calificacionesCitas[citaId], // Utiliza la calificación específica de esta cita
+          estrellas: calificacionesCitas[citaId], 
           id_cita: citaId,
           name_cita: nombreCita,
         }
       );
-      const updatedCitasPuntuadas = [...citasPuntuadas, citaId]; // Agrega el ID de la cita puntuada
+      const updatedCitasPuntuadas = [...citasPuntuadas, citaId]; 
       setCitasPuntuadas(updatedCitasPuntuadas);
       Alert.alert("Calificación enviada exitosamente");
     } catch (error) {
@@ -47,8 +47,8 @@ export default function ViewCitaClient() {
     }
   };
 
-  
-  
+
+
   const generateId = () => {
     return Date.now().toString();
   };
@@ -126,11 +126,11 @@ export default function ViewCitaClient() {
                     <View style={styles.rowContainer}>
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}>Nombre de la cita:</Text>
-                        <Text>{cita[3]}</Text>
+                        <Text>{cita[4]}</Text>
                       </View>
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}>Tipo de servicio:</Text>
-                        <Text>{cita[7]}</Text>
+                        <Text>{cita[8]}</Text>
                       </View>
                     </View>
 
@@ -138,30 +138,30 @@ export default function ViewCitaClient() {
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}>Nombre del cliente:</Text>
                         <Text>
-                          {cita[4]} {cita[2]}
+                          {cita[3]}
                         </Text>
                       </View>
                     </View>
-
+                 
                     <View style={styles.rowContainer}>
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}>Dia de la cita:</Text>
-                        <Text>{cita[1]}</Text>
+                        <Text>{cita[2]}</Text>
                       </View>
 
                       <View style={styles.columnContainer}>
                         <Text style={styles.label}>Hora Inicio: </Text>
-                        <Text>{cita[5]}</Text>
-                      </View>
-
-                      <View style={styles.columnContainer}>
-                        <Text style={styles.label}>Hora fin:</Text>
                         <Text>{cita[6]}</Text>
                       </View>
 
                       <View style={styles.columnContainer}>
+                        <Text style={styles.label}>Hora fin:</Text>
+                        <Text>{cita[7]}</Text>
+                      </View>
+
+                      <View style={styles.columnContainer}>
                         <Text style={styles.label}>Sucursal:</Text>
-                        <Text>{cita[8]}</Text>
+                        <Text>{cita[1]}</Text>
                       </View>
                     </View>
                     {/* ... */}

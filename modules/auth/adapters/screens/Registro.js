@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dimensions, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, Alert } from "react-native";
+import { Dimensions, ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View, TextInput, Alert, ActivityIndicator } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import Axios from 'axios';
 import Iconn from "react-native-vector-icons/MaterialIcons";
@@ -11,53 +11,72 @@ const Productos = () => {
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
 
   const [confirmPassword, setConfirmPassword] = useState('');
 
 
   const handleRegister = async () => {
-    try {
-      // Valida campos completos
-      if (!name || !lastName || !email || !password || !confirmPassword) {
-        Alert.alert('Error', 'Todos los campos son obligatorios.');
-        return;
-      }
-      // Valida contraseñas iguales
-      if (password !== confirmPassword) {
-        Alert.alert('Error', 'Las contraseñas deben coincidir.');
-        return;
-      }
-      // Validar la contraseña
-      const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-      if (!passwordRegex.test(password)) {
-        Alert.alert(
-          'Error',
-          'La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.'
-        );
-        return;
-      }
-      // Si todos los campos están completos y la contraseña es válida, realizar el registro
-      const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/user/', {
-        name,
-        lastName,
-        email,
-        password,
-      });
-  
-      console.log('Registro exitoso', response.data);
-      const { data } = response.data;
-      setIsLoggedIn(true);
-      setUserData(data);
-      navigation.navigate('loginStack');
-      Alert.alert('Registro exitoso', '¡Te has registrado correctamente!');
-    } catch (error) {
-      console.error('Error al registrar:', error.message);
-      Alert.alert('Error', 'Hubo un error al registrar el cliente.');
+    if (!name || !lastName || !email || !password || !confirmPassword) {
+      Alert.alert('Error', 'Todos los campos son obligatorios.');
+      return;
     }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Las contraseñas deben coincidir.');
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      Alert.alert(
+        'Error',
+        'La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.'
+      );
+      return;
+    }
+
+    Alert.alert(
+      'Confirmación de Registro',
+      '¿Estás seguro de que deseas registrarte?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Registrarme',
+          onPress: async () => {
+            try {
+              setIsLoading(true);
+
+              const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/user/', {
+                name,
+                lastName,
+                email,
+                password,
+              });
+
+              console.log('Registro exitoso', response.data);
+              const { data } = response.data;
+              setIsLoggedIn(true);
+              setUserData(data);
+              navigation.navigate('loginStack');
+
+              setIsLoading(false);
+              Alert.alert('Registro exitoso', '¡Te has registrado correctamente!');
+            } catch (error) {
+              setIsLoading(false);
+              console.error('Error al registrar:', error.message);
+              Alert.alert('Error', 'Hubo un error al registrar el cliente.');
+            }
+          },
+        },
+      ]
+    );
   };
-  
+
 
   const isFormValid = name && lastName && email && password;
 
@@ -65,106 +84,120 @@ const Productos = () => {
     <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
       <View style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }}>
         <ImageBackground
-          source={require('../../../../assets/fondo.jpg')}
+          source={require('../../../../assets/registro.png')}
           style={{ height: Dimensions.get('window').height / 2.5 }}
         >
           <View style={styles.brandView}>
-            <Iconn name="spa" size={24} color="black" style={{ fontSize: 100 }} />
-            <Text style={styles.brandViewText}>Registro</Text>
+            <Text style={styles.brandViewText}></Text>
           </View>
         </ImageBackground>
 
         <View style={styles.bottomView}>
-          <View style={{ padding: 40 }}>
-            <View style={{ marginTop: 30 }}>
-              <View style={{ borderColor: "#4632A1" }}>
-                <Text style={{ marginBottom: 5 }}>Nombre</Text>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <TextInput
-                    value={name}
-                    onChangeText={(text) => setName(text)}
-                    placeholder="Ingrese su nombre"
-                  />
-                </View>
-              </View>
-
-              <View style={{ borderColor: "#4632A1", marginTop: 10 }}>
-                <Text style={{ marginBottom: 5 }}>Apellidos</Text>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <TextInput
-                    value={lastName}
-                    onChangeText={(text) => setLastName(text)}
-                    placeholder="Ingrese su apellido"
-                  />
-                </View>
-              </View>
-
-              <View style={{ borderColor: "#4632A1", marginTop: 10 }}>
-                <Text style={{ marginBottom: 5 }}>Correo Electrónico</Text>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <TextInput
-                    value={email}
-                    keyboardType="email-address"
-                    onChangeText={(text) => setEmail(text)}
-                    placeholder="Ingrese su correo electrónico"
-                  />
-                </View>
-              </View>
-
-              <View style={{ borderColor: "#4632A1", marginTop: 10 }}>
-                <Text style={{ marginBottom: 5 }}>Contraseña</Text>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <TextInput
-                    value={password}
-                    onChangeText={(text) => setPassword(text)}
-                    placeholder="Ingrese su contraseña"
-                    secureTextEntry
-                  />
-                </View>
-              </View>
-
-              <View style={{ borderColor: "#4632A1", marginTop: 10 }}>
-                <Text style={{ marginBottom: 5 }}>Confirmar Contraseña</Text>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <TextInput
-                    value={confirmPassword}
-                    onChangeText={(text) => setConfirmPassword(text)}
-                    placeholder="Confirme su contraseña"
-                    secureTextEntry
-                  />
-                </View>
-              </View>
-
-
-              <View
-                style={{
-                  marginTop: 15,
-                  height: 50,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    { backgroundColor: isFormValid ? "#2638EE" : "#999999" },
-                  ]}
-                  onPress={handleRegister}
-                  disabled={!isFormValid}
-                >
-                  <Text
-                    style={[
-                      styles.buttonText,
-                      { color: isFormValid ? "white" : "#888888" },
-                    ]}
-                  >
-                    Registrar Cliente
-                  </Text>
-                </TouchableOpacity>
+          {isLoading ? (
+            <View style={styles.spinnerContainer}>
+              <View style={styles.spinnerBox}>
+                <ActivityIndicator size="large" color="blue" />
+                <Text style={styles.spinnerText}>Registrando cliente...</Text>
               </View>
             </View>
-          </View>
+          ) : (
+            <View style={{ padding: 40 }}>
+              <View style={{ marginTop: 5 }}>
+                <View style={{ borderColor: "#4632A1" }}>
+                  <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Nombre</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <TextInput
+                      style={styles.input}
+                      value={name}
+                      onChangeText={(text) => setName(text)}
+                      placeholder="Ingrese su nombre"
+                    />
+                  </View>
+                </View>
+
+                <View style={{ borderColor: "#4632A1", marginTop: 10 }}>
+                  <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Apellidos</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <TextInput
+                      style={styles.input}
+                      value={lastName}
+                      onChangeText={(text) => setLastName(text)}
+                      placeholder="Ingrese su apellido"
+                    />
+                  </View>
+                </View>
+
+                <View style={{ borderColor: "#4632A1", marginTop: 10 }}>
+                  <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Correo Electrónico</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <TextInput
+                      style={styles.input}
+                      value={email}
+                      keyboardType="email-address"
+                      onChangeText={(text) => setEmail(text)}
+                      placeholder="Ingrese su correo electrónico"
+                    />
+                  </View>
+                </View>
+
+                <View style={{ borderColor: "#4632A1", marginTop: 10 }}>
+                  <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Contraseña</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <TextInput
+                      style={styles.input}
+                      value={password}
+                      onChangeText={(text) => setPassword(text)}
+                      placeholder="Ingrese su contraseña"
+                      secureTextEntry
+                    />
+                  </View>
+                </View>
+
+                <View style={{ borderColor: "#4632A1", marginTop: 10 }}>
+                  <Text style={{ marginBottom: 5, fontWeight: "bold" }}>Confirmar Contraseña</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <TextInput
+                      style={styles.input}
+                      value={confirmPassword}
+                      onChangeText={(text) => setConfirmPassword(text)}
+                      placeholder="Confirme su contraseña"
+                      secureTextEntry
+                    />
+                  </View>
+                </View>
+
+
+                <View
+                  style={{
+                    marginTop: 15,
+                    height: 50,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <TouchableOpacity
+                    style={[
+                      styles.button,
+                      { backgroundColor: isFormValid ? "#2638EE" : "#999999" },
+                    ]}
+                    onPress={handleRegister}
+                    disabled={!isFormValid}
+                  >
+                    <Text
+                      style={[
+                        styles.buttonText,
+                        { color: isFormValid ? "white" : "#888888" },
+                      ]}
+                    >
+                      Registrar Cliente
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          )}
         </View>
+
         <View>
         </View>
       </View>
@@ -232,5 +265,31 @@ const styles = StyleSheet.create({
   icon: {
     color: "white",
     fontSize: 20,
+  },
+  input: {
+    padding: 6,
+    borderWidth: 2,
+    borderColor: "#8B4513",
+    borderRadius: 5,
+    width: 320,
+  },
+  spinnerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  spinnerBox: {
+    width: 200,
+    height: 200,
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 0,
+    shadowColor: "transparent",
+  },
+  spinnerText: {
+    color: "#000",
   },
 });

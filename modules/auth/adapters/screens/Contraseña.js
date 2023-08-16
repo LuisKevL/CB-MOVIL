@@ -9,7 +9,7 @@ const PasswordChangeScreen = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const navigation = useNavigation();
-    const [isLoading, setIsLoading] = useState(false); // Para mostrar el spinner de carga
+    const [isLoading, setIsLoading] = useState(false); 
     const [fieldsCompleted, setFieldsCompleted] = useState(false);
     //validar campos obligatorios
     const validateFields = () => {
@@ -57,7 +57,7 @@ const PasswordChangeScreen = () => {
                     {
                         text: 'Aceptar',
                         onPress: async () => {
-                            setIsLoading(true); // Agregamos el setIsLoading aquí
+                            setIsLoading(true); 
                             try {
                                 const response = await Axios.put('http://192.168.0.232:8080/api-beautypalace/user/tokenPassword/', requestBody);
                                 Alert.alert('Contraseña cambiada exitosamente');
@@ -68,7 +68,7 @@ const PasswordChangeScreen = () => {
                             } catch (error) {
                                 Alert.alert('Error al cambiar contraseña', error.message);
                             }
-                            setIsLoading(false); // Agregamos el setIsLoading aquí
+                            setIsLoading(false);
                         },
                     },
                 ],
@@ -137,7 +137,7 @@ const PasswordChangeScreen = () => {
                         }}>
                             <TouchableOpacity style={styles.Contra} onPress={() => {
                                 if (fieldsCompleted) {
-                                    handlePasswordChange(); // Aquí llamas a la función cita() que realiza el registro
+                                    handlePasswordChange(); 
                                 } else {
                                     Alert.alert("Por favor, llene todos los campos")
                                 }

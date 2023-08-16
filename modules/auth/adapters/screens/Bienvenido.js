@@ -5,15 +5,12 @@ const Bienvenido = ({ navigation }) => {
     const navigationRef = useRef(navigation);
 
     useEffect(() => {
-        console.log('Temporizador configurado');
-    
         const timer = setTimeout(() => {
             console.log('Navegando a "Client"');
             navigationRef.current.navigate('Client');
-        }, 60000);
+        }, 10000);
     
         return () => {
-            console.log('Limpiando temporizador');
             clearTimeout(timer);
         };
     }, []);
@@ -22,7 +19,7 @@ const Bienvenido = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <Image
-                source={require('../../../../assets/bienvenidos.png')}
+                source={require('../../../../assets/bienvenido.gif')}
                 style={styles.gif}
             />
         </View>
@@ -37,8 +34,8 @@ const styles = StyleSheet.create({
     },
     gif: {
         flex: 1,
-        width: 400, // Cambia el ancho para que el GIF cubra toda la pantalla
-        height: 700, // Cambia la altura para que el GIF cubra toda la pantalla
+        width: 400,
+        height: 700, 
     },
 });
 

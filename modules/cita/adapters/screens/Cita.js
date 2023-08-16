@@ -118,7 +118,6 @@ export default function Cita({ navigation }) {
           onPress: async () => {
             try {
               setLoading(true);
-
               const response = await Axios.post(
                 "http://192.168.0.232:8080/api-beautypalace/cita/",
                 {
@@ -144,7 +143,7 @@ export default function Cita({ navigation }) {
             } catch (error) {
               console.log("Error al guardar la cita", error.message);
             } finally {
-              setLoading(false); // Ocultar el spinner de carga
+              setLoading(false);
             }
           },
         },
@@ -153,13 +152,13 @@ export default function Cita({ navigation }) {
     );
   };
 
-    const clearFields=()=> {
-      setDay("");
-      setHour("");
-      setNameUser("");
-      setBranch("");
-      setTypeOfService("");
-    }
+  const clearFields = () => {
+    setDay("");
+    setHour("");
+    setNameUser("");
+    setBranch("");
+    setTypeOfService("");
+  }
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }}
@@ -167,7 +166,8 @@ export default function Cita({ navigation }) {
       <ImageBackground
         source={require("../../../../assets/cita.png")}
         style={{
-          height: Dimensions.get("window").height / 2.5        }}>
+          height: Dimensions.get("window").height / 2.5
+        }}>
         <View style={styles.brandView}>
           <Text style={styles.brandViewText}></Text>
         </View>
@@ -326,7 +326,7 @@ export default function Cita({ navigation }) {
                   }}
                   onPress={() => {
                     if (fieldsCompleted) {
-                      cita(); // Aquí llamas a la función cita() que realiza el registro
+                      cita(); 
                       clearFields();
                     } else {
                       Alert.alert("Error", "Todos los campos son obligatorios.");

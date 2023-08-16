@@ -11,7 +11,8 @@ import {
   Button,
   Modal,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import Iconn from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -32,12 +33,11 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
   const [password, setPassword] = useState(password);
   const [showWelcome, setShowWelcome] = useState(true);
   useEffect(() => {
-    // Ocultar la pantalla de bienvenida después de 3 segundos
     const timer = setTimeout(() => {
       setShowWelcome(false);
-    }, 2500); // 3000 milisegundos (3 segundos)
-
-    return () => clearTimeout(timer); // Limpiar el temporizador al desmontar el componente
+    }, 10000);
+    fetchUserData();
+    return () => clearTimeout(timer);
   }, []);
 
 
@@ -90,6 +90,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
 
   useEffect(() => {
     getDataFromStorage();
+    fetchUserData();
   }, []);
 
 
@@ -106,7 +107,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
           text: 'Aceptar',
           onPress: async () => {
             try {
-              setLoading(true); // Mostrar el spinner de carga
+              setLoading(true); 
 
               const userId = await AsyncStorage.getItem('userId');
 
@@ -118,18 +119,19 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
                 password: password,
               });
 
-              // Actualizar los estados name, lastName y email si es necesario
               setEditedName(editedName);
               setEditedLastName(editedLastName);
               setEditedEmail(editedEmail);
               setPassword(password);
               console.log("Cambio de datos exitoso");
-              setModalVisible(false); // Cerrar el modal
-
+              fetchUserData();
+              setModalVisible(false); 
+              setLoading(false); 
             } catch (error) {
               console.log("Error al cambiar los datos", error.message);
             } finally {
-              setLoading(false); // Ocultar el spinner de carga
+              setLoading(false); 
+
             }
           },
         },
@@ -151,10 +153,24 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
     }
   };
 
+  const fetchUserData = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('userId');
+      const response = await Axios.get(`http://192.168.0.232:8080/api-beautypalace/user/${userId}`);
+      const userData = response.data;
+
+      setEditedName(userData.name);
+      setEditedLastName(userData.lastName); 
+      setEditedEmail(userData.email); 
+      setPassword(userData.password); 
+    } catch (error) {
+      console.log('Error al obtener los datos del usuario:', error.message);
+    }
+  };
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#ffffff", width: "100%" }} showsVerticalScrollIndicator={false}>
       {showWelcome ? (
-        // Mostrar la pantalla de bienvenida solo si showWelcome es verdadero
         <Bienvenido navigation={navigation} />
       ) : (
         <View>
@@ -164,13 +180,15 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
             </View>
           </ImageBackground>
           <View style={styles.bottomView}>
-
             <View style={{ padding: 40 }}>
-              <View style={{ marginTop: 15 }}>
+              <View style={{ marginTop: 1 }}>
 
                 <View style={{ borderColor: "#4632A1" }}>
                   <View style={{ alignItems: 'center' }}>
-                    <Icon name="user" size={70} color="black" />
+                    <Image
+                      source={require('../../../../assets/iconoPerfil.png')} 
+                      style={{ width: 90, height: 90 }}
+                    />
                   </View>
                   <Text style={{
                     marginBottom: 5, textShadowColor: "black", textShadowRadius: 2, marginTop: 10, fontWeight: 'bold',
@@ -253,6 +271,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
               </View>
 
             </View>
+
           </View>
         </View>
       )}
@@ -265,7 +284,7 @@ const Profile = ({ name, lastName, email, id, handleLogout }) => {
               <View style={styles.spinnerContainer}>
                 <View style={styles.spinnerBox}>
                   <ActivityIndicator size="large" color="blue" />
-                  <Text style={styles.spinnerText}>Espere un momento...</Text>
+                  <Text style={styles.spinnerText}>Modificando datos...</Text>
                 </View>
               </View>
             ) : (
@@ -433,19 +452,22 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   spinnerContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Fondo semi-transparente
   },
   spinnerBox: {
-    width: 200,
-    height: 200,
-    backgroundColor: "white",
-    borderRadius: 10,
+    backgroundColor: 'white',
     padding: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 0,
-    shadowColor: "transparent",
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  spinnerText: {
+    color: "#000",
   },
 });

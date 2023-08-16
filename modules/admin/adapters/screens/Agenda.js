@@ -16,7 +16,7 @@ import {
 } from "react-native";
 import Axios from "axios";
 import Iconn from "react-native-vector-icons/MaterialIcons";
-import { Picker } from '@react-native-picker/picker'; // Importa el Picker desde el nuevo paquete
+import { Picker } from '@react-native-picker/picker'; 
 
 export default function Agenda() {
   const [citaData, setCitaData] = useState([]);
@@ -51,7 +51,6 @@ export default function Agenda() {
     "18:00 p. m.", "18:30 p. m.",
   ];
   const [fieldsCompleted, setFieldsCompleted] = useState(false);
-  //validar campos obligatorios
   const validateFields = () => {
     if (
       name.trim() === "" ||
@@ -98,7 +97,7 @@ export default function Agenda() {
           text: "Agendar",
           onPress: async () => {
             try {
-              setIsLoading(true); // Set isLoading to true before making the API call
+              setIsLoading(true); 
 
               const response = await Axios.post(
                 "http://192.168.0.232:8080/api-beautypalace/agenda/",
@@ -124,7 +123,7 @@ export default function Agenda() {
               setTimeEnd(timeEnd);
               setBranch(branch);
               clearFields();
-              setIsLoading(false); // Set isLoading back to false after completing the API call
+              setIsLoading(false); 
               setModalVisible(false);
               Alert.alert("Agendado correctamente")
             } catch (error) {

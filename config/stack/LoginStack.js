@@ -18,7 +18,7 @@ export default function LoginStack() {
 
       <Stack.Screen
         name='Registro'
-        options={{ title: 'Registro Stack' }}
+        options={{ title: 'Registro' }}
         component={Registro}
       />
 
@@ -30,7 +30,7 @@ export default function LoginStack() {
       <Stack.Screen
         name='Client'
         component={NavigationClient}
-        options={title = { title: 'Client' }}
+        options={title = { title: '.' }}
 
       />
     </Stack.Navigator>

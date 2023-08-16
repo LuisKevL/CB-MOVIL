@@ -65,7 +65,6 @@ const Login = (props) => {
                         id: client.id,
                     });
                 } else {
-                    console.error('Contraseña y/o correo invalidos');
                     Alert.alert("Contraseña y/o correo invalidos")
 
                 }
@@ -88,7 +87,7 @@ const Login = (props) => {
                     Alert.alert("Contraseña y/o correo invalidos")
                 }
             } else {
-                Alert.alert("Usuario no encontrado");
+                Alert.alert("Cliente no encontrado");
             }
             setIsLoading(false);
         } catch (error) {
@@ -183,7 +182,7 @@ const Login = (props) => {
                                         <View style={{
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            alignSelf: 'center', // Centra verticalmente
+                                            alignSelf: 'center', 
                                             backgroundColor: '#8B4513',
                                             borderRadius: 5,
                                             marginTop: 10,
@@ -413,9 +412,9 @@ const styles = StyleSheet.create({
     },
     containerr: {
         flex: 1,
-        justifyContent: 'center', // Centra verticalmente
-        alignItems: 'center', // Centra horizontalmente
-        backgroundColor: '#ffffff', // Define el color de fondo que desees
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        backgroundColor: '#ffffff', 
     },
     loadingContainer: {
         position: 'absolute',
@@ -425,7 +424,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.4)', // Fondo semi-transparente
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
     },
     loadingBox: {
         backgroundColor: 'white',

@@ -23,8 +23,8 @@ export default function PreguntasAdmin({ navigation }) {
     const [idd, setIdD] = useState('');
     const [pregunta, setPregunta] = useState('');
     const [respuesta, setRespuesta] = useState('');
-    const [editedPregunta, setEditedPregunta] = useState(pregunta); // Estado para almacenar la pregunta que se va a editar
-    const [editedRespuesta, setEditedRespuesta] = useState(respuesta); // Estado para almacenar la respuesta que se va a editar
+    const [editedPregunta, setEditedPregunta] = useState(pregunta); 
+    const [editedRespuesta, setEditedRespuesta] = useState(respuesta); 
     const [modalDatos, setModalDatos] = useState(false);
     const [modalDelete, setModalDelete] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -125,7 +125,7 @@ export default function PreguntasAdmin({ navigation }) {
 
     const agregarPregunta = async () => {
         try {
-            const id = generateId(); // Generar el ID automáticamente
+            const id = generateId(); 
             setIsLoading(true);
             const response = await Axios.post('http://192.168.0.232:8080/api-beautypalace/preguntas/', {
                 id: id,
@@ -153,8 +153,7 @@ export default function PreguntasAdmin({ navigation }) {
     }
 
 
-    const [selectedPregunta, setSelectedPregunta] = useState(null); // Estado para almacenar la pregunta seleccionada
-    // ... (código anterior)
+    const [selectedPregunta, setSelectedPregunta] = useState(null); 
 
     const actualizarPregunta = async () => {
         try {
@@ -175,8 +174,8 @@ export default function PreguntasAdmin({ navigation }) {
                                     `http://192.168.0.232:8080/api-beautypalace/preguntas/update/`,
                                     {
                                         id: selectedPregunta.id,
-                                        pregunta: pregunta, // Usamos el estado pregunta
-                                        respuesta: respuesta, // Usamos el estado respuesta
+                                        pregunta: pregunta, 
+                                        respuesta: respuesta, 
                                     }
                                 );
                                 console.log('Pregunta actualizada con éxito');
@@ -223,10 +222,10 @@ export default function PreguntasAdmin({ navigation }) {
                                         style={{
                                             backgroundColor: "#8B4513",
                                             borderRadius: 10,
-                                            paddingVertical: 7, // Ajustar este valor para aumentar la altura
+                                            paddingVertical: 7, 
                                             paddingHorizontal: 12,
                                             marginHorizontal: 5,
-                                            alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                                            alignItems: "center", 
                                         }}
                                         onPress={() => {
                                             setModalDatos(true);
@@ -243,10 +242,10 @@ export default function PreguntasAdmin({ navigation }) {
                                         style={{
                                             backgroundColor: "#8B4513",
                                             borderRadius: 10,
-                                            paddingVertical: 7, // Ajustar este valor para aumentar la altura
+                                            paddingVertical: 7, 
                                             paddingHorizontal: 12,
                                             marginHorizontal: 5,
-                                            alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                                            alignItems: "center", 
                                         }}
                                         onPress={() => {
                                             setModalDelete(true);
@@ -338,7 +337,7 @@ export default function PreguntasAdmin({ navigation }) {
                                 <>
                                     <TextInput
                                         style={styles.input}
-                                        value={pregunta}  // Mostrar el valor actual de la pregunta seleccionada
+                                        value={pregunta} 
                                         placeholder={selectedPregunta.pregunta}
                                         multiline
                                         scrollEnabled
@@ -349,7 +348,7 @@ export default function PreguntasAdmin({ navigation }) {
                                     />
                                     <TextInput
                                         style={styles.input}
-                                        value={respuesta}  // Mostrar el valor actual de la respuesta seleccionada
+                                        value={respuesta}  
                                         placeholder={selectedPregunta.respuesta}
                                         multiline
                                         scrollEnabled
@@ -500,10 +499,10 @@ export default function PreguntasAdmin({ navigation }) {
                 style={{
                     backgroundColor: "#8B4513",
                     borderRadius: 10,
-                    paddingVertical: 7, // Ajustar este valor para aumentar la altura
+                    paddingVertical: 7, 
                     paddingHorizontal: 12,
                     marginHorizontal: 5,
-                    alignItems: "center", // Añade esta propiedad para centrar el contenido horizontalmente
+                    alignItems: "center", 
                 }}
             >
                 <Text style={{
@@ -603,7 +602,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.1)', // Cambiar la opacidad a un valor más bajo
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
     },
     modalContent: {
         backgroundColor: '#fff',
